@@ -33,8 +33,8 @@
 
     <main>
       <section class="page-hero">
-        <p class="eyebrow">// HARDWARE MAP</p>
-        <h1>System Breakdown</h1>
+        <p class="eyebrow">// BADGE SPEC</p>
+        <h1>Hardware</h1>
         <p>
           Replace these scaffold labels with the final board revision, pinout,
           photos, and firmware constraints before launch.
@@ -43,25 +43,54 @@
 
       <section class="hardware-map">
         <div
-          class="board-diagram"
-          aria-label="Stylized front and back badge diagrams"
+          class="badge-visual"
+          aria-label="Stylized Temporal Badge hardware preview"
         >
-          <div class="diagram-card">
-            <h2>Front View</h2>
-            <div class="mini-board front">
-              <span class="mini-screen"></span>
-              <span class="mini-button a"></span>
-              <span class="mini-button b"></span>
-              <span class="mini-button c"></span>
+          <div class="badge-body">
+            <div class="screen">
+              <div class="badge-menu-top">
+                <span>HOME</span>
+                <span class="status-icons" aria-hidden="true"
+                  ><span class="status-dot"></span><span class="battery"></span
+                ></span>
+              </div>
+              <div class="badge-menu-grid">
+                <div class="menu-tile active">
+                  <span class="tile-icon grid-icon" aria-hidden="true"></span>
+                  <strong>BOOPER</strong>
+                </div>
+                <div class="menu-tile">
+                  <span
+                    class="tile-icon calendar-icon"
+                    aria-hidden="true"
+                  ></span>
+                  <strong>SCHEDULE</strong>
+                </div>
+                <div class="menu-tile">
+                  <span class="tile-icon map-icon" aria-hidden="true"></span>
+                  <strong>MAP</strong>
+                </div>
+                <div class="menu-tile">
+                  <span
+                    class="tile-icon workflow-icon"
+                    aria-hidden="true"
+                  ></span>
+                  <strong>WORKFLOW</strong>
+                </div>
+              </div>
+              <div class="badge-menu-pager" aria-hidden="true">+++</div>
+              <div class="badge-menu-footer">
+                <strong>boop to nearby badge holders</strong>
+              </div>
             </div>
-          </div>
-          <div class="diagram-card">
-            <h2>Back View</h2>
-            <div class="mini-board back">
-              <span class="chip"></span>
-              <span class="port"></span>
-              <span class="pin-row"></span>
-              <span class="battery"></span>
+            <div class="controls">
+              <span></span>
+              <span class="dpad" aria-label="Directional controls">
+                <i class="dpad-up"></i>
+                <i class="dpad-left"></i>
+                <i class="dpad-right"></i>
+                <i class="dpad-down"></i>
+              </span>
             </div>
           </div>
         </div>

@@ -1367,27 +1367,42 @@ h3 {
   }
 
   .badge-visual {
-    min-height: 350px;
+    width: min(100%, 390px);
+    min-height: clamp(300px, calc(95vw - 30px), 390px);
+    justify-self: center;
+    place-items: center;
+    overflow: visible;
   }
 
   .badge-body {
-    width: min(94vw, 390px);
+    width: min(520px, calc(133.333vw - 42.666px));
+    transform: scale(0.75);
+    transform-origin: center;
+    margin-left: min(-60px, calc(133.333vw - 42.666px));
   }
 
   .screen {
-    inset: 66px 28px auto;
-    height: 190px;
+    inset: 82px 44px auto;
+    height: 250px;
+  }
+
+  .menu-tile strong {
+    font-size: clamp(0.86rem, 3.8vw, 1.2rem);
+  }
+
+  .badge-menu-footer {
+    font-size: clamp(0.72rem, 3.4vw, 1rem);
   }
 
   .controls {
-    left: 38px;
-    right: 38px;
-    bottom: 42px;
+    left: 58px;
+    right: 58px;
+    bottom: 56px;
   }
 
   .controls span {
-    width: 44px;
-    height: 44px;
+    width: 58px;
+    height: 58px;
   }
 
   .stats-strip,
