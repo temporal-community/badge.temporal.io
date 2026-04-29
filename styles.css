@@ -197,7 +197,7 @@ li {
   grid-template-columns: minmax(0, 0.95fr) minmax(320px, 1.05fr);
   gap: clamp(28px, 5vw, 72px);
   min-height: calc(100vh - 72px);
-  padding: clamp(76px, 9vw, 132px) clamp(16px, 4vw, 56px) 36px;
+  padding: clamp(52px, 6vw, 84px) clamp(16px, 4vw, 56px) 22px;
   overflow: hidden;
 }
 
@@ -807,7 +807,7 @@ h3 {
 
 .app-icon.trace {
   background: linear-gradient(
-    90deg,
+    180deg,
     var(--yellow) 18%,
     transparent 18% 32%,
     var(--green) 32% 62%,
