@@ -16,6 +16,7 @@
   --green: #62d68a;
   --blue: #8aa8ff;
   --red: #ff6d55;
+  --indigo: #444ce7;
   --shadow: 0 0 0 1px rgba(196, 230, 68, 0.08), 0 28px 90px rgba(0, 0, 0, 0.46);
 }
 
@@ -172,23 +173,7 @@ li {
 }
 
 .header-link {
-  display: inline-flex;
-  align-items: center;
-  min-height: 38px;
-  padding: 0 14px;
-  border: 1px solid var(--yellow);
-  background: var(--yellow);
-  color: #050505;
-  font-family:
-    "Space Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.72rem;
-  font-weight: 900;
-  letter-spacing: 0.07em;
-}
-
-.header-link:hover {
-  color: #050505;
-  background: var(--yellow-soft);
+  color: var(--indigo);
 }
 
 .hero {
@@ -263,12 +248,12 @@ h1 {
   max-width: 920px;
   margin-bottom: 22px;
   color: var(--yellow);
-  font-size: clamp(4rem, 13vw, 10rem);
+  font-size: clamp(3.5rem, 13vw, 10rem);
 }
 
 .page-hero h1 {
   max-width: none;
-  font-size: clamp(4rem, 10.5vw, 11rem);
+  font-size: clamp(3.5rem, 10.5vw, 11rem);
 }
 
 h2 {
@@ -354,6 +339,7 @@ h3 {
 }
 
 .badge-body > * {
+  -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
 }
 
@@ -1363,22 +1349,25 @@ h3 {
   }
 
   h1 {
-    font-size: clamp(3.35rem, 21vw, 5.6rem);
+    font-size: clamp(3.35rem, 21vw, 4rem);
   }
 
   .badge-visual {
-    width: min(100%, 390px);
-    min-height: clamp(300px, calc(95vw - 30px), 390px);
+    width: 95vw;
+    height: 95.24vw;
+    min-height: 0;
     justify-self: center;
-    place-items: center;
+    place-items: start;
     overflow: visible;
   }
 
   .badge-body {
-    width: min(520px, calc(133.333vw - 42.666px));
-    transform: scale(0.75);
-    transform-origin: center;
-    margin-left: min(-60px, calc(133.333vw - 42.666px));
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 125.333vw;
+    transform: scale(0.7);
+    transform-origin: top left;
   }
 
   .screen {

@@ -1,125 +1,152 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Core setup procedures for the Temporal Badge.">
-  <title>Get Started | Temporal Badge</title>
-  <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <header class="site-header">
-    <a class="brand" href="index.html"><img class="brand-mark" src="https://images.ctfassets.net/0uuz8ydxyd9p/5kHQtcFCSqkLDH4I6HFmyG/8e75bd66b57696eb0a7866b3cbf8ea30/Temporal_Symbol_light_1_2x.png" alt="" aria-hidden="true"><span>Temporal Badge</span></a>
-    <nav class="site-nav" aria-label="Primary navigation">
-      <a aria-current="page" href="get-started.html">Get Started</a>
-      <a href="hardware.html">Hardware</a>
-      <a href="apps.html">Apps</a>
-      <a href="hacks.html">Hacks</a>
-      <a href="contribute.html">Contribute</a>
-    </nav>
-    <a class="header-link" href="https://temporal.io/">Temporal</a>
-  </header>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Core setup procedures for the Temporal Badge."
+    />
+    <title>Get Started | Temporal Badge</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="index.html"
+        ><img
+          class="brand-mark"
+          src="https://images.ctfassets.net/0uuz8ydxyd9p/5kHQtcFCSqkLDH4I6HFmyG/8e75bd66b57696eb0a7866b3cbf8ea30/Temporal_Symbol_light_1_2x.png"
+          alt=""
+          aria-hidden="true"
+        /><span>Temporal Badge</span></a
+      >
+      <nav class="site-nav" aria-label="Primary navigation">
+        <a aria-current="page" href="get-started.html">Get Started</a>
+        <a href="hardware.html">Hardware</a>
+        <a href="apps.html">Apps</a>
+        <a href="hacks.html">Hacks</a>
+        <a href="contribute.html">Contribute</a>
+        <a
+          class="header-link"
+          href="https://temporal.io/"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Temporal</a
+        >
+      </nav>
+    </header>
 
-  <main>
-    <section class="page-hero compact">
-      <p class="eyebrow">// BADGE OPS</p>
-      <h1>Get Started</h1>
-      <p>Core procedures for booting, mounting, configuring, and recovering the badge without digging through a firmware README.</p>
-    </section>
+    <main>
+      <section class="page-hero compact">
+        <p class="eyebrow">// BADGE OPS</p>
+        <h1>Get Started</h1>
+        <p>
+          Core procedures for booting, mounting, configuring, and recovering the
+          badge without digging through a firmware README.
+        </p>
+      </section>
 
-    <section class="procedure-list" aria-label="Badge procedures">
-      <article class="procedure">
-        <div>
-          <span class="procedure-number">01</span>
-          <h2>Power On</h2>
-          <p>Boot the badge and reach the launcher.</p>
-        </div>
-        <ol>
-          <li>Press the power or reset control once.</li>
-          <li>Wait for the Temporal splash screen to finish.</li>
-          <li>Select the launcher from the home screen.</li>
-        </ol>
-      </article>
+      <section class="procedure-list" aria-label="Badge procedures">
+        <article class="procedure">
+          <div>
+            <span class="procedure-number">01</span>
+            <h2>Power On</h2>
+            <p>Boot the badge and reach the launcher.</p>
+          </div>
+          <ol>
+            <li>Press the power or reset control once.</li>
+            <li>Wait for the Temporal splash screen to finish.</li>
+            <li>Select the launcher from the home screen.</li>
+          </ol>
+        </article>
 
-      <article class="procedure">
-        <div>
-          <span class="procedure-number">02</span>
-          <h2>Pair With Temporal</h2>
-          <p>Connect the badge to the web experience or event profile.</p>
-        </div>
-        <ol>
-          <li>Open the pairing app on the badge.</li>
-          <li>Visit temporal.io on your laptop or phone.</li>
-          <li>Enter the code shown on the badge display.</li>
-        </ol>
-      </article>
+        <article class="procedure">
+          <div>
+            <span class="procedure-number">02</span>
+            <h2>Pair With Temporal</h2>
+            <p>Connect the badge to the web experience or event profile.</p>
+          </div>
+          <ol>
+            <li>Open the pairing app on the badge.</li>
+            <li>Visit temporal.io on your laptop or phone.</li>
+            <li>Enter the code shown on the badge display.</li>
+          </ol>
+        </article>
 
-      <article class="procedure">
-        <div>
-          <span class="procedure-number">03</span>
-          <h2>USB Disk Mode</h2>
-          <p>Mount the badge for copying apps, images, firmware, or config files.</p>
-        </div>
-        <ol>
-          <li>Connect USB-C to your computer.</li>
-          <li>Use the badge bootloader gesture defined by the final hardware.</li>
-          <li>Copy files to the mounted volume, eject it, then reboot.</li>
-        </ol>
-      </article>
+        <article class="procedure">
+          <div>
+            <span class="procedure-number">03</span>
+            <h2>USB Disk Mode</h2>
+            <p>
+              Mount the badge for copying apps, images, firmware, or config
+              files.
+            </p>
+          </div>
+          <ol>
+            <li>Connect USB-C to your computer.</li>
+            <li>
+              Use the badge bootloader gesture defined by the final hardware.
+            </li>
+            <li>Copy files to the mounted volume, eject it, then reboot.</li>
+          </ol>
+        </article>
 
-      <article class="procedure">
-        <div>
-          <span class="procedure-number">04</span>
-          <h2>Load Demo Data</h2>
-          <p>Add a sample workflow history for local demos.</p>
-        </div>
-        <ol>
-          <li>Mount the badge volume.</li>
-          <li>Copy a JSON trace into the data folder.</li>
-          <li>Launch Workflow Trace and select the new run.</li>
-        </ol>
-      </article>
+        <article class="procedure">
+          <div>
+            <span class="procedure-number">04</span>
+            <h2>Load Demo Data</h2>
+            <p>Add a sample workflow history for local demos.</p>
+          </div>
+          <ol>
+            <li>Mount the badge volume.</li>
+            <li>Copy a JSON trace into the data folder.</li>
+            <li>Launch Workflow Trace and select the new run.</li>
+          </ol>
+        </article>
 
-      <article class="procedure">
-        <div>
-          <span class="procedure-number">05</span>
-          <h2>Flash Firmware</h2>
-          <p>Install the current firmware image when a new release is available.</p>
-        </div>
-        <ol>
-          <li>Download the release artifact from the badge repository.</li>
-          <li>Mount the bootloader volume.</li>
-          <li>Copy the firmware image and wait for the badge to reboot.</li>
-        </ol>
-      </article>
+        <article class="procedure">
+          <div>
+            <span class="procedure-number">05</span>
+            <h2>Flash Firmware</h2>
+            <p>
+              Install the current firmware image when a new release is
+              available.
+            </p>
+          </div>
+          <ol>
+            <li>Download the release artifact from the badge repository.</li>
+            <li>Mount the bootloader volume.</li>
+            <li>Copy the firmware image and wait for the badge to reboot.</li>
+          </ol>
+        </article>
 
-      <article class="procedure">
-        <div>
-          <span class="procedure-number">06</span>
-          <h2>Recover</h2>
-          <p>Return a broken configuration to a known-good state.</p>
-        </div>
-        <ol>
-          <li>Back up any user files that still mount.</li>
-          <li>Replace the config folder with the default release copy.</li>
-          <li>Reboot and verify the launcher opens.</li>
-        </ol>
-      </article>
-    </section>
-  </main>
+        <article class="procedure">
+          <div>
+            <span class="procedure-number">06</span>
+            <h2>Recover</h2>
+            <p>Return a broken configuration to a known-good state.</p>
+          </div>
+          <ol>
+            <li>Back up any user files that still mount.</li>
+            <li>Replace the config folder with the default release copy.</li>
+            <li>Reboot and verify the launcher opens.</li>
+          </ol>
+        </article>
+      </section>
+    </main>
 
-  <footer class="site-footer">
-    <div>
-      <h2>Temporal Badge</h2>
-      <p>Setup flows for the electronic badge used with temporal.io.</p>
-    </div>
-    <nav aria-label="Footer navigation">
-      <a href="index.html">Home</a>
-      <a href="hardware.html">Hardware</a>
-      <a href="apps.html">Apps</a>
-      <a href="hacks.html">Hacks</a>
-    </nav>
-  </footer>
-</body>
+    <footer class="site-footer">
+      <div>
+        <h2>Temporal Badge</h2>
+        <p>Setup flows for the electronic badge used with temporal.io.</p>
+      </div>
+      <nav aria-label="Footer navigation">
+        <a href="index.html">Home</a>
+        <a href="hardware.html">Hardware</a>
+        <a href="apps.html">Apps</a>
+        <a href="hacks.html">Hacks</a>
+      </nav>
+    </footer>
+  </body>
 </html>

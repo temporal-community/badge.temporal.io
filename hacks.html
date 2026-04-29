@@ -1,104 +1,147 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Temporal Badge hack and tutorial directory.">
-  <title>Hacks | Temporal Badge</title>
-  <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <header class="site-header">
-    <a class="brand" href="index.html"><img class="brand-mark" src="https://images.ctfassets.net/0uuz8ydxyd9p/5kHQtcFCSqkLDH4I6HFmyG/8e75bd66b57696eb0a7866b3cbf8ea30/Temporal_Symbol_light_1_2x.png" alt="" aria-hidden="true"><span>Temporal Badge</span></a>
-    <nav class="site-nav" aria-label="Primary navigation">
-      <a href="get-started.html">Get Started</a>
-      <a href="hardware.html">Hardware</a>
-      <a href="apps.html">Apps</a>
-      <a aria-current="page" href="hacks.html">Hacks</a>
-      <a href="contribute.html">Contribute</a>
-    </nav>
-    <a class="header-link" href="https://temporal.io/">Temporal</a>
-  </header>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Temporal Badge hack and tutorial directory."
+    />
+    <title>Hacks | Temporal Badge</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="index.html"
+        ><img
+          class="brand-mark"
+          src="https://images.ctfassets.net/0uuz8ydxyd9p/5kHQtcFCSqkLDH4I6HFmyG/8e75bd66b57696eb0a7866b3cbf8ea30/Temporal_Symbol_light_1_2x.png"
+          alt=""
+          aria-hidden="true"
+        /><span>Temporal Badge</span></a
+      >
+      <nav class="site-nav" aria-label="Primary navigation">
+        <a href="get-started.html">Get Started</a>
+        <a href="hardware.html">Hardware</a>
+        <a href="apps.html">Apps</a>
+        <a aria-current="page" href="hacks.html">Hacks</a>
+        <a href="contribute.html">Contribute</a>
+        <a
+          class="header-link"
+          href="https://temporal.io/"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Temporal</a
+        >
+      </nav>
+    </header>
 
-  <main>
-    <section class="page-hero">
-      <p class="eyebrow">// HACK DIRECTORY</p>
-      <h1>All Hacks</h1>
-      <p>Short, testable tutorials for firmware tweaks, app changes, assets, sensors, and event challenges.</p>
-    </section>
+    <main>
+      <section class="page-hero">
+        <p class="eyebrow">// HACK DIRECTORY</p>
+        <h1>All Hacks</h1>
+        <p>
+          Short, testable tutorials for firmware tweaks, app changes, assets,
+          sensors, and event challenges.
+        </p>
+      </section>
 
-    <section class="filter-row" aria-label="Difficulty shortcuts">
-      <a href="#beginner">Beginner</a>
-      <a href="#intermediate">Intermediate</a>
-      <a href="#advanced">Advanced</a>
-    </section>
+      <section class="filter-row" aria-label="Difficulty shortcuts">
+        <a href="#beginner">Beginner</a>
+        <a href="#intermediate">Intermediate</a>
+        <a href="#advanced">Advanced</a>
+      </section>
 
-    <section class="hack-directory" id="beginner">
-      <h2>Beginner</h2>
-      <article class="hack-card" id="identity">
-        <span>beginner</span><em>5 mins</em>
-        <h3>Set Your Temporal Handle</h3>
-        <p>Edit the badge config so the profile card shows your name, role, and Temporal link.</p>
-      </article>
-      <article class="hack-card" id="timeline">
-        <span>beginner</span><em>8 mins</em>
-        <h3>Load a Demo Timeline</h3>
-        <p>Copy a sample workflow history into the traces folder and render it in Workflow Trace.</p>
-      </article>
-      <article class="hack-card">
-        <span>beginner</span><em>10 mins</em>
-        <h3>Add a Gallery Image</h3>
-        <p>Prepare a badge-sized image and add it to the Gallery rotation with a thumbnail.</p>
-      </article>
-    </section>
+      <section class="hack-directory" id="beginner">
+        <h2>Beginner</h2>
+        <article class="hack-card" id="identity">
+          <span>beginner</span><em>5 mins</em>
+          <h3>Set Your Temporal Handle</h3>
+          <p>
+            Edit the badge config so the profile card shows your name, role, and
+            Temporal link.
+          </p>
+        </article>
+        <article class="hack-card" id="timeline">
+          <span>beginner</span><em>8 mins</em>
+          <h3>Load a Demo Timeline</h3>
+          <p>
+            Copy a sample workflow history into the traces folder and render it
+            in Workflow Trace.
+          </p>
+        </article>
+        <article class="hack-card">
+          <span>beginner</span><em>10 mins</em>
+          <h3>Add a Gallery Image</h3>
+          <p>
+            Prepare a badge-sized image and add it to the Gallery rotation with
+            a thumbnail.
+          </p>
+        </article>
+      </section>
 
-    <section class="hack-directory" id="intermediate">
-      <h2>Intermediate</h2>
-      <article class="hack-card" id="sensor">
-        <span>intermediate</span><em>20 mins</em>
-        <h3>Add a Sensor Activity</h3>
-        <p>Wire a simple sensor and show its reading as a simulated workflow activity result.</p>
-      </article>
-      <article class="hack-card">
-        <span>intermediate</span><em>15 mins</em>
-        <h3>Patch the Worker Pulse Theme</h3>
-        <p>Change colors, labels, and states for queue depth, heartbeat, and retry display.</p>
-      </article>
-      <article class="hack-card">
-        <span>intermediate</span><em>25 mins</em>
-        <h3>Install the Namespace Map</h3>
-        <p>Copy the optional app and add sample task queues to the local data folder.</p>
-      </article>
-    </section>
+      <section class="hack-directory" id="intermediate">
+        <h2>Intermediate</h2>
+        <article class="hack-card" id="sensor">
+          <span>intermediate</span><em>20 mins</em>
+          <h3>Add a Sensor Activity</h3>
+          <p>
+            Wire a simple sensor and show its reading as a simulated workflow
+            activity result.
+          </p>
+        </article>
+        <article class="hack-card">
+          <span>intermediate</span><em>15 mins</em>
+          <h3>Patch the Worker Pulse Theme</h3>
+          <p>
+            Change colors, labels, and states for queue depth, heartbeat, and
+            retry display.
+          </p>
+        </article>
+        <article class="hack-card">
+          <span>intermediate</span><em>25 mins</em>
+          <h3>Install the Namespace Map</h3>
+          <p>
+            Copy the optional app and add sample task queues to the local data
+            folder.
+          </p>
+        </article>
+      </section>
 
-    <section class="hack-directory" id="advanced">
-      <h2>Advanced</h2>
-      <article class="hack-card">
-        <span>advanced</span><em>45 mins</em>
-        <h3>Build a Temporal Challenge</h3>
-        <p>Create a multi-step event challenge that unlocks from QR codes, signals, or booth codes.</p>
-      </article>
-      <article class="hack-card">
-        <span>advanced</span><em>60 mins</em>
-        <h3>Write a Custom Transport</h3>
-        <p>Experiment with serial, beacon, or local file transport for sending badge state to Temporal.</p>
-      </article>
-    </section>
-  </main>
+      <section class="hack-directory" id="advanced">
+        <h2>Advanced</h2>
+        <article class="hack-card">
+          <span>advanced</span><em>45 mins</em>
+          <h3>Build a Temporal Challenge</h3>
+          <p>
+            Create a multi-step event challenge that unlocks from QR codes,
+            signals, or booth codes.
+          </p>
+        </article>
+        <article class="hack-card">
+          <span>advanced</span><em>60 mins</em>
+          <h3>Write a Custom Transport</h3>
+          <p>
+            Experiment with serial, beacon, or local file transport for sending
+            badge state to Temporal.
+          </p>
+        </article>
+      </section>
+    </main>
 
-  <footer class="site-footer">
-    <div>
-      <h2>Temporal Badge</h2>
-      <p>Tutorial ideas and hack entries for badge builders.</p>
-    </div>
-    <nav aria-label="Footer navigation">
-      <a href="index.html">Home</a>
-      <a href="get-started.html">Get Started</a>
-      <a href="hardware.html">Hardware</a>
-      <a href="apps.html">Apps</a>
-      <a href="contribute.html">Contribute</a>
-    </nav>
-  </footer>
-</body>
+    <footer class="site-footer">
+      <div>
+        <h2>Temporal Badge</h2>
+        <p>Tutorial ideas and hack entries for badge builders.</p>
+      </div>
+      <nav aria-label="Footer navigation">
+        <a href="index.html">Home</a>
+        <a href="get-started.html">Get Started</a>
+        <a href="hardware.html">Hardware</a>
+        <a href="apps.html">Apps</a>
+        <a href="contribute.html">Contribute</a>
+      </nav>
+    </footer>
+  </body>
 </html>
