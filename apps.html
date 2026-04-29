@@ -1,79 +1,155 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Temporal Badge app catalog.">
-  <title>Apps | Temporal Badge</title>
-  <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <header class="site-header">
-    <a class="brand" href="index.html"><img class="brand-mark" src="https://images.ctfassets.net/0uuz8ydxyd9p/5kHQtcFCSqkLDH4I6HFmyG/8e75bd66b57696eb0a7866b3cbf8ea30/Temporal_Symbol_light_1_2x.png" alt="" aria-hidden="true"><span>Temporal Badge</span></a>
-    <nav class="site-nav" aria-label="Primary navigation">
-      <a href="get-started.html">Get Started</a>
-      <a href="hardware.html">Hardware</a>
-      <a aria-current="page" href="apps.html">Apps</a>
-      <a href="hacks.html">Hacks</a>
-      <a href="contribute.html">Contribute</a>
-    </nav>
-    <a class="header-link" href="https://temporal.io/">Temporal</a>
-  </header>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Temporal Badge app catalog." />
+    <title>Apps | Temporal Badge</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="index.html"
+        ><img
+          class="brand-mark"
+          src="https://images.ctfassets.net/0uuz8ydxyd9p/5kHQtcFCSqkLDH4I6HFmyG/8e75bd66b57696eb0a7866b3cbf8ea30/Temporal_Symbol_light_1_2x.png"
+          alt=""
+          aria-hidden="true"
+        /><span>Temporal Badge</span></a
+      >
+      <nav class="site-nav" aria-label="Primary navigation">
+        <a href="get-started.html">Get Started</a>
+        <a href="hardware.html">Hardware</a>
+        <a aria-current="page" href="apps.html">Apps</a>
+        <a href="hacks.html">Hacks</a>
+        <a href="contribute.html">Contribute</a>
+      </nav>
+      <a class="header-link" href="https://temporal.io/">Temporal</a>
+    </header>
 
-  <main>
-    <section class="page-hero">
-      <p class="eyebrow">// READY TO USE</p>
-      <h1>Badge Apps</h1>
-      <p>Catalog the apps that ship on the badge, plus loadable experiments that attendees can install from the repository.</p>
-    </section>
+    <main>
+      <section class="page-hero">
+        <p class="eyebrow">// READY TO USE</p>
+        <h1>Badge Apps</h1>
+        <p>
+          Catalog the apps that ship on the badge, plus loadable experiments
+          that attendees can install from the repository.
+        </p>
+      </section>
 
-    <section class="feature-row" aria-label="App catalog principles">
-      <article>
-        <h2>Built In</h2>
-        <p>Apps that boot on a fresh badge.</p>
-      </article>
-      <article>
-        <h2>Configurable</h2>
-        <p>Settings, images, and sample traces should live in visible folders.</p>
-      </article>
-      <article>
-        <h2>Hackable</h2>
-        <p>Every app card should point to code, assets, and a small extension idea.</p>
-      </article>
-    </section>
+      <section class="feature-row" aria-label="App catalog principles">
+        <article>
+          <h2>Built In</h2>
+          <p>Apps that boot on a fresh badge.</p>
+        </article>
+        <article>
+          <h2>Configurable</h2>
+          <p>
+            Settings, images, and sample traces should live in visible folders.
+          </p>
+        </article>
+        <article>
+          <h2>Hackable</h2>
+          <p>
+            Every app card should point to code, assets, and a small extension
+            idea.
+          </p>
+        </article>
+      </section>
 
-    <section class="section">
-      <div class="section-heading">
-        <h2>Built-In Apps</h2>
-      </div>
-      <div class="card-grid four">
-        <article class="app-card"><div class="app-icon trace"></div><h3>Workflow Trace</h3><p>Inspect event history, current state, retries, timers, and payload markers.</p></article>
-        <article class="app-card"><div class="app-icon profile"></div><h3>Temporal Card</h3><p>Show name, affiliation, QR code, event role, and paired Temporal profile.</p></article>
-        <article class="app-card"><div class="app-icon temporal"></div><h3>Workflow Runner</h3><p>Play through a deterministic demo and compare branches on the badge.</p></article>
-        <article class="app-card"><div class="app-icon pulse"></div><h3>Worker Pulse</h3><p>Display a local heartbeat animation for tasks, queues, and worker status.</p></article>
-        <article class="app-card"><div class="app-icon gallery"></div><h3>Gallery</h3><p>Cycle event art, sponsor slides, badge photos, or generated workflow posters.</p></article>
-        <article class="app-card"><div class="app-icon signal"></div><h3>Signal Quest</h3><p>Find challenge codes around the event and unlock completion states.</p></article>
-      </div>
-    </section>
+      <section class="section">
+        <div class="section-heading">
+          <h2>Apps</h2>
+        </div>
+        <div class="card-grid three">
+          <article class="app-card">
+            <div class="app-icon trace"></div>
+            <h3>Workflow Trace</h3>
+            <p>
+              Inspect event history, current state, retries, timers, and payload
+              markers.
+            </p>
+          </article>
+          <article class="app-card">
+            <div class="app-icon profile"></div>
+            <h3>Temporal Card</h3>
+            <p>
+              Show name, affiliation, QR code, event role, and paired Temporal
+              profile.
+            </p>
+          </article>
+          <article class="app-card">
+            <div class="app-icon temporal"></div>
+            <h3>Workflow Runner</h3>
+            <p>
+              Play through a deterministic demo and compare branches on the
+              badge.
+            </p>
+          </article>
+          <article class="app-card">
+            <div class="app-icon pulse"></div>
+            <h3>Worker Pulse</h3>
+            <p>
+              Display a local heartbeat animation for tasks, queues, and worker
+              status.
+            </p>
+          </article>
+          <article class="app-card">
+            <div class="app-icon gallery"></div>
+            <h3>Gallery</h3>
+            <p>
+              Cycle event art, sponsor slides, badge photos, or generated
+              workflow posters.
+            </p>
+          </article>
+          <article class="app-card">
+            <div class="app-icon signal"></div>
+            <h3>Signal Quest</h3>
+            <p>
+              Find challenge codes around the event and unlock completion
+              states.
+            </p>
+          </article>
+        </div>
+      </section>
 
-    <section class="section">
-      <div class="section-heading">
-        <h2>Loadable Apps</h2>
-        <p>These are scaffold ideas for optional apps that can be copied onto the badge.</p>
-      </div>
-      <div class="card-grid two">
-        <article class="app-card wide"><div class="app-icon timer"></div><h3>Activity Timer</h3><p>Practice activity timeout behavior with a visual countdown and retry counter.</p><span class="tag">manual load</span></article>
-        <article class="app-card wide"><div class="app-icon map"></div><h3>Namespace Map</h3><p>Browse sample namespaces, task queues, and worker groups as a compact diagram.</p><span class="tag">manual load</span></article>
-      </div>
-    </section>
+      <section class="section">
+        <div class="section-heading">
+          <h2>Loadable Apps</h2>
+          <p>
+            These are scaffold ideas for optional apps that can be copied onto
+            the badge.
+          </p>
+        </div>
+        <div class="card-grid two">
+          <article class="app-card wide">
+            <div class="app-icon timer"></div>
+            <h3>Activity Timer</h3>
+            <p>
+              Practice activity timeout behavior with a visual countdown and
+              retry counter.
+            </p>
+            <span class="tag">manual load</span>
+          </article>
+          <article class="app-card wide">
+            <div class="app-icon map"></div>
+            <h3>Namespace Map</h3>
+            <p>
+              Browse sample namespaces, task queues, and worker groups as a
+              compact diagram.
+            </p>
+            <span class="tag">manual load</span>
+          </article>
+        </div>
+      </section>
 
-    <section class="section">
-      <div class="section-heading">
-        <p class="eyebrow">// FILES</p>
-        <h2>Badge Filesystem Structure</h2>
-      </div>
-      <pre class="code-block"><code>/TEMPORAL-BADGE/
+      <section class="section">
+        <div class="section-heading">
+          <p class="eyebrow">// FILES</p>
+          <h2>Badge Filesystem Structure</h2>
+        </div>
+        <pre class="code-block"><code>/TEMPORAL-BADGE/
 |-- apps/
 |   |-- workflow-trace/
 |   |-- temporal-card/
@@ -91,20 +167,20 @@
 |-- config/
 |   `-- badge.toml
 `-- firmware-info.txt</code></pre>
-    </section>
-  </main>
+      </section>
+    </main>
 
-  <footer class="site-footer">
-    <div>
-      <h2>Temporal Badge</h2>
-      <p>App catalog and filesystem notes for the Temporal Badge.</p>
-    </div>
-    <nav aria-label="Footer navigation">
-      <a href="index.html">Home</a>
-      <a href="get-started.html">Get Started</a>
-      <a href="hardware.html">Hardware</a>
-      <a href="hacks.html">Hacks</a>
-    </nav>
-  </footer>
-</body>
+    <footer class="site-footer">
+      <div>
+        <h2>Temporal Badge</h2>
+        <p>App catalog and filesystem notes for the Temporal Badge.</p>
+      </div>
+      <nav aria-label="Footer navigation">
+        <a href="index.html">Home</a>
+        <a href="get-started.html">Get Started</a>
+        <a href="hardware.html">Hardware</a>
+        <a href="hacks.html">Hacks</a>
+      </nav>
+    </footer>
+  </body>
 </html>

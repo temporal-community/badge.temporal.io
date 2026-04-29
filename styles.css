@@ -353,6 +353,10 @@ h3 {
   box-shadow: var(--shadow);
 }
 
+.badge-body > * {
+  backface-visibility: hidden;
+}
+
 .badge-body::before {
   position: absolute;
   top: -28px;
@@ -702,7 +706,6 @@ h3 {
 }
 
 .page-hero::after {
-  content: "SYSTEM_STATUS: OPERATIONAL";
   position: absolute;
   right: clamp(16px, 4vw, 56px);
   bottom: 22px;
@@ -1133,6 +1136,12 @@ h3 {
 
 .feature-row article {
   padding: 22px;
+}
+
+.feature-row h2 {
+  font-size: clamp(1.8rem, 3.2vw, 3.25rem);
+  line-height: 1;
+  white-space: normal;
 }
 
 .code-block {
