@@ -5,126 +5,165 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Temporal Badge hack and tutorial directory."
+      content="Advanced topics, IR communication, and gotchas for Temporal Badge apps."
     />
-    <title>Hacks | Temporal Badge</title>
+    <title>Gotchas | Temporal Badge</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <header class="site-header">
-      <a class="brand" href="index.html"
-        ><img
+      <a class="brand" href="index.html">
+        <img
           class="brand-mark"
           src="https://images.ctfassets.net/0uuz8ydxyd9p/5kHQtcFCSqkLDH4I6HFmyG/8e75bd66b57696eb0a7866b3cbf8ea30/Temporal_Symbol_light_1_2x.png"
           alt=""
           aria-hidden="true"
-        /><span>Temporal Badge</span></a
-      >
+        /><span>Temporal Badge</span>
+      </a>
       <nav class="site-nav" aria-label="Primary navigation">
+        <a href="developer-guide.html">Guide</a>
         <a href="get-started.html">Get Started</a>
         <a href="hardware.html">Hardware</a>
+        <a href="api-reference.html">API</a>
         <a href="apps.html">Apps</a>
-        <a aria-current="page" href="hacks.html">Hacks</a>
-        <a href="contribute.html">Contribute</a>
+        <a aria-current="page" href="hacks.html">Gotchas</a>
         <a
           class="header-link"
-          href="https://temporal.io/"
+          href="https://docs.jumperless.org/badge-developer-guide/#9-tips-and-gotchas"
           target="_blank"
           rel="noopener noreferrer"
-          >Temporal</a
+          >Source</a
         >
       </nav>
     </header>
 
     <main>
       <section class="page-hero">
-        <p class="eyebrow">// HACK DIRECTORY</p>
-        <h1>All Hacks</h1>
+        <p class="eyebrow">// ADVANCED TOPICS</p>
+        <h1>Gotchas</h1>
         <p>
-          Short, testable tutorials for firmware tweaks, app changes, assets,
-          sensors, and event challenges.
+          Notes for long-running apps, badge-to-badge IR exchanges, mouse
+          overlay interfaces, orientation handling, and cleanup before exit.
         </p>
       </section>
 
-      <section class="filter-row" aria-label="Difficulty shortcuts">
-        <a href="#beginner">Beginner</a>
-        <a href="#intermediate">Intermediate</a>
+      <section class="filter-row" aria-label="Topic shortcuts">
         <a href="#advanced">Advanced</a>
-      </section>
-
-      <section class="hack-directory" id="beginner">
-        <h2>Beginner</h2>
-        <article class="hack-card" id="identity">
-          <span>beginner</span><em>5 mins</em>
-          <h3>Set Your Temporal Handle</h3>
-          <p>
-            Edit the badge config so the profile card shows your name, role, and
-            Temporal link.
-          </p>
-        </article>
-        <article class="hack-card" id="timeline">
-          <span>beginner</span><em>8 mins</em>
-          <h3>Load a Demo Timeline</h3>
-          <p>
-            Copy a sample workflow history into the traces folder and render it
-            in Workflow Trace.
-          </p>
-        </article>
-        <article class="hack-card">
-          <span>beginner</span><em>10 mins</em>
-          <h3>Add a Gallery Image</h3>
-          <p>
-            Prepare a badge-sized image and add it to the Gallery rotation with
-            a thumbnail.
-          </p>
-        </article>
-      </section>
-
-      <section class="hack-directory" id="intermediate">
-        <h2>Intermediate</h2>
-        <article class="hack-card" id="sensor">
-          <span>intermediate</span><em>20 mins</em>
-          <h3>Add a Sensor Activity</h3>
-          <p>
-            Wire a simple sensor and show its reading as a simulated workflow
-            activity result.
-          </p>
-        </article>
-        <article class="hack-card">
-          <span>intermediate</span><em>15 mins</em>
-          <h3>Patch the Worker Pulse Theme</h3>
-          <p>
-            Change colors, labels, and states for queue depth, heartbeat, and
-            retry display.
-          </p>
-        </article>
-        <article class="hack-card">
-          <span>intermediate</span><em>25 mins</em>
-          <h3>Install the Namespace Map</h3>
-          <p>
-            Copy the optional app and add sample task queues to the local data
-            folder.
-          </p>
-        </article>
+        <a href="#ir">IR Comms</a>
+        <a href="#gotchas">Gotchas</a>
       </section>
 
       <section class="hack-directory" id="advanced">
         <h2>Advanced</h2>
         <article class="hack-card">
-          <span>advanced</span><em>45 mins</em>
-          <h3>Build a Temporal Challenge</h3>
+          <span>mouse</span><em>overlay</em>
+          <h3>Point-and-Click UI</h3>
           <p>
-            Create a multi-step event challenge that unlocks from QR codes,
-            signals, or booth codes.
+            <code>mouse_overlay(True)</code> enables a hardware-composited
+            cursor. Joystick movement drives the cursor and button presses
+            become click events.
           </p>
         </article>
         <article class="hack-card">
-          <span>advanced</span><em>60 mins</em>
-          <h3>Write a Custom Transport</h3>
+          <span>imu</span><em>nametag</em>
+          <h3>Flip Detection</h3>
           <p>
-            Experiment with serial, beacon, or local file transport for sending
-            badge state to Temporal.
+            Use <code>imu_face_down()</code> or continuous
+            <code>imu_tilt_y()</code> values to react when the badge hangs
+            upside down.
+          </p>
+        </article>
+        <article class="hack-card">
+          <span>ui</span><em>chrome</em>
+          <h3>Native UI Helpers</h3>
+          <p>
+            <code>ui_header()</code>, <code>ui_action_bar()</code>, and
+            <code>badge_ui</code> helpers keep app screens visually consistent
+            with firmware menus.
+          </p>
+        </article>
+      </section>
+
+      <section class="hack-directory" id="ir">
+        <h2>Badge-to-Badge IR</h2>
+        <article class="hack-card">
+          <span>start</span><em>required</em>
+          <h3>Own the IR Hardware</h3>
+          <p>
+            Call <code>ir_start()</code> before sending or reading. Python gets
+            exclusive access while IR mode is active.
+          </p>
+        </article>
+        <article class="hack-card">
+          <span>frames</span><em>payload</em>
+          <h3>Use the Right Frame</h3>
+          <p>
+            Use <code>ir_send(addr, cmd)</code> for compact frames and
+            <code>ir_send_words(words)</code> for multi-word payloads up to 64
+            32-bit words.
+          </p>
+        </article>
+        <article class="hack-card">
+          <span>poll</span><em>50 ms</em>
+          <h3>Read Quickly</h3>
+          <p>
+            Poll <code>ir_read()</code> or <code>ir_read_words()</code> within
+            about 50 ms per frame or receiver buffers can drop data.
+          </p>
+        </article>
+      </section>
+
+      <section class="hack-directory" id="gotchas">
+        <h2>Tips and Gotchas</h2>
+        <article class="hack-card">
+          <span>memory</span><em>128 KB</em>
+          <h3>Manage Heap</h3>
+          <p>
+            Avoid large temporary objects, reuse buffers, call
+            <code>gc.collect()</code>, and split large source files into
+            modules.
+          </p>
+        </article>
+        <article class="hack-card">
+          <span>display</span><em>show</em>
+          <h3>Refresh Explicitly</h3>
+          <p>
+            Drawing calls update the framebuffer. Call <code>oled_show()</code>
+            before expecting pixels to appear.
+          </p>
+        </article>
+        <article class="hack-card">
+          <span>leds</span><em>override</em>
+          <h3>Protect Matrix Drawing</h3>
+          <p>
+            Wrap direct matrix drawing in <code>led_override_begin()</code> and
+            <code>led_override_end()</code> so ambient firmware modes do not
+            overwrite the frame.
+          </p>
+        </article>
+        <article class="hack-card">
+          <span>input</span><em>once</em>
+          <h3>Do Not Double-Consume</h3>
+          <p>
+            <code>button_pressed()</code> consumes the event. Read it once per
+            loop and store the value.
+          </p>
+        </article>
+        <article class="hack-card">
+          <span>exit</span><em>safety</em>
+          <h3>Escape Chord</h3>
+          <p>
+            Holding all four face buttons for about one second force-exits a
+            stuck app.
+          </p>
+        </article>
+        <article class="hack-card">
+          <span>cleanup</span><em>exit</em>
+          <h3>Be a Good Citizen</h3>
+          <p>
+            Before exiting, clear LEDs, stop haptics and tones, stop IR, and
+            disable mouse overlay.
           </p>
         </article>
       </section>
@@ -133,14 +172,13 @@
     <footer class="site-footer">
       <div>
         <h2>Temporal Badge</h2>
-        <p>Tutorial ideas and hack entries for badge builders.</p>
+        <p>Advanced badge notes from the Jumperless Developer Guide.</p>
       </div>
       <nav aria-label="Footer navigation">
         <a href="index.html">Home</a>
-        <a href="get-started.html">Get Started</a>
+        <a href="developer-guide.html">Guide</a>
         <a href="hardware.html">Hardware</a>
-        <a href="apps.html">Apps</a>
-        <a href="contribute.html">Contribute</a>
+        <a href="api-reference.html">API</a>
       </nav>
     </footer>
   </body>

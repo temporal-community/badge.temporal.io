@@ -1,6 +1,7 @@
 # Temporal Badge Website
 
-Static GitHub Pages website for the Temporal electronic badge.
+Static GitHub Pages website for the Temporal electronic badge MicroPython
+developer guide.
 
 This project is intentionally simple: HTML and CSS only. There is no build step, package manager, framework, JavaScript, or generated asset pipeline.
 
@@ -8,14 +9,16 @@ This project is intentionally simple: HTML and CSS only. There is no build step,
 
 ```text
 .
-|-- index.html          # Home page and illustrated badge hero
-|-- get-started.html    # Badge setup procedures
-|-- hardware.html       # Hardware map and specs scaffold
-|-- apps.html           # App catalog
-|-- hacks.html          # Hack/tutorial directory
-|-- contribute.html     # Contribution guide
-|-- styles.css          # Shared styling for all pages
-|-- favicon.svg         # Badge-inspired favicon
+|-- index.html             # Home page and illustrated badge hero
+|-- developer-guide.html   # Local guide mapped from the Jumperless docs
+|-- get-started.html       # JumperIDE and first-app setup
+|-- hardware.html          # Hardware map and specs
+|-- api-reference.html     # Badge MicroPython API summary
+|-- apps.html              # App structure and filesystem notes
+|-- hacks.html             # Advanced topics, IR, and gotchas
+|-- contribute.html        # Source links
+|-- styles.css             # Shared styling for all pages
+|-- favicon.svg            # Badge-inspired favicon
 `-- README.md
 ```
 
@@ -29,7 +32,8 @@ Keep the project static.
 - Do not add framework-specific files.
 - Keep shared visual changes in `styles.css`.
 - Keep navigation links consistent across all HTML pages.
-- Keep external Temporal links pointed at `https://temporal.io/`.
+- Keep external Temporal links pointed at `https://temporal.io/` if any are
+  reintroduced.
 - Preserve the Space Mono typography and dark Temporal badge aesthetic.
 - Use ASCII-only text unless there is a clear reason not to.
 

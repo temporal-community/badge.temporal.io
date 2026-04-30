@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Temporal Badge docs, apps, hardware notes, and community hacks for temporal.io."
+      content="Temporal Badge MicroPython developer guide and API reference."
     />
     <title>Temporal Badge</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
@@ -23,17 +23,18 @@
         <span>Temporal Badge</span>
       </a>
       <nav class="site-nav" aria-label="Primary navigation">
+        <a href="developer-guide.html">Guide</a>
         <a href="get-started.html">Get Started</a>
         <a href="hardware.html">Hardware</a>
+        <a href="api-reference.html">API</a>
         <a href="apps.html">Apps</a>
-        <a href="hacks.html">Hacks</a>
-        <a href="contribute.html">Contribute</a>
+        <a href="hacks.html">Gotchas</a>
         <a
           class="header-link"
-          href="https://temporal.io/"
+          href="https://docs.jumperless.org/badge-developer-guide/"
           target="_blank"
           rel="noopener noreferrer"
-          >Temporal</a
+          >Source</a
         >
       </nav>
     </header>
@@ -41,18 +42,16 @@
     <main>
       <section class="hero">
         <div class="hero-copy">
-          <p class="eyebrow">// TEMPORAL DEVREL</p>
-          <h1>Hack. Retry. Execute.</h1>
+          <p class="eyebrow">// MICROPYTHON DEV GUIDE</p>
+          <h1>Build Badge Apps</h1>
           <p class="lede">
-            A field guide for the electronic badge built around temporal.io:
-            setup notes, hardware references, demo apps, and experiments for
-            builders.
+            Write Python apps for the ESP32-S3 Temporal Badge. Control the
+            OLED, LED matrix, buttons, joystick, IMU, haptics, IR, and native
+            UI directly from MicroPython.
           </p>
           <div class="hero-actions">
-            <a class="button primary" href="get-started.html"
-              >Start the badge</a
-            >
-            <a class="button" href="apps.html">Browse apps</a>
+            <a class="button primary" href="developer-guide.html">Open guide</a>
+            <a class="button" href="api-reference.html">API reference</a>
           </div>
         </div>
 
@@ -99,6 +98,16 @@
             </div>
             <div class="controls">
               <span></span>
+              <div class="led-matrix" aria-label="8 by 8 LED matrix showing a heart">
+                <i></i><i class="on"></i><i class="on"></i><i></i><i></i><i class="on"></i><i class="on"></i><i></i>
+                <i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i>
+                <i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i>
+                <i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i>
+                <i></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i>
+                <i></i><i></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i>
+                <i></i><i></i><i></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i>
+                <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+              </div>
               <span class="dpad" aria-label="Directional controls">
                 <i class="dpad-up"></i>
                 <i class="dpad-left"></i>
@@ -109,79 +118,78 @@
           </div>
         </div>
 
-        <div class="stats-strip" aria-label="Site summary">
-          <div><strong>6</strong><span>core flows</span></div>
-          <div><strong>8</strong><span>app ideas</span></div>
-          <div><strong>12</strong><span>hack seeds</span></div>
-          <div><strong>0</strong><span>build tools</span></div>
+        <div class="stats-strip" aria-label="Badge summary">
+          <div><strong>S3</strong><span>ESP32 module</span></div>
+          <div><strong>64</strong><span>OLED rows</span></div>
+          <div><strong>8x8</strong><span>LED matrix</span></div>
+          <div><strong>128K</strong><span>Python heap</span></div>
         </div>
       </section>
 
       <section class="section">
         <div class="section-heading">
-          <p class="eyebrow">// READY TO BOOT</p>
-          <h2>Preloaded Experiences</h2>
+          <p class="eyebrow">// GUIDE SECTIONS</p>
+          <h2>Developer Guide</h2>
           <p>
-            Use these as placeholders for the first badge firmware build and
-            update each card as the apps settle.
+            The source guide has been mapped into focused pages for setup,
+            hardware, app structure, advanced topics, and API lookup.
           </p>
         </div>
         <div class="card-grid three">
           <article class="app-card">
             <div class="app-icon trace"></div>
-            <h3>Workflow Trace</h3>
+            <h3>JumperIDE</h3>
             <p>
-              Step through a captured execution and watch events move across the
-              badge display.
+              Connect over WebSerial, run scripts through the REPL, save files,
+              and inspect exceptions.
             </p>
           </article>
           <article class="app-card">
             <div class="app-icon temporal"></div>
-            <h3>Workflow Runner</h3>
+            <h3>Hardware APIs</h3>
             <p>
-              Trigger a local demo workflow and compare expected state with the
-              current run.
+              Work with OLED, LED matrix, buttons, joystick, IMU, haptics, IR,
+              mouse overlay, and identity calls.
             </p>
           </article>
           <article class="app-card">
             <div class="app-icon signal"></div>
-            <h3>Signal Quest</h3>
+            <h3>Badge Comms</h3>
             <p>
-              Collect booth signals, session codes, or challenge beacons during
-              the event.
+              Exchange compact or multi-word frames over line-of-sight IR
+              between two badges.
             </p>
           </article>
         </div>
         <div class="section-link">
-          <a href="apps.html">View all app cards</a>
+          <a href="developer-guide.html">Read the full mapped guide</a>
         </div>
       </section>
 
       <section class="section split-band">
         <div>
-          <p class="eyebrow">// BENCH NOTES</p>
-          <h2>Customize Your Badge</h2>
+          <p class="eyebrow">// QUICK START</p>
+          <h2>First App Path</h2>
           <p>
-            Short tutorials should be practical enough to run from a laptop at a
-            table: copy files, change config, flash firmware, add assets, or
-            wire a sensor.
+            Start with a single file in <code>/apps</code>. Move to a folder
+            app when you need modules, assets, or save files.
           </p>
         </div>
         <div class="hack-list">
-          <a href="hacks.html#identity">
-            <span>beginner</span>
-            <strong>Set Your Temporal Handle</strong>
-            <em>5 mins</em>
+          <a href="get-started.html">
+            <span>01</span>
+            <strong>Connect JumperIDE</strong>
+            <em>webserial</em>
           </a>
-          <a href="hacks.html#timeline">
-            <span>beginner</span>
-            <strong>Load a Demo Timeline</strong>
-            <em>8 mins</em>
+          <a href="apps.html">
+            <span>02</span>
+            <strong>Create <code>/apps/hello.py</code></strong>
+            <em>single file</em>
           </a>
-          <a href="hacks.html#sensor">
-            <span>intermediate</span>
-            <strong>Add a Sensor Activity</strong>
-            <em>20 mins</em>
+          <a href="hardware.html">
+            <span>03</span>
+            <strong>Control the badge hardware</strong>
+            <em>api calls</em>
           </a>
         </div>
       </section>
@@ -191,16 +199,14 @@
       <div>
         <h2>Temporal Badge</h2>
         <p>
-          A static documentation scaffold for the electronic badge used with
-          temporal.io.
+          Static MicroPython developer guide for the Temporal conference badge.
         </p>
       </div>
       <nav aria-label="Footer navigation">
+        <a href="developer-guide.html">Guide</a>
         <a href="get-started.html">Get Started</a>
         <a href="hardware.html">Hardware</a>
-        <a href="apps.html">Apps</a>
-        <a href="hacks.html">Hacks</a>
-        <a href="contribute.html">Contribute</a>
+        <a href="api-reference.html">API</a>
       </nav>
     </footer>
   </body>

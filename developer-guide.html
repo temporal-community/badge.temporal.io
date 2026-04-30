@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Mapped Temporal Badge MicroPython Developer Guide."
+    />
+    <title>Developer Guide | Temporal Badge</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="index.html">
+        <img
+          class="brand-mark"
+          src="https://images.ctfassets.net/0uuz8ydxyd9p/5kHQtcFCSqkLDH4I6HFmyG/8e75bd66b57696eb0a7866b3cbf8ea30/Temporal_Symbol_light_1_2x.png"
+          alt=""
+          aria-hidden="true"
+        /><span>Temporal Badge</span>
+      </a>
+      <nav class="site-nav" aria-label="Primary navigation">
+        <a aria-current="page" href="developer-guide.html">Guide</a>
+        <a href="get-started.html">Get Started</a>
+        <a href="hardware.html">Hardware</a>
+        <a href="api-reference.html">API</a>
+        <a href="apps.html">Apps</a>
+        <a href="hacks.html">Gotchas</a>
+        <a
+          class="header-link"
+          href="https://docs.jumperless.org/badge-developer-guide/"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Source</a
+        >
+      </nav>
+    </header>
+
+    <main>
+      <section class="page-hero">
+        <p class="eyebrow">// TEMPORAL BADGE</p>
+        <h1>Developer Guide</h1>
+        <p>
+          A compact local version of the Jumperless Temporal Badge MicroPython
+          guide, organized around the sections in the upstream Developer Guide
+          navigation.
+        </p>
+      </section>
+
+      <section class="guide-toc" aria-label="Developer Guide table of contents">
+        <a href="#what-is-this-badge">1. What Is This Badge?</a>
+        <a href="#jumperide">2. Getting Started with JumperIDE</a>
+        <a href="#first-app">3. Your First App</a>
+        <a href="#app-structure">4. App Structure</a>
+        <a href="#micropython">5. MicroPython Cheat Sheet</a>
+        <a href="#hardware">6. Hardware Guide</a>
+        <a href="#advanced">7. Advanced Topics</a>
+        <a href="#badge-comms">8. Badge-to-Badge Communication</a>
+        <a href="#gotchas">9. Tips and Gotchas</a>
+        <a href="#quick-reference">Quick Reference Card</a>
+      </section>
+
+      <section class="section guide-section" id="what-is-this-badge">
+        <div class="section-heading">
+          <p class="eyebrow">// SECTION 1</p>
+          <h2>What Is This Badge?</h2>
+          <p>
+            The Temporal Badge is a wearable conference badge based on the
+            ESP32-S3-WROOM-1 16N8 module. It runs Arduino C++ firmware with an
+            embedded MicroPython v1.27 runtime so Python apps can control the
+            hardware directly.
+          </p>
+        </div>
+        <div class="card-grid three">
+          <article class="app-card">
+            <div class="app-icon temporal"></div>
+            <h3>Core</h3>
+            <p>
+              Dual-core 240 MHz ESP32-S3, 16 MB flash, 8 MB PSRAM, and a 128 KB
+              MicroPython heap.
+            </p>
+          </article>
+          <article class="app-card">
+            <div class="app-icon trace"></div>
+            <h3>Display Stack</h3>
+            <p>
+              128x64 monochrome SSD1306 OLED plus an 8x8 red IS31FL3731 LED
+              matrix with PWM per pixel.
+            </p>
+          </article>
+          <article class="app-card">
+            <div class="app-icon signal"></div>
+            <h3>Interaction</h3>
+            <p>
+              Four face buttons, analog joystick, LIS2DH12 accelerometer,
+              haptics, and NEC-style IR send/receive.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section guide-section" id="jumperide">
+        <div class="section-heading">
+          <p class="eyebrow">// SECTION 2</p>
+          <h2>Getting Started with JumperIDE</h2>
+          <p>
+            Use JumperIDE to connect to the badge over WebSerial, edit files on
+            the badge, and run scripts through the MicroPython raw REPL.
+          </p>
+        </div>
+        <div class="spec-grid">
+          <article>
+            <h3>Connect</h3>
+            <p>
+              Open <a href="https://ide.jumperless.org/" target="_blank" rel="noopener noreferrer">ide.jumperless.org</a>,
+              press Connect, and choose the ESP32-S3 serial port.
+            </p>
+            <strong>WebSerial</strong>
+          </article>
+          <article>
+            <h3>Run</h3>
+            <p>
+              Press Run / Stop or F5. Print output and exceptions appear in the
+              terminal pane.
+            </p>
+            <strong>raw REPL</strong>
+          </article>
+          <article>
+            <h3>Save</h3>
+            <p>
+              Save with Ctrl + S or the green Save button to write files to the
+              badge filesystem.
+            </p>
+            <strong>filesystem</strong>
+          </article>
+          <article>
+            <h3>Browse</h3>
+            <p>
+              The file tree exposes <code>/apps</code>, <code>/lib</code>, and
+              <code>/tests</code>.
+            </p>
+            <strong>direct edit</strong>
+          </article>
+        </div>
+      </section>
+
+      <section class="section guide-section" id="first-app">
+        <div class="section-heading">
+          <p class="eyebrow">// SECTION 3</p>
+          <h2>Your First App</h2>
+          <p>
+            Start with OLED output, an LED matrix image, and a clean exit. Add
+            input with <code>button_pressed()</code> for one-shot events and
+            <code>button()</code> for held controls.
+          </p>
+        </div>
+        <pre class="code-block"><code>import time
+
+oled_clear()
+oled_println("Hello")
+oled_println("Badge")
+oled_show()
+
+led_override_begin()
+led_show_image(IMG_HEART)
+time.sleep(3)
+led_clear()
+led_override_end()</code></pre>
+      </section>
+
+      <section class="section guide-section" id="app-structure">
+        <div class="section-heading">
+          <p class="eyebrow">// SECTION 4</p>
+          <h2>App Structure</h2>
+          <p>
+            Put small experiments directly in <code>/apps</code>. For larger
+            apps, create a folder with <code>main.py</code> and import sibling
+            modules from that folder.
+          </p>
+        </div>
+        <div class="card-grid three">
+          <article class="app-card">
+            <div class="app-icon profile"></div>
+            <h3>Single-File Apps</h3>
+            <p>
+              Great for short demos. Badge functions are auto-imported in the
+              entry script.
+            </p>
+          </article>
+          <article class="app-card">
+            <div class="app-icon gallery"></div>
+            <h3>Multi-File Apps</h3>
+            <p>
+              Use <code>sys.path.insert()</code> in <code>main.py</code>, then
+              delegate to modules.
+            </p>
+          </article>
+          <article class="app-card">
+            <div class="app-icon timer"></div>
+            <h3>Save Data</h3>
+            <p>
+              Use regular <code>open()</code> and <code>os</code> APIs for app
+              state and local files.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section guide-section" id="micropython">
+        <div class="section-heading">
+          <p class="eyebrow">// SECTION 5</p>
+          <h2>MicroPython Cheat Sheet</h2>
+          <p>
+            Supported modules include <code>sys</code>, <code>os</code>,
+            <code>time</code>, <code>random</code>, <code>math</code>,
+            <code>cmath</code>, <code>struct</code>, <code>array</code>,
+            <code>binascii</code>, <code>json</code>, <code>collections</code>,
+            <code>errno</code>, <code>gc</code>, <code>io</code>,
+            <code>micropython</code>, and <code>badge</code>.
+          </p>
+        </div>
+        <div class="callout-grid">
+          <p>
+            Use <code>time.sleep_ms()</code>, <code>ticks_ms()</code>, and
+            <code>ticks_diff()</code> for timing.
+          </p>
+          <p>
+            Keep foreground loops cooperative. Sleep briefly so input and render
+            work stays responsive.
+          </p>
+          <p>
+            There is no pip package install path. Put shared local code in
+            <code>/lib</code>.
+          </p>
+          <p>
+            The Python heap is 128 KB. Use <code>gc.collect()</code> in
+            long-running apps.
+          </p>
+        </div>
+      </section>
+
+      <section class="section guide-section" id="hardware">
+        <div class="section-heading">
+          <p class="eyebrow">// SECTION 6</p>
+          <h2>Hardware Guide</h2>
+          <p>
+            The hardware APIs are grouped by device. Most display work is
+            buffered, so draw first and call <code>oled_show()</code> when the
+            frame is ready.
+          </p>
+        </div>
+        <div class="api-grid">
+          <article><h3>OLED</h3><p><code>oled_clear()</code>, <code>oled_println()</code>, <code>oled_set_pixel()</code>, <code>oled_show()</code></p></article>
+          <article><h3>LED Matrix</h3><p><code>led_set_pixel()</code>, <code>led_show_image()</code>, <code>led_start_animation()</code></p></article>
+          <article><h3>Buttons</h3><p><code>button()</code>, <code>button_pressed()</code>, <code>button_held_ms()</code></p></article>
+          <article><h3>Joystick</h3><p><code>joy_x()</code> and <code>joy_y()</code> return 0-4095 raw ADC values.</p></article>
+          <article><h3>IMU</h3><p><code>imu_tilt_x()</code>, <code>imu_tilt_y()</code>, <code>imu_face_down()</code>, <code>imu_motion()</code></p></article>
+          <article><h3>Haptics</h3><p><code>haptic_pulse()</code>, <code>haptic_strength()</code>, <code>tone()</code>, <code>no_tone()</code></p></article>
+          <article><h3>IR</h3><p><code>ir_start()</code>, <code>ir_send()</code>, <code>ir_read()</code>, <code>ir_stop()</code></p></article>
+        </div>
+      </section>
+
+      <section class="section guide-section" id="advanced">
+        <div class="section-heading">
+          <p class="eyebrow">// SECTION 7</p>
+          <h2>Advanced Topics</h2>
+          <p>
+            Use mouse overlay for point-and-click interfaces, IMU orientation
+            for nametag-aware apps, and native UI chrome for firmware-matched
+            headers, footers, and button glyphs.
+          </p>
+        </div>
+        <div class="card-grid three">
+          <article class="app-card"><div class="app-icon map"></div><h3>Mouse Overlay</h3><p>Enable cursor mode with <code>mouse_overlay(True)</code> and read clicks with <code>mouse_clicked()</code>.</p></article>
+          <article class="app-card"><div class="app-icon pulse"></div><h3>Flip Detection</h3><p>Use <code>imu_face_down()</code> or tilt values to show idle, QR, or pause states.</p></article>
+          <article class="app-card"><div class="app-icon trace"></div><h3>Native UI</h3><p>Use <code>ui_header()</code>, <code>ui_action_bar()</code>, or <code>badge_ui</code> helpers.</p></article>
+        </div>
+      </section>
+
+      <section class="section guide-section" id="badge-comms">
+        <div class="section-heading">
+          <p class="eyebrow">// SECTION 8</p>
+          <h2>Badge-to-Badge Communication</h2>
+          <p>
+            IR is line-of-sight. Start IR mode first, exchange compact or
+            multi-word frames, poll quickly, then stop and flush when done.
+          </p>
+        </div>
+        <pre class="code-block"><code>ir_start()
+ir_flush()
+ir_send(0x42, 0x01)
+
+while not ir_available():
+    time.sleep_ms(20)
+
+addr, cmd = ir_read()
+ir_stop()</code></pre>
+      </section>
+
+      <section class="section guide-section" id="gotchas">
+        <div class="section-heading">
+          <p class="eyebrow">// SECTION 9</p>
+          <h2>Tips and Gotchas</h2>
+        </div>
+        <div class="callout-grid">
+          <p><strong>Memory:</strong> 128 KB heap. Reuse buffers and call <code>gc.collect()</code>.</p>
+          <p><strong>Display:</strong> Call <code>oled_show()</code> after drawing.</p>
+          <p><strong>Matrix:</strong> Use override mode before direct matrix drawing.</p>
+          <p><strong>IR:</strong> Read within about 50 ms per frame and call <code>ir_stop()</code>.</p>
+          <p><strong>Input:</strong> Read <code>button_pressed()</code> once per loop.</p>
+          <p><strong>Exit:</strong> Hold all four face buttons for about one second to force-exit.</p>
+        </div>
+      </section>
+
+      <section class="section guide-section" id="quick-reference">
+        <div class="section-heading">
+          <p class="eyebrow">// QUICK REFERENCE</p>
+          <h2>Card</h2>
+        </div>
+        <pre class="code-block"><code>OLED:      oled_clear() -> oled_println() -> oled_show()
+Matrix:    led_show_image(IMG_HEART), led_set_frame(rows, brightness)
+Buttons:   button_pressed(BTN_CONFIRM), button(BTN_UP)
+Joystick:  joy_x() and joy_y() return 0-4095
+Haptics:   haptic_pulse(), tone(440, 200), no_tone()
+IR:        ir_start() -> ir_send(a, c) -> ir_read() -> ir_stop()
+IMU:       imu_tilt_x(), imu_motion(), imu_face_down()
+Mouse:     mouse_overlay(True), mouse_clicked()
+Files:     open("/apps/my_app/save.json", "w").write(data)
+Exit:      exit() or hold all four face buttons</code></pre>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div>
+        <h2>Temporal Badge</h2>
+        <p>
+          Local guide content sourced from Jumperless docs for the Temporal
+          Badge.
+        </p>
+      </div>
+      <nav aria-label="Footer navigation">
+        <a href="index.html">Home</a>
+        <a href="get-started.html">Get Started</a>
+        <a href="hardware.html">Hardware</a>
+        <a href="api-reference.html">API</a>
+      </nav>
+    </footer>
+  </body>
+</html>

@@ -5,123 +5,114 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Contribution guide for Temporal Badge docs and hacks."
+      content="Source links and contribution notes for the Temporal Badge website."
     />
-    <title>Contribute | Temporal Badge</title>
+    <title>Sources | Temporal Badge</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <header class="site-header">
-      <a class="brand" href="index.html"
-        ><img
+      <a class="brand" href="index.html">
+        <img
           class="brand-mark"
           src="https://images.ctfassets.net/0uuz8ydxyd9p/5kHQtcFCSqkLDH4I6HFmyG/8e75bd66b57696eb0a7866b3cbf8ea30/Temporal_Symbol_light_1_2x.png"
           alt=""
           aria-hidden="true"
-        /><span>Temporal Badge</span></a
-      >
+        /><span>Temporal Badge</span>
+      </a>
       <nav class="site-nav" aria-label="Primary navigation">
+        <a href="developer-guide.html">Guide</a>
         <a href="get-started.html">Get Started</a>
         <a href="hardware.html">Hardware</a>
+        <a href="api-reference.html">API</a>
         <a href="apps.html">Apps</a>
-        <a href="hacks.html">Hacks</a>
-        <a aria-current="page" href="contribute.html">Contribute</a>
-        <a
-          class="header-link"
-          href="https://temporal.io/"
-          rel="noopener noreferrer"
-          target="_blank"
-          >Temporal</a
+        <a href="hacks.html">Gotchas</a>
+        <a aria-current="page" class="header-link" href="contribute.html"
+          >Sources</a
         >
       </nav>
     </header>
 
     <main>
       <section class="page-hero">
-        <p class="eyebrow">// CONTRIBUTE</p>
-        <h1>Add Experiments</h1>
+        <p class="eyebrow">// SOURCES</p>
+        <h1>Source Notes</h1>
         <p>
-          Submit hack notes, hardware findings, app ideas, screenshots, and
-          small tutorials that help attendees build with the badge.
+          This static site is a concise mirror of the Jumperless Temporal Badge
+          Developer Guide and API Reference, tuned for quick local browsing.
         </p>
       </section>
 
       <section class="steps">
         <article>
           <span>1</span>
-          <h2>Build Your Hack</h2>
+          <h2>Developer Guide</h2>
           <p>
-            Start with a working badge, note the firmware revision, and keep the
-            first version small.
+            Main guide covering setup, app structure, MicroPython notes,
+            hardware, advanced topics, IR communication, and gotchas.
           </p>
           <ul>
-            <li>Test the steps from a clean badge state.</li>
-            <li>Record hardware parts and pin usage.</li>
-            <li>Capture photos or screenshots if they clarify the build.</li>
+            <li>
+              <a
+                href="https://docs.jumperless.org/badge-developer-guide/"
+                target="_blank"
+                rel="noopener noreferrer"
+                >docs.jumperless.org/badge-developer-guide</a
+              >
+            </li>
           </ul>
         </article>
         <article>
           <span>2</span>
-          <h2>Write the Tutorial</h2>
+          <h2>API Reference</h2>
           <p>
-            Use plain language, exact filenames, expected output, and a rollback
-            step.
+            Function-by-function reference for OLED, UI chrome, input, LED
+            matrix, IMU, haptics, IR, identity, files, mouse overlay, and
+            constants.
           </p>
           <ul>
-            <li>Include difficulty and estimated time.</li>
-            <li>Show commands or file paths in code blocks.</li>
-            <li>Call out power, battery, and voltage risks.</li>
+            <li>
+              <a
+                href="https://docs.jumperless.org/badge-api-reference/"
+                target="_blank"
+                rel="noopener noreferrer"
+                >docs.jumperless.org/badge-api-reference</a
+              >
+            </li>
           </ul>
         </article>
         <article>
           <span>3</span>
-          <h2>Submit It</h2>
+          <h2>JumperIDE</h2>
           <p>
-            Open a pull request with the new page, images, and any source files
-            needed to reproduce it.
+            Browser-based MicroPython IDE used for WebSerial connection,
+            editing, running, and saving files on the badge.
           </p>
           <ul>
-            <li>Use one hack per pull request.</li>
-            <li>Credit external references.</li>
-            <li>Keep screenshots compressed for the web.</li>
+            <li>
+              <a
+                href="https://ide.jumperless.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+                >ide.jumperless.org</a
+              >
+            </li>
           </ul>
         </article>
-      </section>
-
-      <section class="section split-band">
-        <div>
-          <p class="eyebrow">// GUIDELINES</p>
-          <h2>Content Checklist</h2>
-          <p>
-            A good entry is short, verified, and useful at a table with limited
-            time.
-          </p>
-        </div>
-        <div class="checklist">
-          <p>
-            <strong>Do</strong> test code, list hardware, document recovery, and
-            include clear photos.
-          </p>
-          <p>
-            <strong>Avoid</strong> unverified pinouts, unsafe power
-            instructions, oversized images, and unexplained code dumps.
-          </p>
-        </div>
       </section>
     </main>
 
     <footer class="site-footer">
       <div>
         <h2>Temporal Badge</h2>
-        <p>Contribution guidance for docs, apps, and hardware experiments.</p>
+        <p>Source links for maintaining this static badge guide.</p>
       </div>
       <nav aria-label="Footer navigation">
         <a href="index.html">Home</a>
+        <a href="developer-guide.html">Guide</a>
+        <a href="api-reference.html">API</a>
         <a href="get-started.html">Get Started</a>
-        <a href="hardware.html">Hardware</a>
-        <a href="apps.html">Apps</a>
-        <a href="hacks.html">Hacks</a>
       </nav>
     </footer>
   </body>

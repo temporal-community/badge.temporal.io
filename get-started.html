@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Core setup procedures for the Temporal Badge."
+      content="JumperIDE setup and first MicroPython app steps for the Temporal Badge."
     />
     <title>Get Started | Temporal Badge</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
@@ -13,139 +13,173 @@
   </head>
   <body>
     <header class="site-header">
-      <a class="brand" href="index.html"
-        ><img
+      <a class="brand" href="index.html">
+        <img
           class="brand-mark"
           src="https://images.ctfassets.net/0uuz8ydxyd9p/5kHQtcFCSqkLDH4I6HFmyG/8e75bd66b57696eb0a7866b3cbf8ea30/Temporal_Symbol_light_1_2x.png"
           alt=""
           aria-hidden="true"
-        /><span>Temporal Badge</span></a
-      >
+        /><span>Temporal Badge</span>
+      </a>
       <nav class="site-nav" aria-label="Primary navigation">
+        <a href="developer-guide.html">Guide</a>
         <a aria-current="page" href="get-started.html">Get Started</a>
         <a href="hardware.html">Hardware</a>
+        <a href="api-reference.html">API</a>
         <a href="apps.html">Apps</a>
-        <a href="hacks.html">Hacks</a>
-        <a href="contribute.html">Contribute</a>
+        <a href="hacks.html">Gotchas</a>
         <a
           class="header-link"
-          href="https://temporal.io/"
+          href="https://ide.jumperless.org/"
           target="_blank"
           rel="noopener noreferrer"
-          >Temporal</a
+          >JumperIDE</a
         >
       </nav>
     </header>
 
     <main>
       <section class="page-hero compact">
-        <p class="eyebrow">// BADGE OPS</p>
+        <p class="eyebrow">// JUMPERIDE FLOW</p>
         <h1>Get Started</h1>
         <p>
-          Core procedures for booting, mounting, configuring, and recovering the
-          badge without digging through a firmware README.
+          Write badge apps in MicroPython from the browser, run them over
+          WebSerial, and save them directly to the badge filesystem.
         </p>
       </section>
 
-      <section class="procedure-list" aria-label="Badge procedures">
+      <section class="procedure-list" aria-label="Badge setup procedures">
         <article class="procedure">
           <div>
             <span class="procedure-number">01</span>
-            <h2>Power On</h2>
-            <p>Boot the badge and reach the launcher.</p>
+            <h2>Connect</h2>
+            <p>Open JumperIDE and select the badge serial device.</p>
           </div>
           <ol>
-            <li>Press the power or reset control once.</li>
-            <li>Wait for the Temporal splash screen to finish.</li>
-            <li>Select the launcher from the home screen.</li>
+            <li>
+              Visit
+              <a href="https://ide.jumperless.org/" target="_blank" rel="noopener noreferrer"
+                >ide.jumperless.org</a
+              >
+              in a browser that supports WebSerial.
+            </li>
+            <li>Press Connect and choose the ESP32-S3 badge serial port.</li>
+            <li>
+              On macOS it is usually the USB/JTAG serial device. On Windows it
+              appears as a COM port.
+            </li>
           </ol>
         </article>
 
         <article class="procedure">
           <div>
             <span class="procedure-number">02</span>
-            <h2>Pair With Temporal</h2>
-            <p>Connect the badge to the web experience or event profile.</p>
+            <h2>Run Code</h2>
+            <p>Use the raw REPL workflow from JumperIDE.</p>
           </div>
           <ol>
-            <li>Open the pairing app on the badge.</li>
-            <li>Visit temporal.io on your laptop or phone.</li>
-            <li>Enter the code shown on the badge display.</li>
+            <li>Open or create a script in the editor.</li>
+            <li>Press Run / Stop or use F5 to execute the current file.</li>
+            <li>Read print output and exceptions in the terminal pane.</li>
           </ol>
         </article>
 
         <article class="procedure">
           <div>
             <span class="procedure-number">03</span>
-            <h2>USB Disk Mode</h2>
-            <p>
-              Mount the badge for copying apps, images, firmware, or config
-              files.
-            </p>
+            <h2>Save Files</h2>
+            <p>Edit directly on the badge filesystem.</p>
           </div>
           <ol>
-            <li>Connect USB-C to your computer.</li>
-            <li>
-              Use the badge bootloader gesture defined by the final hardware.
-            </li>
-            <li>Copy files to the mounted volume, eject it, then reboot.</li>
+            <li>Browse the filesystem tree for <code>/apps</code>, <code>/lib</code>, and <code>/tests</code>.</li>
+            <li>Create files or directories for your app.</li>
+            <li>Use the green Save button or Ctrl + S to write changes.</li>
           </ol>
         </article>
 
         <article class="procedure">
           <div>
             <span class="procedure-number">04</span>
-            <h2>Load Demo Data</h2>
-            <p>Add a sample workflow history for local demos.</p>
+            <h2>First App</h2>
+            <p>Clear the OLED, print text, show the LED matrix, then exit.</p>
           </div>
           <ol>
-            <li>Mount the badge volume.</li>
-            <li>Copy a JSON trace into the data folder.</li>
-            <li>Launch Workflow Trace and select the new run.</li>
+            <li>Create <code>/apps/hello.py</code>.</li>
+            <li>Use <code>oled_clear()</code>, <code>oled_println()</code>, <code>oled_show()</code>, and <code>led_show_image()</code>.</li>
+            <li>Sleep for a moment, clean up LEDs, and return to the menu.</li>
           </ol>
         </article>
+      </section>
 
-        <article class="procedure">
-          <div>
-            <span class="procedure-number">05</span>
-            <h2>Flash Firmware</h2>
+      <section class="section split-band">
+        <div>
+          <p class="eyebrow">// HELLO BADGE</p>
+          <h2>Starter Script</h2>
+          <p>
+            In a single-file app, the badge hardware calls are already injected
+            into the global scope. Imported modules should use
+            <code>from badge import *</code>.
+          </p>
+        </div>
+        <pre class="code-block"><code>import time
+
+oled_clear()
+oled_println("Hello")
+oled_println("Temporal")
+oled_show()
+
+led_override_begin()
+led_show_image(IMG_HEART)
+time.sleep(3)
+
+led_clear()
+led_override_end()
+exit()</code></pre>
+      </section>
+
+      <section class="section">
+        <div class="section-heading">
+          <p class="eyebrow">// INPUT LOOP</p>
+          <h2>Read Buttons Once</h2>
+          <p>
+            Use edge-triggered input for menu navigation and level-triggered
+            input for continuous movement.
+          </p>
+        </div>
+        <div class="card-grid two">
+          <article class="app-card wide">
+            <div class="app-icon trace"></div>
+            <h3><code>button_pressed(id)</code></h3>
             <p>
-              Install the current firmware image when a new release is
-              available.
+              Returns true once per press, then stays false until release and a
+              new press. Store the result if more than one branch needs it.
             </p>
-          </div>
-          <ol>
-            <li>Download the release artifact from the badge repository.</li>
-            <li>Mount the bootloader volume.</li>
-            <li>Copy the firmware image and wait for the badge to reboot.</li>
-          </ol>
-        </article>
-
-        <article class="procedure">
-          <div>
-            <span class="procedure-number">06</span>
-            <h2>Recover</h2>
-            <p>Return a broken configuration to a known-good state.</p>
-          </div>
-          <ol>
-            <li>Back up any user files that still mount.</li>
-            <li>Replace the config folder with the default release copy.</li>
-            <li>Reboot and verify the launcher opens.</li>
-          </ol>
-        </article>
+          </article>
+          <article class="app-card wide">
+            <div class="app-icon pulse"></div>
+            <h3><code>button(id)</code></h3>
+            <p>
+              Returns true while the button is held. Use it for movement,
+              repeated actions, or joystick-style controls.
+            </p>
+          </article>
+        </div>
       </section>
     </main>
 
     <footer class="site-footer">
       <div>
         <h2>Temporal Badge</h2>
-        <p>Setup flows for the electronic badge used with temporal.io.</p>
+        <p>
+          Setup steps based on the Jumperless Temporal Badge MicroPython
+          Developer Guide.
+        </p>
       </div>
       <nav aria-label="Footer navigation">
         <a href="index.html">Home</a>
+        <a href="developer-guide.html">Guide</a>
         <a href="hardware.html">Hardware</a>
-        <a href="apps.html">Apps</a>
-        <a href="hacks.html">Hacks</a>
+        <a href="api-reference.html">API</a>
       </nav>
     </footer>
   </body>

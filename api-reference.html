@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Temporal Badge MicroPython API reference summary."
+    />
+    <title>API Reference | Temporal Badge</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="index.html">
+        <img
+          class="brand-mark"
+          src="https://images.ctfassets.net/0uuz8ydxyd9p/5kHQtcFCSqkLDH4I6HFmyG/8e75bd66b57696eb0a7866b3cbf8ea30/Temporal_Symbol_light_1_2x.png"
+          alt=""
+          aria-hidden="true"
+        /><span>Temporal Badge</span>
+      </a>
+      <nav class="site-nav" aria-label="Primary navigation">
+        <a href="developer-guide.html">Guide</a>
+        <a href="get-started.html">Get Started</a>
+        <a href="hardware.html">Hardware</a>
+        <a aria-current="page" href="api-reference.html">API</a>
+        <a href="apps.html">Apps</a>
+        <a href="hacks.html">Gotchas</a>
+        <a
+          class="header-link"
+          href="https://docs.jumperless.org/badge-api-reference/"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Source</a
+        >
+      </nav>
+    </header>
+
+    <main>
+      <section class="page-hero">
+        <p class="eyebrow">// MICROPYTHON CALLS</p>
+        <h1>API Reference</h1>
+        <p>
+          Function groups and constants from the linked Jumperless Temporal
+          Badge API Reference. The exhaustive reference is also available
+          on-device as <code>/API_REFERENCE.md</code>.
+        </p>
+      </section>
+
+      <section class="guide-toc" aria-label="API Reference table of contents">
+        <a href="#init">Init</a>
+        <a href="#oled">OLED Display</a>
+        <a href="#ui">Native UI Chrome</a>
+        <a href="#input">Buttons &amp; Joystick</a>
+        <a href="#matrix">LED Matrix</a>
+        <a href="#matrix-host">Matrix App Host</a>
+        <a href="#imu">IMU</a>
+        <a href="#haptics">Haptics</a>
+        <a href="#ir">IR</a>
+        <a href="#identity">Identity</a>
+        <a href="#script">Script Control</a>
+        <a href="#mouse">Mouse Overlay</a>
+        <a href="#constants">Constants</a>
+      </section>
+
+      <section class="section guide-section" id="init">
+        <div class="section-heading">
+          <p class="eyebrow">// INIT</p>
+          <h2>Init</h2>
+          <p><code>init()</code> initializes the badge runtime bindings.</p>
+        </div>
+      </section>
+
+      <section class="section guide-section" id="oled">
+        <div class="section-heading">
+          <p class="eyebrow">// DISPLAY</p>
+          <h2>OLED Display</h2>
+        </div>
+        <div class="api-grid dense">
+          <article><h3>Text</h3><p><code>oled_print(text)</code>, <code>oled_println(text)</code>, <code>oled_set_cursor(x, y)</code>, <code>oled_set_text_size(size)</code></p></article>
+          <article><h3>Refresh</h3><p><code>oled_clear([show])</code>, <code>oled_show()</code>, <code>oled_invert(enable)</code></p></article>
+          <article><h3>Fonts</h3><p><code>oled_set_font(name)</code>, <code>oled_get_fonts()</code>, <code>oled_get_current_font()</code></p></article>
+          <article><h3>Pixels</h3><p><code>oled_set_pixel(x, y, color)</code>, <code>oled_get_pixel(x, y)</code>, <code>oled_draw_box(x, y, w, h)</code>, <code>oled_set_draw_color(color)</code></p></article>
+          <article><h3>Measure</h3><p><code>oled_text_width(text)</code>, <code>oled_text_height()</code></p></article>
+          <article><h3>Framebuffer</h3><p><code>oled_get_framebuffer()</code>, <code>oled_set_framebuffer(data)</code>, <code>oled_get_framebuffer_size()</code></p></article>
+        </div>
+      </section>
+
+      <section class="section guide-section" id="ui">
+        <div class="section-heading">
+          <p class="eyebrow">// CHROME</p>
+          <h2>Native UI Chrome</h2>
+        </div>
+        <div class="api-grid dense">
+          <article><h3>Layout</h3><p><code>ui_header(title, [right])</code>, <code>ui_action_bar(...)</code>, <code>ui_chrome(...)</code></p></article>
+          <article><h3>Hints</h3><p><code>ui_inline_hint(x, y, hint)</code>, <code>ui_inline_hint_right(right_x, y, hint)</code>, <code>ui_measure_hint(hint)</code></p></article>
+        </div>
+      </section>
+
+      <section class="section guide-section" id="input">
+        <div class="section-heading">
+          <p class="eyebrow">// INPUT</p>
+          <h2>Buttons &amp; Joystick</h2>
+        </div>
+        <div class="api-grid dense">
+          <article><h3>Buttons</h3><p><code>button(id)</code>, <code>button_pressed(id)</code>, <code>button_held_ms(id)</code></p></article>
+          <article><h3>Joystick</h3><p><code>joy_x()</code>, <code>joy_y()</code></p></article>
+          <article><h3>Constants</h3><p><code>BTN_RIGHT</code>, <code>BTN_DOWN</code>, <code>BTN_LEFT</code>, <code>BTN_UP</code>, <code>BTN_CONFIRM</code>, <code>BTN_BACK</code></p></article>
+        </div>
+      </section>
+
+      <section class="section guide-section" id="matrix">
+        <div class="section-heading">
+          <p class="eyebrow">// LEDS</p>
+          <h2>LED Matrix</h2>
+        </div>
+        <div class="api-grid dense">
+          <article><h3>Draw</h3><p><code>led_brightness(value)</code>, <code>led_clear()</code>, <code>led_fill([brightness])</code>, <code>led_set_pixel(x, y, brightness)</code>, <code>led_get_pixel(x, y)</code></p></article>
+          <article><h3>Images</h3><p><code>led_show_image(name)</code>, <code>led_set_frame(rows, [brightness])</code></p></article>
+          <article><h3>Animation</h3><p><code>led_start_animation(name, [interval_ms])</code>, <code>led_stop_animation()</code></p></article>
+          <article><h3>Override</h3><p><code>led_override_begin()</code>, <code>led_override_end()</code></p></article>
+        </div>
+      </section>
+
+      <section class="section guide-section" id="matrix-host">
+        <div class="section-heading">
+          <p class="eyebrow">// BACKGROUND MATRIX</p>
+          <h2>Matrix App Host</h2>
+        </div>
+        <p class="lede narrow">
+          <code>matrix_app_start(callback, [interval_ms], [brightness])</code>,
+          <code>matrix_app_set_speed(interval_ms)</code>,
+          <code>matrix_app_set_brightness(brightness)</code>,
+          <code>matrix_app_stop()</code>, <code>matrix_app_active()</code>, and
+          <code>matrix_app_info()</code>.
+        </p>
+      </section>
+
+      <section class="section guide-section" id="imu">
+        <div class="section-heading">
+          <p class="eyebrow">// MOTION</p>
+          <h2>IMU</h2>
+        </div>
+        <p class="lede narrow">
+          <code>imu_ready()</code>, <code>imu_tilt_x()</code>,
+          <code>imu_tilt_y()</code>, <code>imu_accel_z()</code>,
+          <code>imu_face_down()</code>, and <code>imu_motion()</code>.
+        </p>
+      </section>
+
+      <section class="section guide-section" id="haptics">
+        <div class="section-heading">
+          <p class="eyebrow">// FEEDBACK</p>
+          <h2>Haptics</h2>
+        </div>
+        <p class="lede narrow">
+          <code>haptic_pulse([strength], [duration_ms], [freq_hz])</code>,
+          <code>haptic_strength([value])</code>, <code>haptic_off()</code>,
+          <code>tone(freq_hz, [duration_ms], [duty])</code>,
+          <code>no_tone()</code>, and <code>tone_playing()</code>.
+        </p>
+      </section>
+
+      <section class="section guide-section" id="ir">
+        <div class="section-heading">
+          <p class="eyebrow">// COMMS</p>
+          <h2>IR Send/Receive</h2>
+        </div>
+        <div class="api-grid dense">
+          <article><h3>Mode</h3><p><code>ir_start()</code>, <code>ir_stop()</code>, <code>ir_flush()</code></p></article>
+          <article><h3>Simple Frames</h3><p><code>ir_send(addr, cmd)</code>, <code>ir_available()</code>, <code>ir_read()</code></p></article>
+          <article><h3>Word Frames</h3><p><code>ir_send_words(words)</code>, <code>ir_read_words()</code></p></article>
+          <article><h3>Power</h3><p><code>ir_tx_power([percent])</code></p></article>
+        </div>
+      </section>
+
+      <section class="section guide-section" id="identity">
+        <div class="section-heading">
+          <p class="eyebrow">// IDENTITY</p>
+          <h2>Badge Identity &amp; Boops</h2>
+        </div>
+        <p class="lede narrow"><code>my_uuid()</code> returns this badge identity. <code>boops()</code> returns boop state.</p>
+      </section>
+
+      <section class="section guide-section" id="script">
+        <div class="section-heading">
+          <p class="eyebrow">// CONTROL</p>
+          <h2>Script Control &amp; Files</h2>
+        </div>
+        <p class="lede narrow">
+          Use <code>exit()</code> to return to firmware. Dev builds also expose
+          <code>dev(*args)</code>. Filesystem access uses standard
+          <code>open()</code> and <code>os</code> APIs.
+        </p>
+      </section>
+
+      <section class="section guide-section" id="mouse">
+        <div class="section-heading">
+          <p class="eyebrow">// POINTER</p>
+          <h2>Mouse Overlay</h2>
+        </div>
+        <div class="api-grid dense">
+          <article><h3>Enable</h3><p><code>mouse_overlay(enable)</code>, <code>mouse_set_bitmap(data, w, h)</code></p></article>
+          <article><h3>Position</h3><p><code>mouse_x()</code>, <code>mouse_y()</code>, <code>mouse_set_pos(x, y)</code></p></article>
+          <article><h3>Input</h3><p><code>mouse_clicked()</code>, <code>mouse_set_speed(speed)</code>, <code>mouse_set_mode(mode)</code></p></article>
+        </div>
+      </section>
+
+      <section class="section guide-section" id="constants">
+        <div class="section-heading">
+          <p class="eyebrow">// CONSTANTS</p>
+          <h2>Constants Reference</h2>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Group</th>
+                <th>Constants</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Buttons</td>
+                <td><code>BTN_RIGHT</code>, <code>BTN_DOWN</code>, <code>BTN_LEFT</code>, <code>BTN_UP</code>, <code>BTN_CIRCLE</code>, <code>BTN_CROSS</code>, <code>BTN_SQUARE</code>, <code>BTN_TRIANGLE</code>, <code>BTN_CONFIRM</code>, <code>BTN_SAVE</code>, <code>BTN_BACK</code>, <code>BTN_PRESETS</code></td>
+              </tr>
+              <tr>
+                <td>LED Images</td>
+                <td><code>IMG_SMILEY</code>, <code>IMG_HEART</code>, <code>IMG_ARROW_UP</code>, <code>IMG_ARROW_DOWN</code>, <code>IMG_X_MARK</code>, <code>IMG_DOT</code></td>
+              </tr>
+              <tr>
+                <td>LED Animations</td>
+                <td><code>ANIM_SPINNER</code>, <code>ANIM_BLINK_SMILEY</code>, <code>ANIM_PULSE_HEART</code></td>
+              </tr>
+              <tr>
+                <td>Mouse Modes</td>
+                <td><code>MOUSE_ABSOLUTE</code>, <code>MOUSE_RELATIVE</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div>
+        <h2>Temporal Badge</h2>
+        <p>API reference summary from the Jumperless Badge API Reference.</p>
+      </div>
+      <nav aria-label="Footer navigation">
+        <a href="index.html">Home</a>
+        <a href="developer-guide.html">Guide</a>
+        <a href="get-started.html">Get Started</a>
+        <a href="hardware.html">Hardware</a>
+      </nav>
+    </footer>
+  </body>
+</html>

@@ -3,149 +3,138 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="Temporal Badge app catalog." />
+    <meta
+      name="description"
+      content="Temporal Badge MicroPython app structure and filesystem notes."
+    />
     <title>Apps | Temporal Badge</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <header class="site-header">
-      <a class="brand" href="index.html"
-        ><img
+      <a class="brand" href="index.html">
+        <img
           class="brand-mark"
           src="https://images.ctfassets.net/0uuz8ydxyd9p/5kHQtcFCSqkLDH4I6HFmyG/8e75bd66b57696eb0a7866b3cbf8ea30/Temporal_Symbol_light_1_2x.png"
           alt=""
           aria-hidden="true"
-        /><span>Temporal Badge</span></a
-      >
+        /><span>Temporal Badge</span>
+      </a>
       <nav class="site-nav" aria-label="Primary navigation">
+        <a href="developer-guide.html">Guide</a>
         <a href="get-started.html">Get Started</a>
         <a href="hardware.html">Hardware</a>
+        <a href="api-reference.html">API</a>
         <a aria-current="page" href="apps.html">Apps</a>
-        <a href="hacks.html">Hacks</a>
-        <a href="contribute.html">Contribute</a>
+        <a href="hacks.html">Gotchas</a>
         <a
           class="header-link"
-          href="https://temporal.io/"
+          href="https://docs.jumperless.org/badge-developer-guide/#4-app-structure"
           target="_blank"
           rel="noopener noreferrer"
-          >Temporal</a
+          >Source</a
         >
       </nav>
     </header>
 
     <main>
       <section class="page-hero">
-        <p class="eyebrow">// START THE FUN</p>
+        <p class="eyebrow">// APP STRUCTURE</p>
         <h1>Badge Apps</h1>
         <p>
-          Catalog the apps that ship on the badge, plus loadable experiments
-          that attendees can install from the repository.
+          Apps live under <code>/apps</code>, use standard MicroPython modules,
+          and can be single-file experiments or folders with a
+          <code>main.py</code> entry point.
         </p>
       </section>
 
-      <section class="feature-row" aria-label="App catalog principles">
+      <section class="feature-row" aria-label="App structure options">
         <article>
-          <h2>Built In</h2>
-          <p>Apps that boot on a fresh badge.</p>
-        </article>
-        <article>
-          <h2>Configurable</h2>
+          <h2>Single File</h2>
           <p>
-            Settings, images, and sample traces should live in visible folders.
+            Put <code>hello.py</code> directly in <code>/apps</code> for quick
+            tests and small demos. Badge functions are available globally.
           </p>
         </article>
         <article>
-          <h2>Hackable</h2>
+          <h2>Folder App</h2>
           <p>
-            Every app card should point to code, assets, and a small extension
-            idea.
+            Use <code>/apps/my_app/main.py</code> for games or tools that need
+            helper modules, assets, or save data.
           </p>
         </article>
+        <article>
+          <h2>Menu Entry</h2>
+          <p>
+            Dev builds list folders with <code>main.py</code>. Production menu
+            entries are registered in native firmware.
+          </p>
+        </article>
+      </section>
+
+      <section class="section split-band">
+        <div>
+          <p class="eyebrow">// MULTI-FILE PATTERN</p>
+          <h2>Keep <code>main.py</code> Thin</h2>
+          <p>
+            Insert the app directory into <code>sys.path</code>, import your
+            module, then call a single entry function.
+          </p>
+        </div>
+        <pre class="code-block"><code># /apps/my_app/main.py
+import sys
+
+sys.path.insert(0, "/apps/my_app")
+
+from game import run
+
+run()</code></pre>
       </section>
 
       <section class="section">
         <div class="section-heading">
-          <h2>Apps</h2>
+          <p class="eyebrow">// MICROPYTHON</p>
+          <h2>Available Modules</h2>
+          <p>
+            The badge includes standard MicroPython modules plus the
+            badge-specific hardware API.
+          </p>
         </div>
-        <div class="card-grid three">
+        <div class="card-grid four">
           <article class="app-card">
             <div class="app-icon trace"></div>
-            <h3>Workflow Trace</h3>
+            <h3>System</h3>
             <p>
-              Inspect event history, current state, retries, timers, and payload
-              markers.
-            </p>
-          </article>
-          <article class="app-card">
-            <div class="app-icon profile"></div>
-            <h3>Temporal Card</h3>
-            <p>
-              Show name, affiliation, QR code, event role, and paired Temporal
-              profile.
+              <code>sys</code>, <code>os</code>, <code>time</code>,
+              <code>errno</code>, <code>gc</code>, and
+              <code>micropython</code>.
             </p>
           </article>
           <article class="app-card">
             <div class="app-icon temporal"></div>
-            <h3>Workflow Runner</h3>
+            <h3>Data</h3>
             <p>
-              Play through a deterministic demo and compare branches on the
-              badge.
-            </p>
-          </article>
-          <article class="app-card">
-            <div class="app-icon pulse"></div>
-            <h3>Worker Pulse</h3>
-            <p>
-              Display a local heartbeat animation for tasks, queues, and worker
-              status.
-            </p>
-          </article>
-          <article class="app-card">
-            <div class="app-icon gallery"></div>
-            <h3>Gallery</h3>
-            <p>
-              Cycle event art, sponsor slides, badge photos, or generated
-              workflow posters.
+              <code>json</code>, <code>struct</code>, <code>array</code>,
+              <code>binascii</code>, <code>collections</code>, and
+              <code>io</code>.
             </p>
           </article>
           <article class="app-card">
             <div class="app-icon signal"></div>
-            <h3>Signal Quest</h3>
+            <h3>Math</h3>
             <p>
-              Find challenge codes around the event and unlock completion
-              states.
+              <code>math</code>, <code>cmath</code>, and
+              <code>random</code> for games, animations, and UI behavior.
             </p>
           </article>
-        </div>
-      </section>
-
-      <section class="section">
-        <div class="section-heading">
-          <h2>Loadable Apps</h2>
-          <p>
-            These are scaffold ideas for optional apps that can be copied onto
-            the badge.
-          </p>
-        </div>
-        <div class="card-grid two">
-          <article class="app-card wide">
-            <div class="app-icon timer"></div>
-            <h3>Activity Timer</h3>
+          <article class="app-card">
+            <div class="app-icon profile"></div>
+            <h3>Hardware</h3>
             <p>
-              Practice activity timeout behavior with a visual countdown and
-              retry counter.
+              <code>badge</code> exposes OLED, matrix, buttons, joystick, IMU,
+              haptics, IR, mouse, and identity calls.
             </p>
-            <span class="tag">manual load</span>
-          </article>
-          <article class="app-card wide">
-            <div class="app-icon map"></div>
-            <h3>Namespace Map</h3>
-            <p>
-              Browse sample namespaces, task queues, and worker groups as a
-              compact diagram.
-            </p>
-            <span class="tag">manual load</span>
           </article>
         </div>
       </section>
@@ -153,39 +142,47 @@
       <section class="section">
         <div class="section-heading">
           <p class="eyebrow">// FILES</p>
-          <h2>Badge Filesystem Structure</h2>
+          <h2>Filesystem Pattern</h2>
         </div>
-        <pre class="code-block"><code>/TEMPORAL-BADGE/
-|-- apps/
-|   |-- workflow-trace/
-|   |-- temporal-card/
-|   |-- workflow-runner/
-|   |-- worker-pulse/
-|   |-- gallery/
-|   `-- signal-quest/
-|-- data/
-|   |-- traces/
-|   `-- profiles/
-|-- assets/
-|   |-- fonts/
-|   |-- images/
-|   `-- badges/
-|-- config/
-|   `-- badge.toml
-`-- firmware-info.txt</code></pre>
+        <pre class="code-block"><code>/apps/
+|-- hello.py
+|-- my_app/
+|   |-- main.py
+|   |-- game.py
+|   `-- save.json
+/lib/
+|-- badge_ui.py
+/tests/</code></pre>
+      </section>
+
+      <section class="section">
+        <div class="section-heading">
+          <p class="eyebrow">// SAVE DATA</p>
+          <h2>Use Normal Files</h2>
+          <p>
+            Apps have filesystem access through <code>open()</code> and
+            <code>os</code>. Store per-app state beside the app that owns it.
+          </p>
+        </div>
+        <pre class="code-block"><code>import json
+
+state = {"score": 42}
+
+with open("/apps/my_app/save.json", "w") as f:
+    f.write(json.dumps(state))</code></pre>
       </section>
     </main>
 
     <footer class="site-footer">
       <div>
         <h2>Temporal Badge</h2>
-        <p>App catalog and filesystem notes for the Temporal Badge.</p>
+        <p>App structure and MicroPython notes for badge developers.</p>
       </div>
       <nav aria-label="Footer navigation">
         <a href="index.html">Home</a>
+        <a href="developer-guide.html">Guide</a>
         <a href="get-started.html">Get Started</a>
-        <a href="hardware.html">Hardware</a>
-        <a href="hacks.html">Hacks</a>
+        <a href="api-reference.html">API</a>
       </nav>
     </footer>
   </body>

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Hardware map and specifications for the Temporal Badge."
+      content="Hardware map and MicroPython controls for the Temporal Badge."
     />
     <title>Hardware | Temporal Badge</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
@@ -13,26 +13,27 @@
   </head>
   <body>
     <header class="site-header">
-      <a class="brand" href="index.html"
-        ><img
+      <a class="brand" href="index.html">
+        <img
           class="brand-mark"
           src="https://images.ctfassets.net/0uuz8ydxyd9p/5kHQtcFCSqkLDH4I6HFmyG/8e75bd66b57696eb0a7866b3cbf8ea30/Temporal_Symbol_light_1_2x.png"
           alt=""
           aria-hidden="true"
-        /><span>Temporal Badge</span></a
-      >
+        /><span>Temporal Badge</span>
+      </a>
       <nav class="site-nav" aria-label="Primary navigation">
+        <a href="developer-guide.html">Guide</a>
         <a href="get-started.html">Get Started</a>
         <a aria-current="page" href="hardware.html">Hardware</a>
+        <a href="api-reference.html">API</a>
         <a href="apps.html">Apps</a>
-        <a href="hacks.html">Hacks</a>
-        <a href="contribute.html">Contribute</a>
+        <a href="hacks.html">Gotchas</a>
         <a
           class="header-link"
-          href="https://temporal.io/"
+          href="https://docs.jumperless.org/badge-developer-guide/#6-hardware-guide"
           target="_blank"
           rel="noopener noreferrer"
-          >Temporal</a
+          >Source</a
         >
       </nav>
     </header>
@@ -42,8 +43,9 @@
         <p class="eyebrow">// BADGE SPEC</p>
         <h1>Hardware</h1>
         <p>
-          Replace these scaffold labels with the final board revision, pinout,
-          photos, and firmware constraints before launch.
+          The badge is an ESP32-S3 wearable with OLED, LED matrix, face
+          buttons, analog joystick, IMU, haptics, IR, FatFS storage, and an
+          embedded MicroPython runtime.
         </p>
       </section>
 
@@ -91,6 +93,16 @@
             </div>
             <div class="controls">
               <span></span>
+              <div class="led-matrix" aria-label="8 by 8 LED matrix showing a heart">
+                <i></i><i class="on"></i><i class="on"></i><i></i><i></i><i class="on"></i><i class="on"></i><i></i>
+                <i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i>
+                <i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i>
+                <i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i>
+                <i></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i>
+                <i></i><i></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i>
+                <i></i><i></i><i></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i>
+                <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+              </div>
               <span class="dpad" aria-label="Directional controls">
                 <i class="dpad-up"></i>
                 <i class="dpad-left"></i>
@@ -103,35 +115,29 @@
 
         <div class="component-grid">
           <article>
-            <span>Display</span>
-            <h3>Color Screen</h3>
+            <span>MCU</span>
+            <h3>ESP32-S3-WROOM-1 16N8</h3>
+            <p>Dual-core 240 MHz module with 16 MB flash and 8 MB PSRAM.</p>
+          </article>
+          <article>
+            <span>Runtime</span>
+            <h3>MicroPython v1.27</h3>
+            <p>Arduino C++ firmware hosts a 128 KB Python heap from PSRAM.</p>
+          </article>
+          <article>
+            <span>Storage</span>
+            <h3>FatFS at <code>/apps</code></h3>
             <p>
-              Primary surface for profile cards, workflow traces, QR codes, and
-              challenge feedback.
+              App files live on the FFat partition. The referenced build uses a
+              0x600000-byte partition.
             </p>
           </article>
           <article>
-            <span>Input</span>
-            <h3>Navigation Buttons</h3>
+            <span>Orientation</span>
+            <h3>Auto Nametag Mode</h3>
             <p>
-              Use for launcher movement, app actions, menu selection, and
-              recovery gestures.
-            </p>
-          </article>
-          <article>
-            <span>Power</span>
-            <h3>USB-C and Battery</h3>
-            <p>
-              Document charging behavior, runtime expectations, and safe battery
-              handling here.
-            </p>
-          </article>
-          <article>
-            <span>Expansion</span>
-            <h3>GPIO and I2C</h3>
-            <p>
-              List exact pins, voltage limits, pull-ups, and connector
-              orientation once verified.
+              The IMU can detect when the badge hangs upside down, then flip
+              display, matrix, and input orientation.
             </p>
           </article>
         </div>
@@ -139,29 +145,96 @@
 
       <section class="section">
         <div class="section-heading">
-          <p class="eyebrow">// SPEC TABLE</p>
-          <h2>Key Features</h2>
+          <p class="eyebrow">// HARDWARE AT A GLANCE</p>
+          <h2>Board Features</h2>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Component</th>
+                <th>Spec</th>
+                <th>Primary Calls</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Display</td>
+                <td>128x64 monochrome OLED, SSD1306</td>
+                <td><code>oled_println()</code>, <code>oled_show()</code></td>
+              </tr>
+              <tr>
+                <td>LED Matrix</td>
+                <td>8x8 red LED matrix, IS31FL3731, per-pixel PWM</td>
+                <td><code>led_set_pixel()</code>, <code>led_show_image()</code></td>
+              </tr>
+              <tr>
+                <td>Input</td>
+                <td>4 d-pad buttons and analog joystick</td>
+                <td><code>button_pressed()</code>, <code>joy_x()</code></td>
+              </tr>
+              <tr>
+                <td>Motion</td>
+                <td>LIS2DH12 3-axis accelerometer</td>
+                <td><code>imu_tilt_y()</code>, <code>imu_face_down()</code></td>
+              </tr>
+              <tr>
+                <td>IR</td>
+                <td>NEC-protocol TX LED and TSOP receiver</td>
+                <td><code>ir_start()</code>, <code>ir_send_words()</code></td>
+              </tr>
+              <tr>
+                <td>Haptics</td>
+                <td>Vibration motor with coil-tone support</td>
+                <td><code>haptic_pulse()</code>, <code>tone()</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-heading">
+          <p class="eyebrow">// CONTROLS</p>
+          <h2>Input Map</h2>
+          <p>
+            Use semantic constants for menu behavior and physical constants for
+            game controls.
+          </p>
         </div>
         <div class="spec-grid">
           <article>
-            <h3>Processor</h3>
-            <p>Microcontroller and clock speed placeholder.</p>
-            <strong>TBD</strong>
+            <h3>Physical Buttons</h3>
+            <p>
+              <code>BTN_UP</code> is Y, <code>BTN_DOWN</code> is A,
+              <code>BTN_LEFT</code> is X, and <code>BTN_RIGHT</code> is B.
+            </p>
+            <strong>0-3</strong>
           </article>
           <article>
-            <h3>Memory</h3>
-            <p>RAM and flash storage placeholder.</p>
-            <strong>TBD</strong>
+            <h3>Aliases</h3>
+            <p>
+              PlayStation-style aliases are available:
+              <code>BTN_TRIANGLE</code>, <code>BTN_CROSS</code>,
+              <code>BTN_SQUARE</code>, and <code>BTN_CIRCLE</code>.
+            </p>
+            <strong>mapped</strong>
           </article>
           <article>
-            <h3>Connectivity</h3>
-            <p>USB, serial, wireless, or event beacon placeholder.</p>
-            <strong>TBD</strong>
+            <h3>Confirm / Back</h3>
+            <p>
+              <code>BTN_CONFIRM</code> and <code>BTN_BACK</code> follow the
+              user confirm/back swap setting.
+            </p>
+            <strong>semantic</strong>
           </article>
           <article>
-            <h3>Runtime</h3>
-            <p>Battery capacity and expected active time placeholder.</p>
-            <strong>TBD</strong>
+            <h3>Joystick</h3>
+            <p>
+              <code>joy_x()</code> and <code>joy_y()</code> return raw values
+              from 0 to 4095. Center is usually near 2048.
+            </p>
+            <strong>ADC</strong>
           </article>
         </div>
       </section>
@@ -170,13 +243,16 @@
     <footer class="site-footer">
       <div>
         <h2>Temporal Badge</h2>
-        <p>Hardware references for rapid badge hacking.</p>
+        <p>
+          Hardware information derived from the Jumperless Badge Developer
+          Guide and API Reference.
+        </p>
       </div>
       <nav aria-label="Footer navigation">
         <a href="index.html">Home</a>
-        <a href="get-started.html">Get Started</a>
+        <a href="developer-guide.html">Guide</a>
+        <a href="api-reference.html">API</a>
         <a href="apps.html">Apps</a>
-        <a href="hacks.html">Hacks</a>
       </nav>
     </footer>
   </body>
