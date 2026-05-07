@@ -23,7 +23,7 @@
       </a>
       <nav class="site-nav" aria-label="Primary navigation">
         <a aria-current="page" href="basics.html">Basics</a>
-        <a href="get-started.html">Get Started</a>
+        <a href="developer-guide.html">Guide</a>
         <a href="hardware.html">Hardware</a>
         <a href="api-reference.html">API</a>
         <a href="apps.html">Apps</a>
@@ -48,18 +48,70 @@
         </p>
       </section>
 
-      <section class="guide-toc" aria-label="table of contents">
-        <a href="#what-is-this-badge">1. What Is This Badge?</a>
-        <a href="#jumperide">2. Getting Started with JumperIDE</a>
-        <a href="#first-app">3. Your First App</a>
-        <a href="#app-structure">4. App Structure</a>
-        <a href="#micropython">5. MicroPython Cheat Sheet</a>
-        <a href="#hardware">6. Hardware Guide</a>
-        <a href="#advanced">7. Advanced Topics</a>
-        <a href="#badge-comms">8. Badge-to-Badge Communication</a>
-        <a href="#gotchas">9. Tips and Gotchas</a>
-        <a href="#quick-reference">Quick Reference Card</a>
-      </section>
+      <section class="hardware-map">
+        <div
+          class="badge-visual"
+          aria-label="Stylized Temporal Badge hardware preview"
+        >
+          <div class="badge-body">
+            <div class="screen">
+              <div class="badge-menu-top">
+                <span>HOME</span>
+                <span class="status-icons" aria-hidden="true"
+                  ><span class="status-dot"></span><span class="battery"></span
+                ></span>
+              </div>
+              <div class="badge-menu-grid">
+                <div class="menu-tile active">
+                  <span class="tile-icon map-icon" aria-hidden="true"></span>
+                  <strong>MAP</strong>
+                </div>
+                <div class="menu-tile">
+                  <span
+                    class="tile-icon calendar-icon"
+                    aria-hidden="true"
+                  ></span>
+                  <strong>SCHEDULE</strong>
+                </div>
+                <div class="menu-tile">
+                  <span class="tile-icon grid-icon" aria-hidden="true"></span>
+                  <strong>SPONSORS</strong>
+                </div>
+                <div class="menu-tile">
+                  <span
+                    class="tile-icon workflow-icon"
+                    aria-hidden="true"
+                  ></span>
+                  <strong>DRAW</strong>
+                </div>
+              </div>
+              <div class="badge-menu-pager" aria-hidden="true">+++</div>
+              <div class="badge-menu-footer">
+                <strong>Find your way around Replay</strong>
+              </div>
+            </div>
+            <div class="controls">
+              <span></span>
+              <div class="led-matrix" aria-label="8 by 8 LED matrix showing a heart">
+                <i></i><i class="on"></i><i class="on"></i><i></i><i></i><i class="on"></i><i class="on"></i><i></i>
+                <i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i>
+                <i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i>
+                <i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i>
+                <i></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i>
+                <i></i><i></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i>
+                <i></i><i></i><i></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i>
+                <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+              </div>
+              <span class="dpad" aria-label="Directional controls">
+                <i class="dpad-up"></i>
+                <i class="dpad-left"></i>
+                <i class="dpad-right"></i>
+                <i class="dpad-down"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+      
 
       <section class="section guide-section" id="displays">
         <div class="section-heading">
@@ -84,47 +136,17 @@
           <h2>Controls</h2>
           <p>
             The badge has a joystick and four face buttons for navigating menus.
-            Move between menu items with the joystick, select with the Right button, and go back with the Down button. 
-          </p>
-        </div>
-      </section>
-
-      <section class="section guide-section" id="own-your-badge">
-        <div class="section-heading">
-          <p class="eyebrow">// SECTION 3</p>
-          <h2>Own Your Badge</h2>
-          <p>
-            To access and hack on your badge, you'll need a MicroPython development environment.
-            <ol>
-                <li>Install the Thonny IDE from https://thonny.org/</li>
-                <li>Connect your badge to your computer with a USB-C cable. Wait a moment for the badge to activate.</li>
-                <li>In Thonny, click the button at the bottom of the window that reads <b>Local Python 3 * Thonny's Python</b>. 
-                    Select the option <b>MicroPython (ESP32)</b>. If the IDE shows an error, click the button and reconnect.</li>
-                <li>Click the Open button. In the dialog that appears, select MicroPython Device.
-                    You will now see a listing of the files on your badge.</li>
-                <li>Open the `badgeinfo.json` file. Edit your name and title, which will be transmitted when you BOOP.</li>
-            </ol>
-           </p>
-        </div>
-      </section>
-
-      <section class="section guide-section" id="boop">
-        <div class="section-heading">
-          <p class="eyebrow">// SECTION 4</p>
-          <h2>BOOP</h2>
-          <p>
-            Once you've set your name and title on your badge, you can connect to other attendees or vendors.
-            We call this a BOOP. Select the BOOP item from the badge menu, then TODO: something something IR transmitter?
+            Move between menu items with the joystick (slide the Temporal logo; don't rotate it), select with the Right button, and go back with the Down button. 
           </p>
         </div>
       </section>
 
       <section class="section guide-section" id="replay">
         <div class="section-heading">
-          <p class="eyebrow">// SECTION 5</p>
+          <p class="eyebrow">// SECTION 3</p>
           <h2>Replay</h2>
           <p>
-            The badge includes the Schedule for Replay and an interactive Map of the venue, both from the main menu.
+            The badge includes the schedule for Replay and an interactive map of the venue, both from the main menu.
             The Sponsors menu item includes list of the amazing companies supporting the event.
         </p>
         </div>
@@ -132,7 +154,7 @@
 
       <section class="section guide-section" id="fun">
         <div class="section-heading">
-          <p class="eyebrow">// SECTION 6</p>
+          <p class="eyebrow">// SECTION 4</p>
           <h2>Have Fun!</h2>
           <p>
             The badge includes several apps to have fun with. Draw on the OLED, create LED matrix animations, 
@@ -144,7 +166,7 @@
 
       <section class="section guide-section" id="settings">
         <div class="section-heading">
-          <p class="eyebrow">// SECTION 7</p>
+          <p class="eyebrow">// SECTION 5</p>
           <h2>Badge Settings</h2>
           <p>
             Dig into the settings for your badge with the Settings and Diagnostics items.
@@ -152,6 +174,29 @@
           </p>
         </div>
       </section>
+
+      <section class="section guide-section" id="own-your-badge">
+        <div class="section-heading">
+          <p class="eyebrow">// SECTION 6</p>
+          <h2>Own Your Badge</h2>
+          <p>
+            To access and hack on your badge, you'll need a computer and a MicroPython development environment.
+            <ol>
+                <li>Connect your badge to your computer with a USB-C cable. Wait a moment for the badge to activate.</li>
+                <li>Open <a href="https://ide.jumperless.org/">ide.jumperless.org</a>. Click the Connect button (the USB logo) in the upper right.
+                    In the dialog that appears, select the USB JTAG/serial item, and click Connect.</li>
+                </li>
+                <li>The files on your badge will be displayed on the left. Open the <code>badgeinfo.json</code> file. Edit your name and title. When you're done, save the file by pressing Ctrl-S.</li>
+                <li>Reset the badge by holding down all four directional buttons simultaneously until the Replay logo appears.</li>
+                <li>Turn your badge right-side up and see your name displayed.</li>
+            </ol>
+           </p>
+           <p>
+             Now that you've connected to your badge and updated your information, you're ready to share your info with others with a BOOP.
+           </p>
+        </div>
+      </section>
+
 
     </main>
 
