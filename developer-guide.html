@@ -23,6 +23,7 @@
       </a>
       <nav class="site-nav" aria-label="Primary navigation">
         <a aria-current="page" href="developer-guide.html">Guide</a>
+        <a href="basics.html">Basics</a>
         <a href="get-started.html">Get Started</a>
         <a href="hardware.html">Hardware</a>
         <a href="api-reference.html">API</a>
@@ -114,8 +115,9 @@
           <article>
             <h3>Connect</h3>
             <p>
-              Open <a href="https://ide.jumperless.org/" target="_blank" rel="noopener noreferrer">ide.jumperless.org</a>,
-              press Connect, and choose the ESP32-S3 serial port.
+              Connect to your badge with a USB-C cable. Wait a moment for the badge to activate.
+              Open <a href="https://ide.jumperless.org/" target="_blank" rel="noopener noreferrer">ide.jumperless.org</a> to access the IDE.
+              Click the Connect button. In the dialog that appears, select the USB JTAG/serial item, and click Connect.
             </p>
             <strong>WebSerial</strong>
           </article>
@@ -305,12 +307,12 @@ ir_stop()</code></pre>
           <h2>Tips and Gotchas</h2>
         </div>
         <div class="callout-grid">
+          <p><strong>Exit:</strong> Hold all four face buttons for about one second to force-exit.</p>
           <p><strong>Memory:</strong> 128 KB heap. Reuse buffers and call <code>gc.collect()</code>.</p>
           <p><strong>Display:</strong> Call <code>oled_show()</code> after drawing.</p>
           <p><strong>Matrix:</strong> Use override mode before direct matrix drawing.</p>
           <p><strong>IR:</strong> Read within about 50 ms per frame and call <code>ir_stop()</code>.</p>
           <p><strong>Input:</strong> Read <code>button_pressed()</code> once per loop.</p>
-          <p><strong>Exit:</strong> Hold all four face buttons for about one second to force-exit.</p>
         </div>
       </section>
 

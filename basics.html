@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Temporal Badge Basics"
+    />
+    <title>Badge Basics | Temporal Badge</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="index.html">
+        <img
+          class="brand-mark"
+          src="https://images.ctfassets.net/0uuz8ydxyd9p/5kHQtcFCSqkLDH4I6HFmyG/8e75bd66b57696eb0a7866b3cbf8ea30/Temporal_Symbol_light_1_2x.png"
+          alt=""
+          aria-hidden="true"
+        /><span>Temporal Badge</span>
+      </a>
+      <nav class="site-nav" aria-label="Primary navigation">
+        <a aria-current="page" href="basics.html">Basics</a>
+        <a href="get-started.html">Get Started</a>
+        <a href="hardware.html">Hardware</a>
+        <a href="api-reference.html">API</a>
+        <a href="apps.html">Apps</a>
+        <a href="hacks.html">Gotchas</a>
+        <a
+          class="header-link"
+          href="https://temporal.io/"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Temporal</a
+        >
+      </nav>
+    </header>
+
+    <main>
+      <section class="page-hero">
+        <p class="eyebrow">// TEMPORAL BADGE</p>
+        <h1>Badge Basics</h1>
+        <p>
+            Explore what the Temporal Badge can do, then hack on it
+            and make it your own.
+        </p>
+      </section>
+
+      <section class="guide-toc" aria-label="table of contents">
+        <a href="#what-is-this-badge">1. What Is This Badge?</a>
+        <a href="#jumperide">2. Getting Started with JumperIDE</a>
+        <a href="#first-app">3. Your First App</a>
+        <a href="#app-structure">4. App Structure</a>
+        <a href="#micropython">5. MicroPython Cheat Sheet</a>
+        <a href="#hardware">6. Hardware Guide</a>
+        <a href="#advanced">7. Advanced Topics</a>
+        <a href="#badge-comms">8. Badge-to-Badge Communication</a>
+        <a href="#gotchas">9. Tips and Gotchas</a>
+        <a href="#quick-reference">Quick Reference Card</a>
+      </section>
+
+      <section class="section guide-section" id="displays">
+        <div class="section-heading">
+          <p class="eyebrow">// SECTION 1</p>
+          <h2>Displays</h2>
+          <p>
+            The Temporal Badge has two displays: a monochrome 128x64 OLED and a red 8x8 LED matrix. 
+            The OLED is great for text, UI, and simple graphics, while the LED matrix is perfect for bold, 
+            low-res images and animations.
+          </p>
+          <p>
+            The badge has an accelerometer that keeps track of orientation. 
+            When it's hanging around your neck in a normal position, the OLED displays your name.
+            When you turn it up to face you, it displays an interactive menu.
+          </p>
+        </div>
+      </section>
+
+      <section class="section guide-section" id="controls">
+        <div class="section-heading">
+          <p class="eyebrow">// SECTION 2</p>
+          <h2>Controls</h2>
+          <p>
+            The badge has a joystick and four face buttons for navigating menus.
+            Move between menu items with the joystick, select with the Right button, and go back with the Down button. 
+          </p>
+        </div>
+      </section>
+
+      <section class="section guide-section" id="own-your-badge">
+        <div class="section-heading">
+          <p class="eyebrow">// SECTION 3</p>
+          <h2>Own Your Badge</h2>
+          <p>
+            To access and hack on your badge, you'll need a MicroPython development environment.
+            <ol>
+                <li>Install the Thonny IDE from https://thonny.org/</li>
+                <li>Connect your badge to your computer with a USB-C cable. Wait a moment for the badge to activate.</li>
+                <li>In Thonny, click the button at the bottom of the window that reads <b>Local Python 3 * Thonny's Python</b>. 
+                    Select the option <b>MicroPython (ESP32)</b>. If the IDE shows an error, click the button and reconnect.</li>
+                <li>Click the Open button. In the dialog that appears, select MicroPython Device.
+                    You will now see a listing of the files on your badge.</li>
+                <li>Open the `badgeinfo.json` file. Edit your name and title, which will be transmitted when you BOOP.</li>
+            </ol>
+           </p>
+        </div>
+      </section>
+
+      <section class="section guide-section" id="boop">
+        <div class="section-heading">
+          <p class="eyebrow">// SECTION 4</p>
+          <h2>BOOP</h2>
+          <p>
+            Once you've set your name and title on your badge, you can connect to other attendees or vendors.
+            We call this a BOOP. Select the BOOP item from the badge menu, then TODO: something something IR transmitter?
+          </p>
+        </div>
+      </section>
+
+      <section class="section guide-section" id="replay">
+        <div class="section-heading">
+          <p class="eyebrow">// SECTION 5</p>
+          <h2>Replay</h2>
+          <p>
+            The badge includes the Schedule for Replay and an interactive Map of the venue, both from the main menu.
+            The Sponsors menu item includes list of the amazing companies supporting the event.
+        </p>
+        </div>
+      </section>
+
+      <section class="section guide-section" id="fun">
+        <div class="section-heading">
+          <p class="eyebrow">// SECTION 6</p>
+          <h2>Have Fun!</h2>
+          <p>
+            The badge includes several apps to have fun with. Draw on the OLED, create LED matrix animations, 
+            express yourself musically with Synth, and even play DOOM right on your badge.
+            There are some other games hidden in your badge as well.
+          </p>
+        </div>
+      </section>
+
+      <section class="section guide-section" id="settings">
+        <div class="section-heading">
+          <p class="eyebrow">// SECTION 7</p>
+          <h2>Badge Settings</h2>
+          <p>
+            Dig into the settings for your badge with the Settings and Diagnostics items.
+            You can also adjust the haptic feedback and try out several animations featuring Ziggy.
+          </p>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      <div>
+        <h2>Temporal Badge</h2>
+        <p>
+          Local guide content sourced from Jumperless docs for the Temporal
+          Badge.
+        </p>
+      </div>
+      <nav aria-label="Footer navigation">
+        <a href="index.html">Home</a>
+        <a href="get-started.html">Get Started</a>
+        <a href="hardware.html">Hardware</a>
+        <a href="api-reference.html">API</a>
+      </nav>
+    </footer>
+  </body>
+</html>
