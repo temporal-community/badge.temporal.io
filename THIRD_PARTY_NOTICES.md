@@ -34,6 +34,21 @@ The badge firmware also credits id Software before launching Doom.
 
 A Doom WAD-specific notice is included at `licenses/DOOM1-WAD.txt`.
 
+## Community Badge Apps
+
+The following installable Community Apps are contributed by their named
+authors and live under `registry/community_apps/`:
+
+- Tardigotchi by aask42.
+- Durable Snake by Alexandre Roman.
+- Starfield Nametag by Alexandre Roman.
+
+Durable Snake and Starfield Nametag were imported from Alexandre Roman's
+`temporal-replay-2026-badge-apps` repository and are licensed under the
+Apache License, Version 2.0. The Apache-2.0 license text is included at
+`licenses/Apache-2.0.txt`. Preserve the Apache notices in those files when
+redistributing source or binaries.
+
 ## Other Firmware Dependencies
 
 The public firmware tree may include or depend on additional third-party

@@ -154,9 +154,13 @@ the factory filesystem live under
 those folders to `registry/community_apps.json`, and the badge installs them
 into `/apps/<app>/` from the Community Apps screen.
 
-Community app submissions live under
-`firmware/micropython/community_apps/apps/<app>/` and land separately from the
-initial public release so authorship and licensing stay easy to audit.
+Current community app submissions:
+
+| App | Contributor | Description |
+|---|---|---|
+| Tardigotchi | aask42 | Hatch and care for a tiny tardigrade. |
+| Durable Snake | Alexandre Roman | Snake game with three retries. |
+| Starfield Nametag | Alexandre Roman | Animated starfield with a personalized nametag. |
 
 ## Building and Validating App Changes
 
@@ -443,7 +447,7 @@ handle this in your app.
 | `input_test.py` | All inputs: buttons, joystick, IMU |
 | `mouse_demo.py` | Mouse overlay cursor with absolute/relative modes |
 | `synth/` | Joystick synthesizer with loop recorder and loadable sounds |
-| `tilt_ball.py` | IMU tilt → LED matrix dot position |
+| `tilt_ball.py` | IMU tilt -> LED matrix dot position |
 | `font_demo.py` | Cycle through available OLED fonts |
 | `ir_test.py` | IR receive — display incoming NEC frames |
 | `ir_poll_test.py` | IR receive polling at 50ms for 2 minutes |
