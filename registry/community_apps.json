@@ -1,0 +1,624 @@
+{
+  "schema_version": 2,
+  "generator": "generate_startup_files.py",
+  "assets": [
+    {
+      "id": "breaksnake",
+      "kind": "app",
+      "name": "Breaksnake",
+      "version": "2c1284b8be9d",
+      "dest_dir": "/apps/breaksnake",
+      "size": 15391,
+      "min_free_bytes": 19487,
+      "description": " import sys ",
+      "files": [
+        {
+          "path": "/bs_data.py",
+          "size": 2708,
+          "sha256": "bc79dbd0041ecae32514f1964b05ee03af5cbeb213017070d7bd6ed719fa2ef0",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/breaksnake/bs_data.py"
+        },
+        {
+          "path": "/bs_engine.py",
+          "size": 7838,
+          "sha256": "5482acb8842f146206c1660c87491587cb438581de9123e3fef0f1eec5b764f7",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/breaksnake/bs_engine.py"
+        },
+        {
+          "path": "/bs_screens.py",
+          "size": 4249,
+          "sha256": "42a5a6b23a223660b0c77dcd13ab426e19bbc17c6855d1ad694315501e7dc6d6",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/breaksnake/bs_screens.py"
+        },
+        {
+          "path": "/icon.py",
+          "size": 372,
+          "sha256": "dbbdc8aace0dcec4d49df92f0079806f1a7380e4068adc88cecdcbfad613ccfa",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/breaksnake/icon.py"
+        },
+        {
+          "path": "/main.py",
+          "size": 224,
+          "sha256": "3bd9cf9e776128b1111c88948ffef24d1369e78caecfab2029290c35e6a3e006",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/breaksnake/main.py"
+        }
+      ]
+    },
+    {
+      "id": "flappy-asteroids",
+      "kind": "app",
+      "name": "Flappy Asteroids",
+      "version": "1ba74fc13dde",
+      "dest_dir": "/apps/flappy_asteroids",
+      "size": 22866,
+      "min_free_bytes": 26962,
+      "description": " import sys ",
+      "files": [
+        {
+          "path": "/fa_data.py",
+          "size": 6616,
+          "sha256": "19c1c035c6887ba4d8a4d7f8816c27b3a2a6e17bdcc4d4764c1b1e48f7bf6af4",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/flappy_asteroids/fa_data.py"
+        },
+        {
+          "path": "/fa_engine.py",
+          "size": 10327,
+          "sha256": "fd7cb84a2953f40b1066069e768175208b1cfe629b7399a374bcfcb2a9a308bd",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/flappy_asteroids/fa_engine.py"
+        },
+        {
+          "path": "/fa_screens.py",
+          "size": 5298,
+          "sha256": "b78815b02a783e14ee3963ea021651ea5d0121046906ff66665e6617a29b6c54",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/flappy_asteroids/fa_screens.py"
+        },
+        {
+          "path": "/icon.py",
+          "size": 383,
+          "sha256": "cdd2943dbc4555c857c321072d11c7201d9768ca5fb04f25504ac0d127a8bbae",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/flappy_asteroids/icon.py"
+        },
+        {
+          "path": "/main.py",
+          "size": 242,
+          "sha256": "128d6024d54ded31ee25da283b972947eb23512949e1dc96956d15ca16a0dfb1",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/flappy_asteroids/main.py"
+        }
+      ]
+    },
+    {
+      "id": "ir-block-battle",
+      "kind": "app",
+      "name": "Ir Block Battle",
+      "version": "3061fc619175",
+      "dest_dir": "/apps/ir_block_battle",
+      "size": 40897,
+      "min_free_bytes": 44993,
+      "description": " import sys ",
+      "files": [
+        {
+          "path": "/ibb_data.py",
+          "size": 4922,
+          "sha256": "3f55d97143defdacd9e87ea880c2b9851af1bd364770b4c111c1d80763425f65",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/ir_block_battle/ibb_data.py"
+        },
+        {
+          "path": "/ibb_engine.py",
+          "size": 13717,
+          "sha256": "e4bb28ebdbb59ca9281be2bf59cc74ac7823a5c3ab105a8178b011928192b45c",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/ir_block_battle/ibb_engine.py"
+        },
+        {
+          "path": "/ibb_net.py",
+          "size": 9117,
+          "sha256": "00fadb884a900ec23e757b504ef725e52d9cfe094f90393ae2e7c8dad43504b5",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/ir_block_battle/ibb_net.py"
+        },
+        {
+          "path": "/ibb_screens.py",
+          "size": 10300,
+          "sha256": "6009a8856abe051981c554bba96f47e3919ad32b67c268f56fd521f8ddedf90d",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/ir_block_battle/ibb_screens.py"
+        },
+        {
+          "path": "/ibb_serial.py",
+          "size": 2221,
+          "sha256": "bf8ee63f006e36cb2754a882f975c8ae1a71016f89472a2ff54e76a861a5e1b9",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/ir_block_battle/ibb_serial.py"
+        },
+        {
+          "path": "/icon.py",
+          "size": 380,
+          "sha256": "4f98210e03bc1ee45c9652f7b1a766fbd4f83f229bade17c4e2ccbbe6e3d9bfd",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/ir_block_battle/icon.py"
+        },
+        {
+          "path": "/main.py",
+          "size": 240,
+          "sha256": "28212bd160bd9fb98464f02cf07dcace5127cf36bad1f0bd82fa9f0e8d0937d2",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/ir_block_battle/main.py"
+        }
+      ]
+    },
+    {
+      "id": "ir-remote",
+      "kind": "app",
+      "name": "Ir Remote",
+      "version": "3995e4737567",
+      "dest_dir": "/apps/ir_remote",
+      "size": 91233,
+      "min_free_bytes": 95329,
+      "description": " Four-tile launcher that visually mirrors the badge's home GridMenuScreen but lives in MicroPython. Each tile owns a separate consolidated app:",
+      "files": [
+        {
+          "path": "/data/__init__.py",
+          "size": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/ir_remote/data/__init__.py"
+        },
+        {
+          "path": "/data/ac_codes.py",
+          "size": 3972,
+          "sha256": "d71c2e17b5732d32df3982ef3b56370e00d4f94bba231c0656ab544906fd5b53",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/ir_remote/data/ac_codes.py"
+        },
+        {
+          "path": "/data/audio_codes.py",
+          "size": 1973,
+          "sha256": "ea32e0c6cf80f7934a8c85111a5c14b1be5fa4fe85a13159570ffd16cc97adbb",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/ir_remote/data/audio_codes.py"
+        },
+        {
+          "path": "/data/projector_codes.py",
+          "size": 1100,
+          "sha256": "33ed1eec75730161c1ca3971666482fe9381fa485118750a75ceb30080ae0ac5",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/ir_remote/data/projector_codes.py"
+        },
+        {
+          "path": "/data/tv_codes.py",
+          "size": 3229,
+          "sha256": "9d5836a9ce24757191856f70031ec42d732a83130e5363e9e7a3ec71fe14d256",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/ir_remote/data/tv_codes.py"
+        },
+        {
+          "path": "/data/tvbgone_codes.py",
+          "size": 1229,
+          "sha256": "37a38525c19432bbddddd444acf1912a001b0ed2e20a2c4c22164761effd0bc5",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/ir_remote/data/tvbgone_codes.py"
+        },
+        {
+          "path": "/games.py",
+          "size": 10045,
+          "sha256": "927b8d34d56d50214eaf52739c6d42b8ae8544e97db7bb8b534908698fda7dbc",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/ir_remote/games.py"
+        },
+        {
+          "path": "/icon.py",
+          "size": 871,
+          "sha256": "5374a1deda6fab991de5d623e4bdbcb386a601adaed1ffb1210cd9af7baf967f",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/ir_remote/icon.py"
+        },
+        {
+          "path": "/ir_lib.py",
+          "size": 28293,
+          "sha256": "0c020dae8bbd0b560213059dc81b3bb4cca82ef2c7bec867c6d1f04c293c0411",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/ir_remote/ir_lib.py"
+        },
+        {
+          "path": "/main.py",
+          "size": 1865,
+          "sha256": "d9470e1f468df4c663fb6a1805922a820e2eb8a8759221a01dd4bce402465b8f",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/ir_remote/main.py"
+        },
+        {
+          "path": "/range.py",
+          "size": 9821,
+          "sha256": "b9af3bade68f6872d2d5464c5b1fd4ab0b29171b4d974e787cde27fda8982f72",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/ir_remote/range.py"
+        },
+        {
+          "path": "/remote.py",
+          "size": 20163,
+          "sha256": "6d62ff3bbf3ff0007c01ece5d0804903d8b852908c31ba53389517bffbc2baeb",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/ir_remote/remote.py"
+        },
+        {
+          "path": "/scan.py",
+          "size": 8672,
+          "sha256": "a8b83489c7de759973dcbd5c40b4f141e767168fef82d59c290e10d13ccb11bf",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/ir_remote/scan.py"
+        }
+      ]
+    },
+    {
+      "id": "synth",
+      "kind": "app",
+      "name": "Synth",
+      "version": "9aea3becd11a",
+      "dest_dir": "/apps/synth",
+      "size": 15000,
+      "min_free_bytes": 19096,
+      "description": "Synth",
+      "files": [
+        {
+          "path": "/main.py",
+          "size": 15000,
+          "sha256": "2cd0dbc4113253704cc01113a466c9cc53c0bf381b66dde1962283250c4e6da9",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/synth/main.py"
+        }
+      ]
+    },
+    {
+      "id": "zigmoji",
+      "kind": "app",
+      "name": "Zigmoji",
+      "version": "7eb65231692d",
+      "dest_dir": "/apps/zigmoji",
+      "size": 38912,
+      "min_free_bytes": 43008,
+      "description": "Zigmoji",
+      "files": [
+        {
+          "path": "/blink_01.fb",
+          "size": 1024,
+          "sha256": "f5358db4e0bec1d7eea4340cb464da7ace6546b534796e1c44d61f1d1b71b6a3",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/zigmoji/blink_01.fb"
+        },
+        {
+          "path": "/blink_02.fb",
+          "size": 1024,
+          "sha256": "0db896b99133771eac9bd4df192d00129e743cb4848c763809d14f55d79c991e",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/zigmoji/blink_02.fb"
+        },
+        {
+          "path": "/fly_01.fb",
+          "size": 1024,
+          "sha256": "0c89c614d9fe829e6b4b015114ec79cf0a27b0542879933285ba7fc3edf0fa34",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/zigmoji/fly_01.fb"
+        },
+        {
+          "path": "/fly_02.fb",
+          "size": 1024,
+          "sha256": "5acc04b8c98b24c8497c8d2a0c27d5d67519d9ae7727347b88b5897370060dc9",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/zigmoji/fly_02.fb"
+        },
+        {
+          "path": "/fly_03.fb",
+          "size": 1024,
+          "sha256": "c7c4cd67ddfd3e75348ae8ef7355631f28d474cbfa205bfaaf325f6ffaab7216",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/zigmoji/fly_03.fb"
+        },
+        {
+          "path": "/fly_04.fb",
+          "size": 1024,
+          "sha256": "af4563d6fbc0dd30c4159cedf90dbb0b0f9bb3baef3a6787227ef0eb231af687",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/zigmoji/fly_04.fb"
+        },
+        {
+          "path": "/fly_05.fb",
+          "size": 1024,
+          "sha256": "d06d7435877aa200ef251649001d3fe0b4bc1eccc7c0bca7dbf0eedf8682cdfd",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/zigmoji/fly_05.fb"
+        },
+        {
+          "path": "/fly_06.fb",
+          "size": 1024,
+          "sha256": "5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/zigmoji/fly_06.fb"
+        },
+        {
+          "path": "/heart_01.fb",
+          "size": 1024,
+          "sha256": "a8f5cf5391d6200ecf80416a9d36e2c913f17efd594d4d51b2cabb9728b9da37",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/zigmoji/heart_01.fb"
+        },
+        {
+          "path": "/heart_02.fb",
+          "size": 1024,
+          "sha256": "fc1d5a4c7d8e9fcb010bf90317eba6d7cab5fe7b0d3236303a47cf79f7ded0cf",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/zigmoji/heart_02.fb"
+        },
+        {
+          "path": "/heart_03.fb",
+          "size": 1024,
+          "sha256": "909c238b82d456f4a1d6a2056e62294b079058b4bab171eeca0ca78dbdeb39d0",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/zigmoji/heart_03.fb"
+        },
+        {
+          "path": "/s_theart.fb",
+          "size": 1024,
+          "sha256": "4e2e0951a8f8fe6ee8f2dd752682bd3631d384362e8245e92fee0b7f0fe13780",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/zigmoji/s_theart.fb"
+        },
+        {
+          "path": "/s_tlogo.fb",
+          "size": 1024,
+          "sha256": "e55b9bb43bcff5957ee97c63a189f41d62e269bb843d64e4ebde7b049bbfa6a8",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/zigmoji/s_tlogo.fb"
+        },
+        {
+          "path": "/s_ziggy.fb",
+          "size": 1024,
+          "sha256": "c7c4cd67ddfd3e75348ae8ef7355631f28d474cbfa205bfaaf325f6ffaab7216",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/zigmoji/s_ziggy.fb"
+        },
+        {
+          "path": "/s_zighead.fb",
+          "size": 1024,
+          "sha256": "f8bf19a5aca0b380e7b4527c7663593608ceed7db0ab151cc0b86c0349d4b66f",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/zigmoji/s_zighead.fb"
+        },
+        {
+          "path": "/sleep_01.fb",
+          "size": 1024,
+          "sha256": "8210f6c9aafd09349b776730dc493287827b93abb51e75471989929694024d52",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/zigmoji/sleep_01.fb"
+        },
+        {
+          "path": "/sleep_02.fb",
+          "size": 1024,
+          "sha256": "abd93dd7224952b4d981b8bbe581b247999db434ad467d5c704e726e0e9bb380",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/zigmoji/sleep_02.fb"
+        },
+        {
+          "path": "/sleep_03.fb",
+          "size": 1024,
+          "sha256": "552eef9eea9498131506e9790caea178d902bae0a91ac8c3e87c75afe442a913",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/zigmoji/sleep_03.fb"
+        },
+        {
+          "path": "/sp_apartment.fb",
+          "size": 1024,
+          "sha256": "92cfc71d6b5919815b015cc998e3455161ede90c2b82d76aa8417508831c53a1",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/zigmoji/sp_apartment.fb"
+        },
+        {
+          "path": "/sp_augment.fb",
+          "size": 1024,
+          "sha256": "6f0a849032eb43ae52c92cc624187a133a2750a4704ec5f898ae92277161c33a",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/zigmoji/sp_augment.fb"
+        },
+        {
+          "path": "/sp_bitovi.fb",
+          "size": 1024,
+          "sha256": "d6bf544db5e058e53e4c72728d1cabdaf29902c9d920f03d782537705bb12624",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/zigmoji/sp_bitovi.fb"
+        },
+        {
+          "path": "/sp_braintrust.fb",
+          "size": 1024,
+          "sha256": "44fc5b18c8e5bf39f91f348a2183da220ecf7322460b715542bb17f2ab071b37",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/zigmoji/sp_braintrust.fb"
+        },
+        {
+          "path": "/sp_google.fb",
+          "size": 1024,
+          "sha256": "d3c73997db23928d187debf713e8399ce984f466e3d195b911baa842c4da9b98",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/zigmoji/sp_google.fb"
+        },
+        {
+          "path": "/sp_grid.fb",
+          "size": 1024,
+          "sha256": "d94776f05488531855f6bf58ba477fc422f0683479d4dc3978aececfea83c898",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/zigmoji/sp_grid.fb"
+        },
+        {
+          "path": "/sp_liatro.fb",
+          "size": 1024,
+          "sha256": "6ea273d87d851e564ba36ca606f531783a6a80a91c98214d554dc12fcc8278f7",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/zigmoji/sp_liatro.fb"
+        },
+        {
+          "path": "/sp_tailscale.fb",
+          "size": 1024,
+          "sha256": "a9fafd8f16f38dd869de525793a2b39f721413f253f01670c19ae2e6f305096b",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/zigmoji/sp_tailscale.fb"
+        },
+        {
+          "path": "/sp_techno.fb",
+          "size": 1024,
+          "sha256": "d260bafde7a897a000126745de2eb7f9a7dd069af07e2a8fd09df4008a405181",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/zigmoji/sp_techno.fb"
+        },
+        {
+          "path": "/starry_01.fb",
+          "size": 1024,
+          "sha256": "11d34f7190dab0e9693f031215c66a20d5530f982c9ab8254512ba9fb362abec",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/zigmoji/starry_01.fb"
+        },
+        {
+          "path": "/starry_02.fb",
+          "size": 1024,
+          "sha256": "70b1e867d40cd7fc7e27780a702c487270fb0629608f7b1ceab7ff7d26da103e",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/zigmoji/starry_02.fb"
+        },
+        {
+          "path": "/starry_03.fb",
+          "size": 1024,
+          "sha256": "c36a88e709de3acf7f8649a708db32dd07b152c2ec26ce16c97fa5dfb65f495c",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/zigmoji/starry_03.fb"
+        },
+        {
+          "path": "/theart_01.fb",
+          "size": 1024,
+          "sha256": "0569817bb1e7dff749e98c7159ce098b8bd42992efbe0a025ff271c086e8cc7b",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/zigmoji/theart_01.fb"
+        },
+        {
+          "path": "/theart_02.fb",
+          "size": 1024,
+          "sha256": "273d749ba74bc5e78fae3da90920058304cdd061cd20384dc975c7a681cc0b30",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/zigmoji/theart_02.fb"
+        },
+        {
+          "path": "/theart_03.fb",
+          "size": 1024,
+          "sha256": "e718654601e46c06ffee160ca82c6d0b8308539e9bd0c4681dd974bd1eb320ef",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/zigmoji/theart_03.fb"
+        },
+        {
+          "path": "/vulcan_01.fb",
+          "size": 1024,
+          "sha256": "052f5163f674d6478a2bc29021446400b9c1e18b6dc67f218492792843eded0c",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/zigmoji/vulcan_01.fb"
+        },
+        {
+          "path": "/vulcan_02.fb",
+          "size": 1024,
+          "sha256": "a5c2402774a2fd8d26168de0614ba765f4cf2ab5af6fa7059345c77f3fe66c1f",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/zigmoji/vulcan_02.fb"
+        },
+        {
+          "path": "/vulcan_03.fb",
+          "size": 1024,
+          "sha256": "8ae7aa887a8b001b2066e01bf995074c7aeb3c2cb759f34088e759791dbf2479",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/zigmoji/vulcan_03.fb"
+        },
+        {
+          "path": "/wow_01.fb",
+          "size": 1024,
+          "sha256": "635b40b1306af43d033d3e16ac8e988ff2f91ba689add804b88f91ae53ce701a",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/zigmoji/wow_01.fb"
+        },
+        {
+          "path": "/wow_02.fb",
+          "size": 1024,
+          "sha256": "01e7faa9ff959633d98d8cd693e2bb775c5133164a6ad38d6279e6c4a24c0fb3",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/zigmoji/wow_02.fb"
+        }
+      ]
+    },
+    {
+      "id": "apps-api_test-py",
+      "kind": "file",
+      "name": "api_test.py",
+      "version": "980f103488d6",
+      "dest_path": "/apps/api_test.py",
+      "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/api_test.py",
+      "sha256": "980f103488d6885524b9f130df162013965ec95f0bd502d8d24e7aa5da70115a",
+      "size": 12775,
+      "min_free_bytes": 13799,
+      "description": "Optional asset (/apps/api_test.py)"
+    },
+    {
+      "id": "apps-font_demo-py",
+      "kind": "file",
+      "name": "font_demo.py",
+      "version": "a5e71b9d3731",
+      "dest_path": "/apps/font_demo.py",
+      "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/font_demo.py",
+      "sha256": "a5e71b9d3731889ac7ac5f8e9d1ceeb838cd45dfcb0b7f95613118b5d74efbf8",
+      "size": 1450,
+      "min_free_bytes": 2474,
+      "description": "Optional asset (/apps/font_demo.py)"
+    },
+    {
+      "id": "apps-hello-py",
+      "kind": "file",
+      "name": "hello.py",
+      "version": "7cf686b7f7e6",
+      "dest_path": "/apps/hello.py",
+      "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/hello.py",
+      "sha256": "7cf686b7f7e61250eec05393824124ed5da01a7886eb5b711fd8ccd38400e9cf",
+      "size": 934,
+      "min_free_bytes": 1958,
+      "description": "Optional asset (/apps/hello.py)"
+    },
+    {
+      "id": "apps-ir_loopback_test-py",
+      "kind": "file",
+      "name": "ir_loopback_test.py",
+      "version": "7779d7073df1",
+      "dest_path": "/apps/ir_loopback_test.py",
+      "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/ir_loopback_test.py",
+      "sha256": "7779d7073df10754e57654385994208cd7df30f05a76831b85b226e929f0cee2",
+      "size": 6196,
+      "min_free_bytes": 7220,
+      "description": "Optional asset (/apps/ir_loopback_test.py)"
+    },
+    {
+      "id": "apps-tilt_ball-py",
+      "kind": "file",
+      "name": "tilt_ball.py",
+      "version": "c2e41ec8e3dc",
+      "dest_path": "/apps/tilt_ball.py",
+      "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/tilt_ball.py",
+      "sha256": "c2e41ec8e3dc7b24ebffbce342bf094ebad7cefad65a2e4cc6ae8ba91dee3235",
+      "size": 1447,
+      "min_free_bytes": 2471,
+      "description": "Optional asset (/apps/tilt_ball.py)"
+    },
+    {
+      "id": "apps-viperide_reinit-py",
+      "kind": "file",
+      "name": "viperide_reinit.py",
+      "version": "2b33701064ec",
+      "dest_path": "/apps/viperide_reinit.py",
+      "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/viperide_reinit.py",
+      "sha256": "2b33701064ec05f6057a7f45a0bcf35d01c355b3a815a72ab9800988cef3eaee",
+      "size": 936,
+      "min_free_bytes": 1960,
+      "description": "Optional asset (/apps/viperide_reinit.py)"
+    },
+    {
+      "id": "apps-zigmoji-py",
+      "kind": "file",
+      "name": "zigmoji.py",
+      "version": "6ca84be05bfd",
+      "dest_path": "/apps/zigmoji.py",
+      "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/apps/zigmoji.py",
+      "sha256": "6ca84be05bfd5b89b78ccbe16abf578046cf892f85e43141c0432a909c67ae33",
+      "size": 4156,
+      "min_free_bytes": 5180,
+      "description": "Optional asset (/apps/zigmoji.py)"
+    },
+    {
+      "id": "docs-API_REFERENCE-md",
+      "kind": "file",
+      "name": "API_REFERENCE.md",
+      "version": "2e7a9f8afec2",
+      "dest_path": "/docs/API_REFERENCE.md",
+      "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/docs/API_REFERENCE.md",
+      "sha256": "2e7a9f8afec28b7176daf35ed259a0c52e24d1e61aee4c05126e7778cf1d6971",
+      "size": 41545,
+      "min_free_bytes": 42569,
+      "description": "Optional asset (/docs/API_REFERENCE.md)"
+    },
+    {
+      "id": "docs-MicroPythonDeveloperGuide-m",
+      "kind": "file",
+      "name": "MicroPythonDeveloperGuide.md",
+      "version": "e5863beb16b9",
+      "dest_path": "/docs/MicroPythonDeveloperGuide.md",
+      "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/docs/MicroPythonDeveloperGuide.md",
+      "sha256": "e5863beb16b99070af959440c592d80e6521e13e90f083e3de56dec543e74a09",
+      "size": 29423,
+      "min_free_bytes": 30447,
+      "description": "Optional asset (/docs/MicroPythonDeveloperGuide.md)"
+    },
+    {
+      "id": "docs-README-md",
+      "kind": "file",
+      "name": "README.md",
+      "version": "e2047eb6b015",
+      "dest_path": "/docs/README.md",
+      "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/docs/README.md",
+      "sha256": "e2047eb6b0155aba54d08ca887f5f1df5c6282461bfcb62a6d60bca5f704d04c",
+      "size": 509,
+      "min_free_bytes": 1533,
+      "description": "Optional asset (/docs/README.md)"
+    },
+    {
+      "id": "doom1-shareware",
+      "kind": "file",
+      "name": "DOOM 1 Shareware",
+      "version": "1.9",
+      "dest_path": "/doom1.wad",
+      "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/doom1.wad",
+      "size": 4196020,
+      "min_free_bytes": 4500000,
+      "description": "Original 1993 shareware episode. Required for the DOOM tile.",
+      "sha256": "1d7d43be501e67d927e415e0b8f3e29c3bf33075e859721816f652a526cac771"
+    }
+  ]
+}

@@ -1,0 +1,193 @@
+[
+  {
+    "idx": 0,
+    "title": "Level 00",
+    "sections": [
+      {
+        "idx": 0,
+        "loc": 0,
+        "title": "Swag / Lunch",
+        "icon": "temporal",
+        "desc": "Grab your Temporal swag and lunch!"
+      },
+      {
+        "idx": 1,
+        "loc": 10,
+        "title": "The Hangar",
+        "desc": "Primary keynote and general session hall."
+      }
+    ],
+    "desc": "Below street level — swag pickup and main hall."
+  },
+  {
+    "idx": 1,
+    "title": "Concourse",
+    "sections": [
+      {
+        "idx": 0,
+        "loc": 100,
+        "title": "Persist",
+        "alias": "AI Museum",
+        "desc": "Check out the AI Museum installation art."
+      },
+      {
+        "idx": 1,
+        "loc": 110,
+        "title": "Ground Control",
+        "icon": "icon-info",
+        "desc": "Talk to an expert."
+      },
+      {
+        "idx": 2,
+        "loc": 120,
+        "title": "Sponsors A",
+        "icon": "icon-sponsors",
+        "desc": "Augment Code booth."
+      },
+      {
+        "idx": 3,
+        "loc": 130,
+        "title": "Sponsors B",
+        "icon": "icon-sponsors",
+        "desc": "Technoidentity, Apartment 304, Liatro, Google for Startups, Bitovi booth."
+      },
+      {
+        "idx": 4,
+        "loc": 140,
+        "title": "Sponsors C",
+        "icon": "icon-sponsors",
+        "desc": "Braintrust booth."
+      },
+      {
+        "idx": 5,
+        "loc": 150,
+        "title": "Debarkment",
+        "alias": "Check-In",
+        "icon": "temporal",
+        "desc": "Check in and collect your badge here."
+      },
+      {
+        "idx": 6,
+        "loc": 160,
+        "title": "Help Desk",
+        "icon": "icon-info",
+        "desc": "On-site support and assistance."
+      },
+      {
+        "idx": 7,
+        "loc": 170,
+        "title": "The Gallery",
+        "alias": "Cafe",
+        "desc": "Grab a treat at the cafe."
+      }
+    ],
+    "desc": "Lobby level — find cool stuff here!"
+  },
+  {
+    "idx": 2,
+    "title": "Mezzanine",
+    "sections": [
+      {
+        "idx": 0,
+        "loc": 200,
+        "title": "The Expanse",
+        "icon": "temporal-icon"
+      },
+      {
+        "idx": 1,
+        "loc": 210,
+        "title": "Elara",
+        "icon": "temporal-icon"
+      },
+      {
+        "idx": 2,
+        "loc": 220,
+        "title": "Zenith",
+        "icon": "temporal-icon"
+      },
+      {
+        "idx": 3,
+        "loc": 230,
+        "title": "Hyperion",
+        "icon": "temporal-icon"
+      },
+      {
+        "idx": 4,
+        "loc": 240,
+        "title": "Persenne",
+        "icon": "temporal-icon"
+      }
+    ],
+    "desc": "Breakout floor — workshops and more!"
+  },
+  {
+    "idx": 3,
+    "title": "Level 02",
+    "sections": [
+      {
+        "idx": 0,
+        "loc": 300,
+        "title": "Pulsar",
+        "icon": "temporal-icon"
+      },
+      {
+        "idx": 1,
+        "loc": 310,
+        "title": "Quasar",
+        "icon": "temporal-icon"
+      },
+      {
+        "idx": 2,
+        "loc": 320,
+        "title": "Nebula",
+        "icon": "temporal-icon"
+      },
+      {
+        "idx": 3,
+        "loc": 330,
+        "title": "Nova",
+        "icon": "temporal-icon"
+      }
+    ],
+    "desc": "Additional workshop and session rooms."
+  },
+  {
+    "idx": 4,
+    "title": "Level 03",
+    "sections": [
+      {
+        "idx": 0,
+        "loc": 400,
+        "title": "Speaker Work Room",
+        "desc": "Prep and green room for presenters."
+      },
+      {
+        "idx": 1,
+        "loc": 410,
+        "title": "Temporal Film Studio",
+        "icon": "temporal",
+        "desc": "Video production and interview space."
+      },
+      {
+        "idx": 2,
+        "loc": 420,
+        "title": "Java Workshop (Despina)",
+        "desc": "Dedicated Java workshop room."
+      }
+    ],
+    "desc": "Speaker prep, production, and Java workshop rooms."
+  },
+  {
+    "idx": 5,
+    "title": "Off-Site",
+    "sections": [
+      {
+        "idx": 0,
+        "loc": 900,
+        "title": "Cupid's Span",
+        "desc": "Waterfront landmark on the Embarcadero (5K Fun Run start)."
+      }
+    ],
+    "desc": "Conference activities outside the main venue. Code prefix `9`."
+  }
+]

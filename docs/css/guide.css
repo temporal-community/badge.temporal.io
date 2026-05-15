@@ -1,0 +1,146 @@
+.guide-toc {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  padding: clamp(28px, 4vw, 44px) clamp(16px, 4vw, 56px);
+  border-bottom: 1px solid var(--line);
+  background: var(--line);
+}
+
+.guide-toc a {
+  min-height: 54px;
+  padding: 14px;
+  background: var(--panel);
+  color: var(--muted);
+  font-family:
+    "Space Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+}
+
+.guide-toc a:hover {
+  color: var(--yellow);
+  background: var(--panel-2);
+}
+
+.guide-section {
+  scroll-margin-top: 88px;
+  padding-inline: clamp(28px, 5vw, 72px);
+}
+
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  background: var(--panel);
+}
+
+table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  color: var(--muted);
+  text-transform: none;
+}
+
+th,
+td {
+  padding: 15px;
+  border: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  color: var(--yellow);
+  font-family:
+    "Space Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.api-grid,
+.callout-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  border: 1px solid var(--line);
+  background: var(--line);
+}
+
+.api-grid article,
+.callout-grid p {
+  min-width: 0;
+  margin: 0;
+  padding: 20px;
+  background: rgba(17, 18, 23, 0.93);
+  color: var(--muted);
+}
+
+.api-grid.dense {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.api-grid h3 {
+  color: var(--ink);
+}
+
+.api-grid article > span {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--green);
+  font-family:
+    "Space Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.narrow {
+  max-width: 980px;
+}
+
+.code-block {
+  overflow: auto;
+  margin: 0;
+  padding: 22px;
+  border: 1px solid var(--line);
+  background: #080808;
+  color: #d7ffe1;
+  font-family:
+    "Space Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  text-transform: none;
+}
+
+.screenshot-demo {
+  display: grid;
+  grid-template-columns: minmax(260px, 512px) minmax(320px, 1fr);
+  gap: 24px;
+  align-items: stretch;
+  max-width: 1180px;
+}
+
+.screenshot-demo img {
+  width: 100%;
+  max-width: 512px;
+  image-rendering: pixelated;
+  border: 1px solid var(--line);
+  background: #000;
+}
+
+.screenshot-demo .code-block {
+  min-width: 0;
+  width: 100%;
+}
+
+.screenshot-note {
+  margin-top: 28px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+

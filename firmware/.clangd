@@ -1,0 +1,65 @@
+# ReplayJumperlos — ESP32-S3 (PlatformIO) + clangd
+#
+# Uses compile_commands.json in this directory. Refresh after changing
+# platformio.ini, lib_deps, or board:
+#   pio run -t compiledb
+#
+# .vscode/settings.json points clangd at the same database and enables
+# --query-driver so system includes match the Xtensa GCC toolchain.
+
+CompileFlags:
+  CompilationDatabase: .
+  Remove:
+    - -mlongcalls
+    - -mdisable-hardware-atomics
+    - -fstrict-volatile-bitfields
+    - -fno-tree-switch-conversion
+    - -fno-jump-tables
+    - -freorder-blocks
+  Add:
+    - "-Wno-unknown-warning-option"
+    - "-Wno-backslash-newline-escape"
+    - "-Wno-macro-redefined"
+    - "-Wno-unknown-pragmas"
+
+---
+If:
+  PathMatch: .*\.c$
+CompileFlags:
+  Add:
+    - "-std=c99"
+  Remove:
+    - "-std=c++11"
+    - "-std=c++17"
+    - "-std=gnu++11"
+
+---
+If:
+  PathMatch: .*\.(cpp|cc|cxx|c\+\+)$
+CompileFlags:
+  Add:
+    - "-std=gnu++11"
+
+---
+Diagnostics:
+  ClangTidy:
+    Remove:
+      - misc-definitions-in-headers
+      - readability-identifier-length
+      - modernize-use-trailing-return-type
+  UnusedIncludes: None
+  Suppress:
+    - "pp_file_not_found"
+
+---
+Format:
+  BasedOnStyle: LLVM
+  ColumnLimit: 0
+  AllowShortIfStatementsOnASingleLine: false
+  AllowShortLoopsOnASingleLine: false
+  AllowShortFunctionsOnASingleLine: Empty
+  AlwaysBreakTemplateDeclarations: Yes
+  BreakBeforeBraces: Attach
+  IndentWidth: 2
+  TabWidth: 2
+  UseTab: Never

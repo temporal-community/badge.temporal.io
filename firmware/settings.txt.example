@@ -1,0 +1,42 @@
+# Replay Badge Settings
+# Copy to settings.txt for non-secret runtime settings. Do not put WiFi
+# credentials in this file; use the badge WiFi setup UI, Ignition
+# --wifi-ssid/--wifi-pass, firmware/wifi.local.env, or BADGE_WIFI_* build
+# environment variables instead.
+
+[display]
+font_fam = Spleen
+font_size = 4
+
+[haptics]
+haptic_en = 1
+
+[input]
+swap_ok = 1        # 1=B confirm/A cancel, 0=A confirm/B cancel
+
+[nametag]
+# default = built-in text nametag; or 8-char composer animation id (persists across reboot)
+nametag = default
+
+[time]
+# POSIX TZ string. Default is Pacific time with daylight saving time.
+timezone = PST8PDT,M3.2.0,M11.1.0
+
+[ota]
+# Firmware OTA. The badge polls the GitHub Releases API once a day for
+# new firmware and exposes a "Check Updates" / "UPDATE" tile on the
+# home grid. Leave manifest_url empty to use the default endpoint baked
+# into the build (temporal-community/badge.temporal.io releases).
+manifest_url =
+
+# Community Apps registry. A JSON file enumerating user-installable
+# apps + assets (DOOM WAD, sound packs, etc.). The badge fetches this
+# once a day and lets users browse / install entries from the
+# Community Apps screen. See firmware/docs/OTA-MAINTAINER.md for the
+# schema. The legacy `asset_registry_url` key is still accepted for
+# backwards compatibility.
+# Default: the registry shipped alongside the firmware repo.
+community_apps_url = https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/registry/community_apps.json
+
+[log]
+log_imu = 0

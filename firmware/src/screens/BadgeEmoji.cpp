@@ -1,0 +1,53 @@
+#include "BadgeEmoji.h"
+
+namespace BadgeEmoji {
+
+namespace {
+
+constexpr uint32_t kCodepoints[kCount] = {
+    // Page 1: must-haves / most-used
+    0x1F602, 0x1F926, 0x1F643, 0x1F389, 0x1F4AF, 0x1F44B, 0x1F62D,
+    0x1F923, 0x1F60A, 0x1F60D, 0x1F970, 0x1F601, 0x1F605, 0x1F606,
+
+    // Page 2: gestures / celebration / favorites
+    0x1F64F, 0x1F44D, 0x1F44F, 0x1F64C, 0x1F44C, 0x270C, 0x1F4AA,
+    0x1F917, 0x1F609, 0x263A, 0x1F60E, 0x1F607, 0x1F680, 0x2764,
+
+    // Page 3: reactions / pointers
+    0x1F495, 0x1F496, 0x1F494, 0x1F525, 0x2728, 0x2B50, 0x2705,
+    0x274C, 0x1F440, 0x1F449, 0x1F447, 0x1F448, 0x1F600, 0x1F642,
+
+    // Page 4: expressive / thinking
+    0x1F937, 0x1F914, 0x1F644, 0x1F92D, 0x1F979, 0x1F97A, 0x1FAE0,
+    0x1F92A, 0x1F924, 0x1F60B, 0x1F61C, 0x1F61D, 0x1F60F, 0x1F62C,
+
+    // Page 5: negative / tired / surprise
+    0x1F614, 0x1F622, 0x1F625, 0x1F61E, 0x1F629, 0x1F621, 0x1F620,
+    0x1F612, 0x1F611, 0x1F633, 0x1F631, 0x1F630, 0x1F92C, 0x1F634,
+
+    // Page 6: extra gestures / utility
+    0x1F648, 0x1F64A, 0x1F480, 0x1F3B6, 0x1F91D, 0x1F91E, 0x1F918,
+    0x1F919, 0x1F64B, 0x1F646, 0x1F645, 0x1F647, 0x1F637, 0x1F604,
+};
+
+}  // namespace
+
+uint32_t codepoint(uint8_t index) {
+    return index < kCount ? kCodepoints[index] : kCodepoints[0];
+}
+
+char fontCharForIndex(uint8_t index) {
+    return static_cast<char>(kFirstFontChar + (index < kCount ? index : 0));
+}
+
+bool fontCharForCodepoint(uint32_t codepoint, char& out) {
+    for (uint8_t i = 0; i < kCount; ++i) {
+        if (kCodepoints[i] == codepoint) {
+            out = fontCharForIndex(i);
+            return true;
+        }
+    }
+    return false;
+}
+
+}  // namespace BadgeEmoji

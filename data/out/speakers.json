@@ -1,0 +1,576 @@
+[
+  {
+    "id": 0,
+    "name": "Samar Abbas",
+    "co": "Temporal",
+    "title": "CEO & Co-Founder",
+    "bio": ""
+  },
+  {
+    "id": 1,
+    "name": "Amjad Masad",
+    "co": "Replit",
+    "title": "CEO & Founder",
+    "bio": ""
+  },
+  {
+    "id": 2,
+    "name": "Venkat Venkataramani",
+    "co": "OpenAI",
+    "title": "VP, App Infrastructure",
+    "bio": ""
+  },
+  {
+    "id": 3,
+    "name": "Zainab Merchant",
+    "co": "Fivetran",
+    "title": "Director of Engineering",
+    "bio": ""
+  },
+  {
+    "id": 4,
+    "name": "Madhav Sodhani",
+    "co": "Fivetran",
+    "title": "Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 5,
+    "name": "Suresh Nageswaran",
+    "co": "Grid Dynamics",
+    "title": "Sr. Director",
+    "bio": ""
+  },
+  {
+    "id": 6,
+    "name": "Anant Agarwal",
+    "co": "Instacart",
+    "title": "Staff Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 7,
+    "name": "Eliot Miller",
+    "co": "Gradient Labs",
+    "title": "Backend Engineer",
+    "bio": ""
+  },
+  {
+    "id": 8,
+    "name": "Johann Schleier-Smith",
+    "co": "Temporal",
+    "title": "Sr. Staff Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 9,
+    "name": "Ethan Ruhe",
+    "co": "Temporal",
+    "title": "Staff Product Manager, AI",
+    "bio": ""
+  },
+  {
+    "id": 10,
+    "name": "Mason Egger",
+    "co": "Temporal",
+    "title": "Sr. Solutions Architect",
+    "bio": ""
+  },
+  {
+    "id": 11,
+    "name": "Kartik Bharath",
+    "co": "Tailscale",
+    "title": "Solutions Engineer",
+    "bio": ""
+  },
+  {
+    "id": 12,
+    "name": "Jeremy Cook",
+    "co": "NVIDIA",
+    "title": "Sr. Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 13,
+    "name": "Matt Tescher",
+    "co": "NVIDIA",
+    "title": "Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 14,
+    "name": "Shabnam Emdadi",
+    "co": "Shopify",
+    "title": "Staff Engineer",
+    "bio": ""
+  },
+  {
+    "id": 15,
+    "name": "Alban Preldakaj",
+    "co": "Apollo Global Management",
+    "title": "Principal, Head of Core Engineering",
+    "bio": ""
+  },
+  {
+    "id": 16,
+    "name": "Tom Wheeler",
+    "co": "Temporal",
+    "title": "Principal Developer Advocate",
+    "bio": ""
+  },
+  {
+    "id": 17,
+    "name": "Satnam Dhanoa",
+    "co": "Alaska Airlines",
+    "title": "Sr. Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 18,
+    "name": "Hassan Nawaz",
+    "co": "Alaska Airlines",
+    "title": "Senior Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 19,
+    "name": "Anastasiya Melentyeva",
+    "co": "Xero",
+    "title": "Senior Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 20,
+    "name": "Hudson Southey-Gordon",
+    "co": "Xero",
+    "title": "Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 21,
+    "name": "Phil Prasek",
+    "co": "Temporal",
+    "title": "Sr. Staff Product Manager",
+    "bio": ""
+  },
+  {
+    "id": 22,
+    "name": "Dan Davison",
+    "co": "Temporal",
+    "title": "Sr. Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 23,
+    "name": "Edward Zhu",
+    "co": "Coinbase",
+    "title": "Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 24,
+    "name": "Kshitij Wadhwa",
+    "co": "OpenAI",
+    "title": "Member of Technical Staff",
+    "bio": ""
+  },
+  {
+    "id": 25,
+    "name": "Dan Kador",
+    "co": "Abridge",
+    "title": "VP of Product Engineering",
+    "bio": ""
+  },
+  {
+    "id": 26,
+    "name": "Ertan Dogrultan",
+    "co": "Replit",
+    "title": "Director of Engineering",
+    "bio": ""
+  },
+  {
+    "id": 27,
+    "name": "Reggie Gomez",
+    "co": "Hebbia AI",
+    "title": "Member of Technical Staff",
+    "bio": ""
+  },
+  {
+    "id": 28,
+    "name": "Rob Zienert",
+    "co": "Netflix",
+    "title": "Sr. Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 29,
+    "name": "Ankit Rajesh Methwani",
+    "co": "LinkedIn",
+    "title": "Sr. Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 30,
+    "name": "Puneeth Reddy Poddutoori",
+    "co": "LinkedIn",
+    "title": "Senior Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 31,
+    "name": "Manu Srivastava",
+    "co": "Temporal",
+    "title": "Engineering Manager",
+    "bio": ""
+  },
+  {
+    "id": 32,
+    "name": "Xinyi Chen",
+    "co": "Temporal",
+    "title": "Staff Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 33,
+    "name": "Jack Burns",
+    "co": "Datadog",
+    "title": "Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 34,
+    "name": "Catherine Jue",
+    "co": "kernel.sh",
+    "title": "Co-Founder",
+    "bio": ""
+  },
+  {
+    "id": 35,
+    "name": "Jonathan Chan",
+    "co": "RBC",
+    "title": "Principal Cloud Engineer",
+    "bio": ""
+  },
+  {
+    "id": 36,
+    "name": "Ryan Stevens",
+    "co": "ZoomInfo",
+    "title": "Sr. Principal Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 37,
+    "name": "Daniel Lopes",
+    "co": "GrowthX AI",
+    "title": "CTO & Co-Founder",
+    "bio": ""
+  },
+  {
+    "id": 38,
+    "name": "Catherine Zhang",
+    "co": "Block",
+    "title": "Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 39,
+    "name": "Jeremy Stribling",
+    "co": "Cursor",
+    "title": "Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 40,
+    "name": "Andrew Wells",
+    "co": "Relativity",
+    "title": "Sr. Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 41,
+    "name": "Carly de Frondeville",
+    "co": "Temporal",
+    "title": "Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 42,
+    "name": "Stefan Richter",
+    "co": "Temporal",
+    "title": "Sr. Staff Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 43,
+    "name": "Sagar Randive",
+    "co": "Google Cloud Platform",
+    "title": "Product Manager, GCP Serverless",
+    "bio": ""
+  },
+  {
+    "id": 44,
+    "name": "Preeti Somal",
+    "co": "Temporal",
+    "title": "Sr. VP of Engineering",
+    "bio": ""
+  },
+  {
+    "id": 45,
+    "name": "Maxim Fateev",
+    "co": "Temporal",
+    "title": "CTO & Co-Founder",
+    "bio": ""
+  },
+  {
+    "id": 46,
+    "name": "Jacob LeGrone",
+    "co": "Datadog",
+    "title": "Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 47,
+    "name": "Zhihao Wang",
+    "co": "Duolingo",
+    "title": "Staff Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 48,
+    "name": "Dominik Kundel",
+    "co": "OpenAI",
+    "title": "Developer Experience Lead",
+    "bio": ""
+  },
+  {
+    "id": 49,
+    "name": "Paul Nordstrom",
+    "co": "Temporal",
+    "title": "Principal Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 50,
+    "name": "Michael Bishoff",
+    "co": "Scale",
+    "title": "Staff Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 51,
+    "name": "Aditya Chaturvedi",
+    "co": "Scale",
+    "title": "Engineering Manager",
+    "bio": ""
+  },
+  {
+    "id": 52,
+    "name": "Samuel Colvin",
+    "co": "Pydantic",
+    "title": "Founder",
+    "bio": ""
+  },
+  {
+    "id": 53,
+    "name": "Lam Tran",
+    "co": "Retool",
+    "title": "Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 54,
+    "name": "Yeshwanth Kumar Pentakota",
+    "co": "Yum! Brands",
+    "title": "Staff Software Engineer Lead",
+    "bio": ""
+  },
+  {
+    "id": 55,
+    "name": "Tihomir Surdilovic",
+    "co": "Temporal",
+    "title": "Senior Staff Developer Success Engineer",
+    "bio": ""
+  },
+  {
+    "id": 56,
+    "name": "Liang Mei",
+    "co": "Temporal",
+    "title": "Director of Engineering",
+    "bio": ""
+  },
+  {
+    "id": 57,
+    "name": "Sergey Bykov",
+    "co": "Temporal",
+    "title": "Principal Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 58,
+    "name": "Parth Nagori",
+    "co": "Twilio",
+    "title": "Staff Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 59,
+    "name": "James Gibbons",
+    "co": "Abridge",
+    "title": "Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 60,
+    "name": "Cornelia Davis",
+    "co": "Temporal",
+    "title": "Sr. Staff Developer Advocate",
+    "bio": ""
+  },
+  {
+    "id": 61,
+    "name": "Jonathan Jaegerman",
+    "co": "Netflix",
+    "title": "Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 62,
+    "name": "Slava Vitebski",
+    "co": "Redis",
+    "title": "Software Architect",
+    "bio": ""
+  },
+  {
+    "id": 63,
+    "name": "Ian Yap",
+    "co": "Coinbase",
+    "title": "Staff Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 64,
+    "name": "David Nicholas",
+    "co": "Bitovi",
+    "title": "System Engineer",
+    "bio": ""
+  },
+  {
+    "id": 65,
+    "name": "Roman Kuskov",
+    "co": "Booking.com",
+    "title": "Sr. Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 66,
+    "name": "David Reiss",
+    "co": "Temporal",
+    "title": "Staff Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 67,
+    "name": "Rahul Kekre",
+    "co": "Temporal",
+    "title": "Sr. Engineering Manager",
+    "bio": ""
+  },
+  {
+    "id": 68,
+    "name": "James Watkins",
+    "co": "Temporal",
+    "title": "Senior Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 69,
+    "name": "Franz Busch",
+    "co": "Apple",
+    "title": "Sr. Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 70,
+    "name": "Hugh Neale",
+    "co": "Thand",
+    "title": "Founder",
+    "bio": ""
+  },
+  {
+    "id": 71,
+    "name": "Andrew Danks",
+    "co": "Affirm",
+    "title": "Sr. Staff Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 72,
+    "name": "Alan Xu",
+    "co": "Affirm",
+    "title": "Senior Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 73,
+    "name": "Eric Ziegler",
+    "co": "Washington Post",
+    "title": "Software Architect",
+    "bio": ""
+  },
+  {
+    "id": 74,
+    "name": "Vivek Gupta",
+    "co": "Capital One",
+    "title": "Director, Distinguished Engineer",
+    "bio": ""
+  },
+  {
+    "id": 75,
+    "name": "Joseph Gilbert",
+    "co": "Capital One",
+    "title": "Sr. Manager, Engineering",
+    "bio": ""
+  },
+  {
+    "id": 76,
+    "name": "Jeff Ferland",
+    "co": "Crusoe",
+    "title": "Staff Site Reliability Engineer",
+    "bio": ""
+  },
+  {
+    "id": 77,
+    "name": "Roey Berman",
+    "co": "Temporal",
+    "title": "Sr. Staff Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 78,
+    "name": "Yichao Yang",
+    "co": "Temporal",
+    "title": "Staff Software Engineer",
+    "bio": ""
+  },
+  {
+    "id": 79,
+    "name": "Simone Mainardi",
+    "co": "Salesforce",
+    "title": "Principal Network Security Engineer",
+    "bio": ""
+  },
+  {
+    "id": 80,
+    "name": "Prabhat Singh",
+    "co": "Salesforce",
+    "title": "VP, Software Engineering",
+    "bio": ""
+  },
+  {
+    "id": 81,
+    "name": "Gagan Gangothri",
+    "co": "Salesforce",
+    "title": "Principal Network Security Engineer",
+    "bio": ""
+  }
+]

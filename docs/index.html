@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Replay 2026 Badge MicroPython developer guide, flashing guide, and API reference."
+    />
+    <title>Replay 2026 Badge</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/badge.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="Replay 2026 Badge home">
+        <img
+          class="brand-mark"
+          src="https://images.ctfassets.net/0uuz8ydxyd9p/5kHQtcFCSqkLDH4I6HFmyG/8e75bd66b57696eb0a7866b3cbf8ea30/Temporal_Symbol_light_1_2x.png"
+          alt=""
+          aria-hidden="true"
+          width="30"
+          height="30"
+        />
+        <span>Replay 2026 Badge</span>
+      </a>
+      <nav class="site-nav" aria-label="Primary navigation">
+        <a href="get-started.html">Get Started</a>
+        <a href="basics.html">Basics</a>
+        <a href="developer-guide.html">Guide</a>
+        <a href="hardware.html">Hardware</a>
+        <a href="api-reference.html">API</a>
+        <a href="apps.html">Apps</a>
+        <a href="hacks.html">Gotchas</a>
+        <a href="https://github.com/temporal-community/badge.temporal.io" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a
+          class="header-link"
+          href="https://temporal.io/"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Temporal</a
+        >
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">// REPLAY 2026 BADGE</p>
+          <h1>Hack. Retry. Execute.</h1>
+          <p class="lede">
+            Build apps, flash firmware, and explore the open source hardware
+            for the Temporal Replay 2026 Badge. Control the OLED, LED matrix,
+            buttons, joystick, IMU, haptics, IR, and native UI directly from
+            MicroPython. The source lives in the
+            <a
+              href="https://github.com/temporal-community/badge.temporal.io"
+              target="_blank"
+              rel="noopener noreferrer"
+              >public GitHub repo</a
+            >.
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="get-started.html">Get Started</a>
+            <a class="button" href="developer-guide.html">Developer Guide</a>
+          </div>
+        </div>
+
+        <div
+          class="badge-visual"
+          aria-label="Stylized Replay 2026 Badge hardware preview"
+        >
+          <div class="badge-body">
+            <div class="screen">
+              <div class="badge-menu-top">
+                <span>HOME</span>
+                <span class="status-icons" aria-hidden="true"
+                  ><span class="status-dot"></span><span class="battery"></span
+                ></span>
+              </div>
+              <div class="badge-menu-grid">
+                <div class="menu-tile active">
+                  <span class="tile-icon map-icon" aria-hidden="true"></span>
+                  <strong>MAP</strong>
+                </div>
+                <div class="menu-tile">
+                  <span
+                    class="tile-icon calendar-icon"
+                    aria-hidden="true"
+                  ></span>
+                  <strong>SCHEDULE</strong>
+                </div>
+                <div class="menu-tile">
+                  <span class="tile-icon grid-icon" aria-hidden="true"></span>
+                  <strong>SPONSORS</strong>
+                </div>
+                <div class="menu-tile">
+                  <span
+                    class="tile-icon workflow-icon"
+                    aria-hidden="true"
+                  ></span>
+                  <strong>DRAW</strong>
+                </div>
+              </div>
+              <div class="badge-menu-pager" aria-hidden="true">+++</div>
+              <div class="badge-menu-footer">
+                <strong>Find your way around Replay</strong>
+              </div>
+            </div>
+            <div class="controls">
+              <span></span>
+              <div class="led-matrix" role="img" aria-label="8 by 8 LED matrix showing a heart">
+                <i></i><i class="on"></i><i class="on"></i><i></i><i></i><i class="on"></i><i class="on"></i><i></i>
+                <i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i>
+                <i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i>
+                <i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i>
+                <i></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i>
+                <i></i><i></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i>
+                <i></i><i></i><i></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i>
+                <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+              </div>
+              <span class="dpad" role="img" aria-label="Directional controls">
+                <i class="dpad-up"></i>
+                <i class="dpad-left"></i>
+                <i class="dpad-right"></i>
+                <i class="dpad-down"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="stats-strip" aria-label="Badge summary">
+          <div><strong>S3</strong><span>ESP32 module</span></div>
+          <div><strong>64</strong><span>OLED rows</span></div>
+          <div><strong>8x8</strong><span>LED matrix</span></div>
+          <div><strong>16MB</strong><span>Factory image</span></div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-heading">
+          <p class="eyebrow">// GUIDE SECTIONS</p>
+          <h2>Developer Guide</h2>
+          <p>
+            See the developer guide for instructions on how to flash the badge,
+            connect over WebSerial, build and run an app, and use the API. Get
+            the source from
+            <a
+              href="https://github.com/temporal-community/badge.temporal.io"
+              target="_blank"
+              rel="noopener noreferrer"
+              >GitHub</a
+            >
+            before flashing locally.
+          </p>
+        </div>
+        <div class="card-grid four">
+          <article class="app-card">
+            <div class="app-icon trace"></div>
+            <h3><a href="https://ide.jumperless.org/" target="_blank" rel="noopener noreferrer">JumperIDE</a></h3>
+            <p>
+              Connect over WebSerial, run scripts through the REPL, save files,
+              and inspect exceptions.
+            </p>
+          </article>
+          <article class="app-card">
+            <div class="app-icon pulse"></div>
+            <h3><a href="developer-guide.html#flashing">Ignition</a></h3>
+            <p>
+              Flash one badge or a connected batch with the Temporal-powered
+              system we built to bulk flash the Replay 2026 badge fleet.
+            </p>
+          </article>
+          <article class="app-card">
+            <div class="app-icon temporal"></div>
+            <h3><a href="developer-guide.html#hardware">Hardware APIs</a></h3>
+            <p>
+              Work with OLED, LED matrix, buttons, joystick, IMU, haptics, IR,
+              mouse overlay, and identity calls.
+            </p>
+          </article>
+          <article class="app-card">
+            <div class="app-icon signal"></div>
+            <h3><a href="developer-guide.html#badge-comms">Badge Comms</a></h3>
+            <p>
+              Exchange compact or multi-word frames over line-of-sight IR
+              between two badges.
+            </p>
+          </article>
+        </div>
+        <div class="section-link">
+          <a href="developer-guide.html">Read the full mapped guide</a>
+        </div>
+      </section>
+
+      <section class="section split-band">
+        <div>
+          <p class="eyebrow">// QUICK START</p>
+          <h2>First App Path</h2>
+          <p>
+            Start with a single file in <code>/apps</code>. Move to a folder
+            app when you need modules, assets, or save files.
+          </p>
+        </div>
+        <div class="hack-list">
+          <a href="get-started.html">
+            <span>01</span>
+            <strong>Flash and connect</strong>
+            <em>webserial</em>
+          </a>
+          <a href="basics.html#own-your-badge">
+            <span>02</span>
+            <strong>Change your badge name</strong>
+            <em>personalize</em>
+          </a>
+          <a href="apps.html">
+            <span>03</span>
+            <strong>Create <code>/apps/hello.py</code></strong>
+            <em>single file</em>
+          </a>
+          <a href="hardware.html">
+            <span>04</span>
+            <strong>Control the badge hardware</strong>
+            <em>api calls</em>
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div>
+        <h2>Replay 2026 Badge</h2>
+        <p>
+          Static MicroPython developer guide for the Replay 2026 Badge.
+        </p>
+      </div>
+      <nav aria-label="Footer navigation">
+        <a href="developer-guide.html">Guide</a>
+        <a href="get-started.html">Get Started</a>
+        <a href="hardware.html">Hardware</a>
+        <a href="api-reference.html">API</a>
+      </nav>
+    </footer>
+  </body>
+</html>

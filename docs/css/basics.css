@@ -1,0 +1,84 @@
+.hardware-map {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.9fr) minmax(0, 1.1fr);
+  gap: 24px;
+}
+
+.basics-map {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.basics-panel {
+  max-width: 720px;
+}
+
+.basics-panel h2 {
+  max-width: 660px;
+}
+
+.basics-panel > p:not(.eyebrow),
+.basics-detail span,
+.basics-facts span {
+  color: var(--muted);
+}
+
+.basics-facts,
+.basics-detail {
+  display: grid;
+  gap: 1px;
+  border: 1px solid var(--line);
+  background: var(--line);
+}
+
+.basics-facts {
+  margin-top: 26px;
+}
+
+.basics-facts p,
+.basics-detail p {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  padding: 16px;
+  background: rgba(17, 18, 23, 0.93);
+}
+
+.basics-facts strong,
+.basics-detail strong {
+  color: var(--yellow);
+  font-family:
+    "Space Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.basics-facts span,
+.basics-detail span {
+  text-transform: none;
+}
+
+.basics-section {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(280px, 0.65fr);
+  gap: clamp(24px, 5vw, 72px);
+  align-items: start;
+}
+
+.basics-section .section-heading {
+  max-width: 860px;
+  margin-bottom: 0;
+}
+
+.basics-section .basics-detail,
+.basics-section .callout-grid {
+  align-self: center;
+}
+
+.board-diagram,
+.component-grid,
+.spec-grid,
+.feature-row,

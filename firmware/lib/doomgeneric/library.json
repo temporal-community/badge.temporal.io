@@ -1,0 +1,17 @@
+{
+  "name": "doomgeneric",
+  "version": "1.0.0",
+  "description": "DoomGeneric - portable Doom engine (vendored)",
+  "build": {
+    "flags": [
+      "-DDOOMGENERIC_RESX=160",
+      "-DDOOMGENERIC_RESY=100",
+      "-w",
+      "-DESP_PLATFORM"
+    ],
+    "srcFilter": [
+      "+<src/>"
+    ],
+    "includeDir": "src"
+  }
+}

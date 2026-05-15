@@ -1,0 +1,70 @@
+# PlatformIO and firmware build output
+firmware/.pio/
+firmware/build/
+firmware/compile_commands.json
+firmware/src/micropython/StartupFilesData.h
+firmware/src/infra/BuildWifiConfig.generated.h
+firmware/initial_filesystem/manifest.json
+firmware/scripts/startup_hash_history.json
+firmware/data/
+firmware/logs/
+firmware/dist/
+firmware/factory_*.bin
+
+# Python and Temporal tooling
+__pycache__/
+*.pyc
+*.pyo
+ignition/.venv/
+ignition/logs/
+.pytest_cache/
+
+# Local config
+firmware/wifi*.env
+firmware/**/wifi*.env
+firmware/settings.txt
+firmware/secrets/
+settingsKevin.txt
+.env*
+!.env.example
+!*.env.example
+
+# Machine and editor state
+.DS_Store
+__MACOSX/
+.vscode/
+.idea/
+*.tmp
+*.log
+*.lck
+*~
+*#
+
+# Release staging
+.asset-cache/
+artifacts/
+
+# Generated docs and local audit artifacts
+docs-dist/
+lighthouse-*/
+
+# KiCad/editor-local hardware state
+hardware/**/.history/
+hardware/**/.history_trim/
+hardware/**/.git/
+hardware/**/fp-info-cache
+hardware/**/*.bak
+hardware/**/*.FCBak
+hardware/**/*.kicad_prl
+hardware/**/*backups/
+
+# This public repo intentionally tracks these source/data directories even if
+# a developer has broad global ignore rules for /data or lib/.
+!/data/
+!/data/**
+data/__pycache__/
+data/**/*.pyc
+!/firmware/lib/
+!/firmware/lib/**
+!/firmware/initial_filesystem/lib/
+!/firmware/initial_filesystem/lib/**

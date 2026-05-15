@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Replay 2026 Badge basics"
+    />
+    <title>Badge Basics | Replay 2026 Badge</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/badge.css" />
+    <link rel="stylesheet" href="css/basics.css" />
+    <link rel="stylesheet" href="css/guide.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="index.html">
+        <img
+          class="brand-mark"
+          src="https://images.ctfassets.net/0uuz8ydxyd9p/5kHQtcFCSqkLDH4I6HFmyG/8e75bd66b57696eb0a7866b3cbf8ea30/Temporal_Symbol_light_1_2x.png"
+          alt=""
+          aria-hidden="true"
+          width="30"
+          height="30"
+        /><span>Replay 2026 Badge</span>
+      </a>
+      <nav class="site-nav" aria-label="Primary navigation">
+        <a aria-current="page" href="basics.html">Basics</a>
+        <a href="developer-guide.html">Guide</a>
+        <a href="hardware.html">Hardware</a>
+        <a href="api-reference.html">API</a>
+        <a href="apps.html">Apps</a>
+        <a href="hacks.html">Gotchas</a>
+        <a href="https://github.com/temporal-community/badge.temporal.io" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a
+          class="header-link"
+          href="https://temporal.io/"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Temporal</a
+        >
+      </nav>
+    </header>
+
+    <main>
+      <section class="page-hero">
+        <p class="eyebrow">// REPLAY 2026 BADGE</p>
+        <h1>Badge Basics</h1>
+        <p>
+            Explore what the Replay 2026 Badge can do, then hack on it
+            and make it your own.
+        </p>
+      </section>
+
+      <section class="hardware-map basics-map">
+        <div
+          class="badge-visual"
+          aria-label="Stylized Replay 2026 Badge hardware preview"
+        >
+          <div class="badge-body">
+            <div class="screen">
+              <div class="badge-menu-top">
+                <span>HOME</span>
+                <span class="status-icons" aria-hidden="true"
+                  ><span class="status-dot"></span><span class="battery"></span
+                ></span>
+              </div>
+              <div class="badge-menu-grid">
+                <div class="menu-tile active">
+                  <span class="tile-icon map-icon" aria-hidden="true"></span>
+                  <strong>MAP</strong>
+                </div>
+                <div class="menu-tile">
+                  <span
+                    class="tile-icon calendar-icon"
+                    aria-hidden="true"
+                  ></span>
+                  <strong>SCHEDULE</strong>
+                </div>
+                <div class="menu-tile">
+                  <span class="tile-icon grid-icon" aria-hidden="true"></span>
+                  <strong>SPONSORS</strong>
+                </div>
+                <div class="menu-tile">
+                  <span
+                    class="tile-icon workflow-icon"
+                    aria-hidden="true"
+                  ></span>
+                  <strong>DRAW</strong>
+                </div>
+              </div>
+              <div class="badge-menu-pager" aria-hidden="true">+++</div>
+              <div class="badge-menu-footer">
+                <strong>Find your way around Replay</strong>
+              </div>
+            </div>
+            <div class="controls">
+              <span></span>
+              <div class="led-matrix" role="img" aria-label="8 by 8 LED matrix showing a heart">
+                <i></i><i class="on"></i><i class="on"></i><i></i><i></i><i class="on"></i><i class="on"></i><i></i>
+                <i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i>
+                <i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i>
+                <i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i>
+                <i></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i>
+                <i></i><i></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i>
+                <i></i><i></i><i></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i>
+                <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+              </div>
+              <span class="dpad" role="img" aria-label="Directional controls">
+                <i class="dpad-up"></i>
+                <i class="dpad-left"></i>
+                <i class="dpad-right"></i>
+                <i class="dpad-down"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="basics-panel">
+          <p class="eyebrow">// AT A GLANCE</p>
+          <h2>What is on the badge?</h2>
+          <p>
+            The badge is a wearable conference device with a MicroPython app
+            layer, built-in Replay tools, playful visual hardware, and enough
+            open source surface area to make it yours.
+          </p>
+          <div class="basics-facts">
+            <p><strong>Navigation</strong><span>Main menu, settings, apps, and diagnostics.</span></p>
+            <p><strong>Displays</strong><span>128x64 OLED plus an 8x8 red LED matrix.</span></p>
+            <p><strong>Hacking</strong><span>Edit files over USB, use JumperIDE, or build firmware locally.</span></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section guide-section basics-section" id="replay">
+        <div class="section-heading">
+          <p class="eyebrow">// SECTION 1</p>
+          <h2>Replay</h2>
+          <p>
+            The badge includes the Replay schedule and an interactive venue map,
+            both from the main menu. The Sponsors menu includes the companies
+            supporting the event.
+          </p>
+        </div>
+        <div class="basics-detail">
+          <p><strong>Start here</strong><span>Use Map and Schedule when you need event context quickly.</span></p>
+          <p><strong>Also useful</strong><span>Sponsors keeps partner information available on-device.</span></p>
+        </div>
+      </section>
+
+      <section class="section guide-section basics-section" id="displays">
+        <div class="section-heading">
+          <p class="eyebrow">// SECTION 2</p>
+          <h2>Displays</h2>
+          <p>
+            The Replay 2026 Badge has two displays: a monochrome 128x64 OLED and a red 8x8 LED matrix.
+            The OLED is great for text, UI, and simple graphics, while the LED matrix is perfect for bold, 
+            low-res images and animations.
+          </p>
+          <p>
+            The badge has an accelerometer that keeps track of orientation. 
+            When it's hanging around your neck in a normal position, the OLED displays your name.
+            When you turn it up to face you, it displays an interactive menu.
+          </p>
+        </div>
+        <div class="basics-detail">
+          <p><strong>OLED</strong><span>Best for names, menus, text, UI, and simple graphics.</span></p>
+          <p><strong>LED matrix</strong><span>Best for bold icons, animations, and glanceable effects.</span></p>
+          <p><strong>Orientation</strong><span>The accelerometer switches between wearable and interactive modes.</span></p>
+        </div>
+      </section>
+
+      <section class="section guide-section basics-section" id="controls">
+        <div class="section-heading">
+          <p class="eyebrow">// SECTION 3</p>
+          <h2>Controls</h2>
+          <p>
+            The badge has a joystick and four face buttons for navigating menus.
+            Move between menu items with the joystick, use the confirm action
+            to select, and use the back action to leave a screen.
+          </p>
+        </div>
+        <div class="basics-detail">
+          <p><strong>Move</strong><span>Use the joystick to change selection.</span></p>
+          <p><strong>Select</strong><span>Use the confirm action to open the highlighted item.</span></p>
+          <p><strong>Back out</strong><span>Use the back action when you want to leave a screen.</span></p>
+        </div>
+      </section>
+
+      <section class="section guide-section basics-section" id="settings">
+        <div class="section-heading">
+          <p class="eyebrow">// SECTION 4</p>
+          <h2>Badge Settings</h2>
+          <p>
+            Dig into the settings for your badge with the Settings and Diagnostics items.
+            You can also adjust the haptic feedback and try out several animations featuring Ziggy.
+          </p>
+        </div>
+        <div class="basics-detail">
+          <p><strong>WiFi</strong><span>Configure networking from Badge Config when you need OTA or registry access.</span></p>
+          <p><strong>Updates</strong><span>Firmware update and diagnostics live with the badge configuration tools.</span></p>
+          <p><strong>Feel</strong><span>Haptic and animation options let you tune the badge experience.</span></p>
+        </div>
+      </section>
+
+      <section class="section guide-section basics-section" id="fun">
+        <div class="section-heading">
+          <p class="eyebrow">// SECTION 5</p>
+          <h2>Have Fun!</h2>
+          <p>
+            The badge includes several apps to have fun with. Draw on the OLED, create LED matrix animations, 
+            express yourself musically with Synth, and even play DOOM right on your badge.
+            There are some other games hidden in your badge as well.
+          </p>
+        </div>
+        <div class="basics-detail">
+          <p><strong>Create</strong><span>Draw, animate, make sounds, and experiment with display ideas.</span></p>
+          <p><strong>Play</strong><span>Try bundled games and install community apps from the registry.</span></p>
+        </div>
+      </section>
+
+      <section class="section guide-section basics-section" id="own-your-badge">
+        <div class="section-heading">
+          <p class="eyebrow">// SECTION 6</p>
+          <h2>Own Your Badge</h2>
+          <p>
+            To access and hack on your badge, you'll need a computer and a
+            MicroPython development environment.
+          </p>
+          <ol>
+            <li>Connect your badge to your computer with a USB-C cable. Wait a moment for the badge to activate.</li>
+            <li>
+              Open <a href="https://ide.jumperless.org/" target="_blank" rel="noopener noreferrer">JumperIDE</a>.
+              Click the Connect button in the upper right, select the USB
+              JTAG/serial item, and click Connect.
+            </li>
+            <li>The files on your badge will be displayed on the left. Open the badge info file, edit your name and title, then save with Ctrl-S.</li>
+            <li>Reset the badge by holding down all four directional buttons simultaneously until the Replay logo appears.</li>
+            <li>Turn your badge right-side up and see your name displayed.</li>
+          </ol>
+        </div>
+        <div class="basics-detail">
+          <p><strong>Use USB-C</strong><span>The badge exposes editable files over the serial connection.</span></p>
+          <p><strong>Try JumperIDE</strong><span>It is the fastest way to inspect and edit MicroPython files.</span></p>
+        </div>
+      </section>
+
+      <section class="section guide-section basics-section" id="fork-and-contribute">
+        <div class="section-heading">
+          <p class="eyebrow">// SECTION 7</p>
+          <h2>Fork and Contribute</h2>
+          <p>
+            The badge source is public on
+            <a
+              href="https://github.com/temporal-community/badge.temporal.io"
+              target="_blank"
+              rel="noopener noreferrer"
+              >GitHub</a
+            >. Fork the repo to experiment with docs, badge apps, firmware,
+            hardware notes, or data updates, then send a pull request when you
+            have something useful to share.
+          </p>
+        </div>
+        <div class="callout-grid">
+          <p>
+            <strong>Start small:</strong> docs fixes, examples, and app ideas
+            are great first contributions.
+          </p>
+          <p>
+            <strong>Get the code:</strong>
+            <a
+              href="https://github.com/temporal-community/badge.temporal.io"
+              target="_blank"
+              rel="noopener noreferrer"
+              >clone or fork the public repo</a
+            > before building or flashing locally.
+          </p>
+          <p>
+            <strong>Open a PR:</strong> describe what changed and what you
+            tested so reviewers can follow along.
+          </p>
+        </div>
+      </section>
+
+
+    </main>
+
+    <footer class="site-footer">
+      <div>
+        <h2>Replay 2026 Badge</h2>
+        <p>
+          Public guide content for the Replay 2026 Badge.
+        </p>
+      </div>
+      <nav aria-label="Footer navigation">
+        <a href="index.html">Home</a>
+        <a href="get-started.html">Get Started</a>
+        <a href="hardware.html">Hardware</a>
+        <a href="api-reference.html">API</a>
+      </nav>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,40 @@
+name: docs-build
+
+on:
+  pull_request:
+    paths:
+      - "docs/**"
+      - "scripts/build-docs.mjs"
+      - "vercel.json"
+      - ".github/workflows/docs-build.yml"
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "scripts/build-docs.mjs"
+      - "vercel.json"
+      - ".github/workflows/docs-build.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build optimized docs
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Build docs
+        run: node scripts/build-docs.mjs
+
+      - name: Verify docs output
+        run: |
+          test -f docs-dist/index.html
+          test -f docs-dist/css/index.min.css

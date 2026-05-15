@@ -1,0 +1,146 @@
+.steps {
+  display: grid;
+  gap: 1px;
+  border: 1px solid var(--line);
+  background: var(--line);
+}
+
+.board-diagram {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.diagram-card {
+  padding: 18px;
+}
+
+.mini-board {
+  position: relative;
+  aspect-ratio: 0.78;
+  border: 1px solid var(--yellow);
+  background:
+    linear-gradient(rgba(196, 230, 68, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(196, 230, 68, 0.08) 1px, transparent 1px),
+    #080808;
+  background-size: 18px 18px;
+}
+
+.mini-screen {
+  position: absolute;
+  inset: 42px 28px auto;
+  height: 42%;
+  border: 1px solid var(--green);
+  background: #07100b;
+}
+
+.mini-button {
+  position: absolute;
+  bottom: 32px;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--yellow);
+  background: transparent;
+}
+
+.mini-button.a {
+  left: 30px;
+}
+.mini-button.b {
+  left: calc(50% - 15px);
+  background: var(--yellow);
+}
+.mini-button.c {
+  right: 30px;
+  background: var(--red);
+}
+
+.chip,
+.port,
+.pin-row,
+.battery {
+  position: absolute;
+  background: var(--yellow);
+}
+
+.chip {
+  top: 78px;
+  left: calc(50% - 36px);
+  width: 72px;
+  height: 72px;
+}
+
+.chip::after {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  background: #050505;
+}
+
+.port {
+  top: 26px;
+  left: calc(50% - 32px);
+  width: 64px;
+  height: 18px;
+}
+
+.pin-row {
+  right: 24px;
+  bottom: 36px;
+  width: 86px;
+  height: 14px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--yellow) 0 8px,
+    transparent 8px 16px
+  );
+}
+
+.battery {
+  left: 24px;
+  bottom: 28px;
+  width: 58px;
+  height: 92px;
+  background: var(--green);
+}
+
+.component-grid,
+.spec-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.component-grid article,
+.spec-grid article {
+  padding: 22px;
+}
+
+.component-grid span {
+  color: var(--yellow);
+  font-family:
+    "Space Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.spec-grid strong {
+  display: inline-block;
+  margin-top: 8px;
+  color: var(--yellow);
+  font-family:
+    "Space Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 1.25rem;
+}
+
+.feature-row {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.feature-row article {
+  padding: 22px;
+}
+
+.feature-row h2 {
+  font-size: 3rem;
+  line-height: 1;
+  white-space: normal;
+}
+

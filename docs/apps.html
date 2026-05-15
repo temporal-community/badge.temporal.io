@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Replay 2026 Badge MicroPython app structure and filesystem notes."
+    />
+    <title>Apps | Replay 2026 Badge</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/components.css" />
+    <link rel="stylesheet" href="css/guide.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="index.html">
+        <img
+          class="brand-mark"
+          src="https://images.ctfassets.net/0uuz8ydxyd9p/5kHQtcFCSqkLDH4I6HFmyG/8e75bd66b57696eb0a7866b3cbf8ea30/Temporal_Symbol_light_1_2x.png"
+          alt=""
+          aria-hidden="true"
+          width="30"
+          height="30"
+        /><span>Replay 2026 Badge</span>
+      </a>
+      <nav class="site-nav" aria-label="Primary navigation">
+        <a href="basics.html">Basics</a>
+        <a href="developer-guide.html">Guide</a>
+        <a href="hardware.html">Hardware</a>
+        <a href="api-reference.html">API</a>
+        <a aria-current="page" href="apps.html">Apps</a>
+        <a href="hacks.html">Gotchas</a>
+        <a href="https://github.com/temporal-community/badge.temporal.io" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a
+          class="header-link"
+          href="https://temporal.io/"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Temporal</a
+        >
+      </nav>
+    </header>
+
+    <main>
+      <section class="page-hero">
+        <p class="eyebrow">// APP STRUCTURE</p>
+        <h1>Badge Apps</h1>
+        <p>
+          Apps live under <code>/apps</code>, use standard MicroPython modules,
+          and can be single-file experiments or folders with a
+          <code>main.py</code> entry point.
+        </p>
+      </section>
+
+      <section class="feature-row" aria-label="App structure options">
+        <article>
+          <h2>Single File</h2>
+          <p>
+            Put <code>hello.py</code> directly in <code>/apps</code> for quick
+            tests and small demos. Badge functions are available globally.
+          </p>
+        </article>
+        <article>
+          <h2>Folder App</h2>
+          <p>
+            Use <code>/apps/my_app/main.py</code> for games or tools that need
+            helper modules, assets, or save data.
+          </p>
+        </article>
+        <article>
+          <h2>Menu Entry</h2>
+          <p>
+            Dev builds list folders with <code>main.py</code>. Production menu
+            entries are registered in native firmware.
+          </p>
+        </article>
+      </section>
+
+      <section class="section split-band">
+        <div>
+          <p class="eyebrow">// MULTI-FILE PATTERN</p>
+          <h2>Keep <code>main.py</code> Thin</h2>
+          <p>
+            Insert the app directory into <code>sys.path</code>, import your
+            module, then call a single entry function.
+          </p>
+        </div>
+        <pre class="code-block"><code># /apps/my_app/main.py
+import sys
+
+sys.path.insert(0, "/apps/my_app")
+
+from game import run
+
+run()</code></pre>
+      </section>
+
+      <section class="section">
+        <div class="section-heading">
+          <p class="eyebrow">// MICROPYTHON</p>
+          <h2>Available Modules</h2>
+          <p>
+            The badge includes standard MicroPython modules plus the
+            badge-specific hardware API.
+          </p>
+        </div>
+        <div class="card-grid four">
+          <article class="app-card">
+            <div class="app-icon trace"></div>
+            <h3>System</h3>
+            <p>
+              <code>sys</code>, <code>os</code>, <code>time</code>,
+              <code>errno</code>, <code>gc</code>, and
+              <code>micropython</code>.
+            </p>
+          </article>
+          <article class="app-card">
+            <div class="app-icon temporal"></div>
+            <h3>Data</h3>
+            <p>
+              <code>json</code>, <code>struct</code>, <code>array</code>,
+              <code>binascii</code>, <code>collections</code>, and
+              <code>io</code>.
+            </p>
+          </article>
+          <article class="app-card">
+            <div class="app-icon signal"></div>
+            <h3>Math</h3>
+            <p>
+              <code>math</code>, <code>cmath</code>, and
+              <code>random</code> for games, animations, and UI behavior.
+            </p>
+          </article>
+          <article class="app-card">
+            <div class="app-icon profile"></div>
+            <h3>Hardware</h3>
+            <p>
+              <code>badge</code> exposes OLED, matrix, buttons, joystick, IMU,
+              haptics, IR, mouse, and identity calls.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-heading">
+          <p class="eyebrow">// FILES</p>
+          <h2>Filesystem Pattern</h2>
+        </div>
+        <pre class="code-block"><code>/apps/
+|-- hello.py
+|-- my_app/
+|   |-- main.py
+|   |-- game.py
+|   `-- save.json
+/lib/
+|-- badge_ui.py
+/tests/</code></pre>
+      </section>
+
+      <section class="section">
+        <div class="section-heading">
+          <p class="eyebrow">// COMMUNITY CONTRIBUTIONS</p>
+          <h2>Community Apps</h2>
+          <p>
+            Community-only submissions install over WiFi from the badge
+            Settings menu and stay out of the factory home menu until someone
+            chooses to install them. The same registry also lists preloaded
+            factory apps so the badge can adopt, repair, or update them later.
+          </p>
+        </div>
+        <div class="callout-grid">
+          <p>
+            Want to share an app? Add a folder under
+            <code>firmware/micropython/community_apps/apps/</code>, include a
+            small <code>main.py</code> with title and description metadata, run
+            the registry generator, and open a pull request.
+          </p>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-heading">
+          <p class="eyebrow">// SAVE DATA</p>
+          <h2>Use Normal Files</h2>
+          <p>
+            Apps have filesystem access through <code>open()</code> and
+            <code>os</code>. Store per-app state beside the app that owns it.
+          </p>
+        </div>
+        <pre class="code-block"><code>import json
+
+state = {"score": 42}
+
+with open("/apps/my_app/save.json", "w") as f:
+    f.write(json.dumps(state))</code></pre>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div>
+        <h2>Replay 2026 Badge</h2>
+        <p>App structure and MicroPython notes for badge developers.</p>
+      </div>
+      <nav aria-label="Footer navigation">
+        <a href="index.html">Home</a>
+        <a href="developer-guide.html">Guide</a>
+        <a href="get-started.html">Get Started</a>
+        <a href="api-reference.html">API</a>
+      </nav>
+    </footer>
+  </body>
+</html>

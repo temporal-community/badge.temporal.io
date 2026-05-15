@@ -1,0 +1,537 @@
+.hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(320px, 1.05fr);
+  gap: clamp(28px, 5vw, 72px);
+  min-height: calc(100vh - 72px);
+  padding: clamp(52px, 6vw, 84px) clamp(16px, 4vw, 56px) 22px;
+  overflow: hidden;
+}
+
+.hero::before {
+  position: absolute;
+  top: 24px;
+  left: clamp(16px, 4vw, 56px);
+  right: clamp(16px, 4vw, 56px);
+  color: var(--dim);
+  font-family:
+    "Space Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--yellow), transparent);
+  opacity: 0.75;
+}
+
+.hero-copy,
+.badge-visual,
+.stats-strip {
+  position: relative;
+  z-index: 1;
+}
+
+.eyebrow {
+  margin: 0 0 16px;
+  color: var(--white);
+  font-family:
+    "Space Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+}
+
+h1,
+h2,
+h3 {
+  margin-top: 0;
+  font-weight: 950;
+  letter-spacing: 0;
+  line-height: 0.92;
+  overflow-wrap: normal;
+  word-break: normal;
+  -webkit-hyphens: none;
+  -ms-hyphens: none;
+  hyphens: none;
+}
+
+p {
+  overflow-wrap: anywhere;
+}
+
+h1 {
+  max-width: 920px;
+  margin-bottom: 22px;
+  color: var(--yellow);
+  font-size: 8rem;
+}
+
+.page-hero h1 {
+  max-width: none;
+  font-size: 7.25rem;
+}
+
+h2 {
+  margin-bottom: 14px;
+  font-size: 4.9rem;
+}
+
+h3 {
+  margin-bottom: 10px;
+  font-size: 1.45rem;
+  line-height: 1;
+}
+
+.lede {
+  max-width: 690px;
+  margin: 0;
+  color: var(--ink);
+  font-family:
+    "Space Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 1.12rem;
+  line-height: 1.65;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 34px;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 18px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  font-family:
+    "Space Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+}
+
+.button::after {
+  content: " ->";
+  color: var(--yellow);
+}
+
+.button.primary {
+  border-color: var(--yellow);
+  background: var(--yellow);
+  color: var(--bg);
+}
+
+.button.primary::after {
+  color: var(--bg);
+}
+
+.badge-visual {
+  display: grid;
+  place-items: start center;
+  min-height: 470px;
+  padding-top: 0;
+}
+
+.badge-body {
+  position: relative;
+  width: min(100%, 520px);
+  aspect-ratio: 1.05;
+  border: 0;
+  background:
+    linear-gradient(rgba(196, 230, 68, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(196, 230, 68, 0.1) 1px, transparent 1px),
+    linear-gradient(145deg, #171713, #070707 66%);
+  background-size:
+    22px 22px,
+    22px 22px,
+    auto;
+  box-shadow: var(--shadow);
+}
+
+.badge-body > * {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.badge-body::before {
+  position: absolute;
+  top: -28px;
+  left: 0;
+  color: var(--yellow);
+  font-family:
+    "Space Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+}
+
+.badge-body::after {
+  position: absolute;
+  right: 0;
+  bottom: -27px;
+  color: var(--green);
+  font-family:
+    "Space Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+}
+
+.screen {
+  position: absolute;
+  inset: 82px 44px auto;
+  height: 250px;
+  border: 0;
+  background: #020404;
+  color: #dff7ff;
+  padding: 14px;
+  font-family:
+    "Space Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  -ms-interpolation-mode: nearest-neighbor;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: pixelated;
+}
+
+.badge-menu-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 28px;
+  margin-bottom: 12px;
+  color: #dff7ff;
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.status-icons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.status-dot {
+  width: 11px;
+  height: 11px;
+  border: 3px solid #dff7ff;
+  background: #020404;
+}
+
+.status-icons .battery {
+  position: static;
+  width: 31px;
+  height: 20px;
+  border: 2px solid #dff7ff;
+  background: #dff7ff;
+}
+
+.badge-menu-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 14px;
+}
+
+.menu-tile {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  align-items: center;
+  height: 48px;
+  border: 3px solid #dff7ff;
+  box-shadow:
+    inset 0 0 0 2px #26435a,
+    4px 4px 0 #263149;
+  color: #dff7ff;
+  background: #020404;
+}
+
+.menu-tile.active {
+  background: #dff7ff;
+  color: #213455;
+}
+
+.menu-tile strong {
+  display: block;
+  min-width: 0;
+  padding: 0 8px;
+  font-size: 1.2rem;
+  line-height: 1;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.tile-icon {
+  position: relative;
+  display: block;
+  width: 42px;
+  height: 42px;
+  border-right: 3px solid #dff7ff;
+  background: #dff7ff;
+}
+
+.active .tile-icon {
+  border-right-color: #213455;
+}
+
+.grid-icon::before,
+.calendar-icon::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  background:
+    repeating-linear-gradient(90deg, #213455 0 5px, transparent 5px 9px),
+    repeating-linear-gradient(#213455 0 5px, transparent 5px 9px);
+}
+
+.map-icon::before {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 6px;
+  width: 16px;
+  height: 22px;
+  border: 5px solid #213455;
+  border-radius: 50% 50% 55% 55%;
+  background: #dff7ff;
+}
+
+.map-icon::after {
+  content: "";
+  position: absolute;
+  left: 17px;
+  top: 14px;
+  width: 6px;
+  height: 6px;
+  background: #213455;
+}
+
+.workflow-icon::before,
+.workflow-icon::after {
+  content: "";
+  position: absolute;
+  background: #213455;
+}
+
+.workflow-icon::before {
+  left: 9px;
+  top: 17px;
+  width: 24px;
+  height: 8px;
+}
+
+.workflow-icon::after {
+  left: 17px;
+  top: 9px;
+  width: 8px;
+  height: 24px;
+}
+
+.badge-menu-pager {
+  margin: 14px 0 4px;
+  color: #dff7ff;
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  letter-spacing: 0.1em;
+}
+
+.badge-menu-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 8px;
+  border-top: 3px solid #dff7ff;
+  color: #dff7ff;
+  font-size: 1rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.badge-menu-footer span {
+  display: inline-block;
+  transform: rotate(180deg);
+}
+
+.badge-menu-footer strong {
+  font-weight: 700;
+  text-transform: none;
+}
+
+.controls {
+  position: absolute;
+  left: 58px;
+  right: 58px;
+  bottom: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.controls span {
+  width: 58px;
+  height: 58px;
+  border: 1px solid var(--yellow);
+  background-color: #0d0d0d;
+  box-shadow: inset 0 0 0 12px #161616;
+}
+
+.controls span:first-child,
+.controls span:not(.dpad) {
+  border: 0;
+  background-image: url("https://images.ctfassets.net/0uuz8ydxyd9p/5kHQtcFCSqkLDH4I6HFmyG/8e75bd66b57696eb0a7866b3cbf8ea30/Temporal_Symbol_light_1_2x.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  box-shadow: none;
+}
+
+.controls span:first-child {
+  width: 76px;
+  height: 76px;
+  margin-top: -9px;
+}
+
+.controls .dpad {
+  position: relative;
+  width: 82px;
+  height: 82px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.led-matrix {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  gap: 4px;
+  width: 92px;
+  height: 92px;
+  padding: 8px;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    #070807;
+  background-size:
+    10px 10px,
+    10px 10px,
+    auto;
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.8),
+    0 10px 22px rgba(0, 0, 0, 0.45);
+}
+
+.led-matrix i {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #1b0d0c;
+  box-shadow: inset 0 0 0 1px rgba(255, 109, 85, 0.08);
+}
+
+.led-matrix i.on {
+  background: #ff2f24;
+  box-shadow:
+    0 0 7px rgba(255, 47, 36, 0.9),
+    0 0 18px rgba(255, 47, 36, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.32);
+}
+
+.dpad i {
+  position: absolute;
+  display: block;
+  width: 24px;
+  height: 24px;
+  border: 1px solid #30342f;
+  background: linear-gradient(145deg, #20221f, #070807);
+  box-shadow:
+    0 5px 10px rgba(0, 0, 0, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -4px 0 rgba(0, 0, 0, 0.48);
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    background 120ms ease;
+}
+
+.dpad:hover i {
+  background: linear-gradient(145deg, #252823, #090a09);
+}
+
+.dpad i:hover,
+.dpad i:active {
+  transform: translateY(3px);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.72),
+    inset 0 2px 4px rgba(0, 0, 0, 0.62);
+}
+
+.dpad-up {
+  top: 0;
+  left: 29px;
+}
+
+.dpad-left {
+  top: 29px;
+  left: 0;
+}
+
+.dpad-right {
+  top: 29px;
+  right: 0;
+}
+
+.dpad-down {
+  left: 29px;
+  bottom: 0;
+}
+
+.stats-strip {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.stats-strip div {
+  min-width: 0;
+  padding: 20px;
+  border-right: 1px solid var(--line);
+  background: rgba(17, 18, 23, 0.72);
+}
+
+.stats-strip div:last-child {
+  border-right: 0;
+}
+
+.stats-strip strong {
+  display: block;
+  color: var(--yellow);
+  font-family:
+    "Space Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 3.5rem;
+  line-height: 0.95;
+}
+
+.stats-strip span {
+  color: var(--muted);
+  font-family:
+    "Space Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+

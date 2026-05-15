@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Advanced topics, IR communication, and gotchas for Replay 2026 Badge apps."
+    />
+    <title>Gotchas | Replay 2026 Badge</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/guide.css" />
+    <link rel="stylesheet" href="css/hacks.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="index.html">
+        <img
+          class="brand-mark"
+          src="https://images.ctfassets.net/0uuz8ydxyd9p/5kHQtcFCSqkLDH4I6HFmyG/8e75bd66b57696eb0a7866b3cbf8ea30/Temporal_Symbol_light_1_2x.png"
+          alt=""
+          aria-hidden="true"
+          width="30"
+          height="30"
+        /><span>Replay 2026 Badge</span>
+      </a>
+      <nav class="site-nav" aria-label="Primary navigation">
+        <a href="basics.html">Basics</a>
+        <a href="developer-guide.html">Guide</a>
+        <a href="hardware.html">Hardware</a>
+        <a href="api-reference.html">API</a>
+        <a href="apps.html">Apps</a>
+        <a aria-current="page" href="hacks.html">Gotchas</a>
+        <a href="https://github.com/temporal-community/badge.temporal.io" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a
+          class="header-link"
+          href="https://temporal.io/"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Temporal</a
+        >
+      </nav>
+    </header>
+
+    <main>
+      <section class="page-hero">
+        <p class="eyebrow">// ADVANCED TOPICS</p>
+        <h1>Gotchas</h1>
+        <p>
+          Notes for long-running apps, badge-to-badge IR exchanges, mouse
+          overlay interfaces, orientation handling, and cleanup before exit.
+        </p>
+      </section>
+
+      <section class="guide-toc" aria-label="Topic shortcuts">
+        <a href="#advanced">Advanced</a>
+        <a href="#ir">IR Comms</a>
+        <a href="#gotchas">Gotchas</a>
+      </section>
+
+      <section class="section guide-section" id="advanced">
+        <div class="section-heading">
+          <p class="eyebrow">// ADVANCED</p>
+          <h2>Advanced</h2>
+          <p>
+            Useful APIs for apps that need pointer-style input, orientation
+            awareness, or firmware-native screen chrome.
+          </p>
+        </div>
+        <div class="api-grid">
+          <article>
+            <span>mouse / overlay</span>
+            <h3>Point-and-Click UI</h3>
+            <p>
+              <code>mouse_overlay(True)</code> enables a hardware-composited
+              cursor. Joystick movement drives the cursor and button presses
+              become click events.
+            </p>
+          </article>
+          <article>
+            <span>imu / nametag</span>
+            <h3>Flip Detection</h3>
+            <p>
+              Use <code>imu_face_down()</code> or continuous
+              <code>imu_tilt_y()</code> values to react when the badge hangs
+              upside down.
+            </p>
+          </article>
+          <article>
+            <span>ui / chrome</span>
+            <h3>Native UI Helpers</h3>
+            <p>
+              <code>ui_header()</code>, <code>ui_action_bar()</code>, and
+              <code>badge_ui</code> helpers keep app screens visually
+              consistent with firmware menus.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section guide-section" id="ir">
+        <div class="section-heading">
+          <p class="eyebrow">// IR COMMS</p>
+          <h2>Badge-to-Badge IR</h2>
+          <p>
+            The MicroPython IR APIs let apps send compact NEC frames or larger
+            multi-word payloads between badges.
+          </p>
+        </div>
+        <div class="api-grid">
+          <article>
+            <span>start / required</span>
+            <h3>Own the IR Hardware</h3>
+            <p>
+              Call <code>ir_start()</code> before sending or reading. Python
+              gets exclusive access while IR mode is active.
+            </p>
+          </article>
+          <article>
+            <span>frames / payload</span>
+            <h3>Use the Right Frame</h3>
+            <p>
+              Use <code>ir_send(addr, cmd)</code> for compact frames and
+              <code>ir_send_words(words)</code> for multi-word payloads up to
+              64 32-bit words.
+            </p>
+          </article>
+          <article>
+            <span>poll / 50 ms</span>
+            <h3>Read Quickly</h3>
+            <p>
+              Poll <code>ir_read()</code> or <code>ir_read_words()</code>
+              within about 50 ms per frame or receiver buffers can drop data.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section guide-section" id="gotchas">
+        <div class="section-heading">
+          <p class="eyebrow">// GOTCHAS</p>
+          <h2>Tips and Gotchas</h2>
+          <p>
+            Small habits that keep apps responsive, readable, and easy to exit
+            during real badge use.
+          </p>
+        </div>
+        <div class="api-grid dense">
+          <article>
+            <span>memory / 128 KB</span>
+            <h3>Manage Heap</h3>
+            <p>
+              Avoid large temporary objects, reuse buffers, call
+              <code>gc.collect()</code>, and split large source files into
+              modules.
+            </p>
+          </article>
+          <article>
+            <span>display / show</span>
+            <h3>Refresh Explicitly</h3>
+            <p>
+              Drawing calls update the framebuffer. Call
+              <code>oled_show()</code> before expecting pixels to appear.
+            </p>
+          </article>
+          <article>
+            <span>leds / override</span>
+            <h3>Protect Matrix Drawing</h3>
+            <p>
+              Wrap direct matrix drawing in <code>led_override_begin()</code>
+              and <code>led_override_end()</code> so ambient firmware modes do
+              not overwrite the frame.
+            </p>
+          </article>
+          <article>
+            <span>input / once</span>
+            <h3>Do Not Double-Consume</h3>
+            <p>
+              <code>button_pressed()</code> consumes the event. Read it once
+              per loop and store the value.
+            </p>
+          </article>
+          <article>
+            <span>exit / safety</span>
+            <h3>Escape Chord</h3>
+            <p>
+              Holding all four face buttons for about one second force-exits a
+              stuck app.
+            </p>
+          </article>
+          <article>
+            <span>cleanup / exit</span>
+            <h3>Be a Good Citizen</h3>
+            <p>
+              Before exiting, clear LEDs, stop haptics and tones, stop IR, and
+              disable mouse overlay.
+            </p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div>
+        <h2>Replay 2026 Badge</h2>
+        <p>Advanced badge notes for Replay 2026 Badge apps.</p>
+      </div>
+      <nav aria-label="Footer navigation">
+        <a href="index.html">Home</a>
+        <a href="developer-guide.html">Guide</a>
+        <a href="hardware.html">Hardware</a>
+        <a href="api-reference.html">API</a>
+      </nav>
+    </footer>
+  </body>
+</html>

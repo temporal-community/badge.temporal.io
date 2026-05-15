@@ -1,0 +1,738 @@
+# Replay 2026 Schedule
+# type: talk | workshop | other
+# location: use the location name exactly as it appears in floors.md
+# speakers: first name last name
+
+- day: 1
+  events:
+    - title: Badge Pickup + Breakfast
+      type: other
+      start: "7:30"
+      end: "9:00"
+      location: Lobby
+      desc: "Breakfast service in the venue."
+
+    - title: Beginner to Builder Bootcamp
+      type: workshop
+      start: "9:00"
+      end: "12:30"
+      location: Level 02
+      tags: [go]
+      desc: Accelerated intro to Temporal. Covers durable execution and crash-proof execution. No prior Temporal knowledge required.
+
+    - title: Beginner to Builder Bootcamp
+      type: workshop
+      start: "9:00"
+      end: "12:30"
+      location: Level 02
+      tags: [java, sold-out]
+      desc: Accelerated intro to Temporal. Covers durable execution and crash-proof execution. No prior Temporal knowledge required.
+
+    - title: "Building Durable AI Agents + Versioning Temporal Workflows"
+      type: workshop
+      start: "9:00"
+      end: "17:00"
+      location: Level 02
+      tags: [python, ai, agents]
+      desc: "Morning: build production-ready AI agents with OpenAI and Pydantic SDKs. Afternoon: versioning strategies for safely evolving Workflows and Workers."
+
+    - title: Building Durable AI Applications With Temporal
+      type: workshop
+      start: "9:00"
+      end: "17:00"
+      location: Level 02
+      tags: [python, ai, nexus]
+      desc: Connect Durable Executions across team, namespace, and cloud boundaries with Nexus. Afternoon covers production-ready AI agents.
+
+    - title: Hackathon
+      type: other
+      start: "9:00"
+      end: "17:00"
+      location: Level 00
+      tags: [hackathon]
+      desc: Experienced Temporal users form teams to build projects for the code exchange.
+
+    - title: Lunch
+      type: other
+      start: "12:30"
+      end: "13:30"
+      location: Level 02
+      desc: "Lunch service in the venue."
+
+    - title: Beginner to Builder Bootcamp
+      type: workshop
+      start: "13:30"
+      end: "17:00"
+      location: Level 02
+      tags: [go]
+      desc: Continuation of the morning Go workshop session.
+
+    - title: Beginner to Builder Bootcamp
+      type: workshop
+      start: "13:30"
+      end: "17:00"
+      location: Level 02
+      tags: [java, sold-out]
+      desc: Continuation of the morning Java workshop session.
+
+    - title: Reception
+      type: other
+      start: "17:00"
+      end: "19:00"
+      location: Lobby
+      desc: "Casual reception with food, drink, and conversation."
+
+
+- day: 2
+  events:
+    - title: Replay 5K Fun Run
+      type: other
+      start: "7:00"
+      end: "8:00"
+      location: Cupid's Span
+      desc: "Group run for early-rising attendees."
+
+    - title: Badge Pickup + Breakfast
+      type: other
+      start: "7:00"
+      end: "9:00"
+      location: Lobby
+      desc: "Breakfast service in the venue."
+
+    - title: Keynote
+      type: talk
+      start: "9:00"
+      end: "10:00"
+      location: The Hangar
+      tags: [keynote]
+      speakers:
+        - Samar Abbas
+        - Amjad Masad
+        - Venkat Venkataramani
+      desc: "Conference talk: Keynote."
+
+    - title: Birds of a Feather
+      type: other
+      start: "10:00"
+      end: "17:00"
+      location: The Expanse
+      desc: "Open discussion meetups grouped by topic."
+
+    - title: Break / Go Upstairs
+      type: other
+      start: "10:00"
+      end: "10:30"
+      desc: "Short break between sessions."
+
+    - title: Orchestrating Data Pipelines at Scale with Temporal at Fivetran
+      type: talk
+      start: "10:30"
+      end: "11:15"
+      location: Pulsar
+      tags: [workflow, data]
+      speakers:
+        - Zainab Merchant
+        - Madhav Sodhani
+      desc: "Conference talk: Orchestrating Data Pipelines at Scale with Temporal at Fivetran."
+
+    - title: When Money Moves
+      type: talk
+      start: "10:30"
+      end: "11:15"
+      location: Quasar
+      tags: [workflow, fintech]
+      speakers:
+        - Suresh Nageswaran
+      desc: "Conference talk: When Money Moves."
+
+    - title: "Agentic Data Infra: How Instacart is Leveraging Temporal"
+      type: talk
+      start: "10:30"
+      end: "11:15"
+      location: Nova
+      tags: [ai, agents, workflow]
+      speakers:
+        - Anant Agarwal
+      desc: "Conference talk: Agentic Data Infra: How Instacart is Leveraging Temporal."
+
+    - title: How we built a real-time voice agent with Temporal
+      type: talk
+      start: "10:30"
+      end: "11:15"
+      location: Nebula
+      tags: [ai, agents]
+      speakers:
+        - Eliot Miller
+      desc: "Conference talk: How we built a real-time voice agent with Temporal."
+
+    - title: Announcing New AI Capabilities
+      type: talk
+      start: "10:30"
+      end: "11:15"
+      location: Persenne
+      tags: [ai, product]
+      speakers:
+        - Johann Schleier-Smith
+        - Ethan Ruhe
+      desc: "Conference talk: Announcing New AI Capabilities."
+
+    - title: "Workshop: Secure Your Temporal Agents with Tailscale"
+      type: workshop
+      start: "10:30"
+      end: "12:00"
+      location: Hyperion
+      tags: [security, agents]
+      speakers:
+        - Mason Egger
+        - Kartik Bharath
+      desc: "Hands-on workshop: Workshop: Secure Your Temporal Agents with Tailscale. Bring a laptop."
+
+    - title: Break
+      type: other
+      start: "11:15"
+      end: "11:45"
+      desc: "Short break between sessions."
+
+    - title: Temporal and Autonomous Vehicles Infrastructure at Nvidia
+      type: talk
+      start: "11:45"
+      end: "12:30"
+      location: Quasar
+      tags: [workflow, ai]
+      speakers:
+        - Jeremy Cook
+        - Matt Tescher
+      desc: "Conference talk: Temporal and Autonomous Vehicles Infrastructure at Nvidia."
+
+    - title: From Normalizing Complexity to Recognizing the Price
+      type: talk
+      start: "11:45"
+      end: "12:30"
+      location: Nebula
+      tags: [workflow]
+      speakers:
+        - Shabnam Emdadi
+      desc: "Conference talk: From Normalizing Complexity to Recognizing the Price."
+
+    - title: The Future Is Deterministic - Building the Next Generation on Temporal
+      type: talk
+      start: "11:45"
+      end: "12:30"
+      location: Nova
+      tags: [workflow]
+      speakers:
+        - Alban Preldakaj
+      desc: "Conference talk: The Future Is Deterministic - Building the Next Generation on Temporal."
+
+    - title: Free Your Mind and Your App Will Follow
+      type: talk
+      start: "11:45"
+      end: "12:30"
+      location: Persenne
+      tags: [workflow]
+      speakers:
+        - Tom Wheeler
+      desc: "Conference talk: Free Your Mind and Your App Will Follow."
+
+    - title: Lunch
+      type: other
+      start: "12:30"
+      end: "13:30"
+      location: Lobby
+      desc: "Lunch service in the venue."
+
+    - title: Break / Go Upstairs
+      type: other
+      start: "13:30"
+      end: "13:45"
+      desc: "Short break between sessions."
+
+    - title: Rainbow Deployments in The Cloud
+      type: talk
+      start: "13:45"
+      end: "14:30"
+      location: Nebula
+      tags: [deployment, cloud]
+      speakers:
+        - Satnam Dhanoa
+        - Hassan Nawaz
+      desc: "Conference talk: Rainbow Deployments in The Cloud."
+
+    - title: Confidently Shipping with Temporal
+      type: talk
+      start: "13:45"
+      end: "14:30"
+      location: Nova
+      tags: [workflow, tooling]
+      speakers:
+        - Anastasiya Melentyeva
+        - Hudson Southey-Gordon
+      desc: "Conference talk: Confidently Shipping with Temporal."
+
+    - title: Durable Job Processing with Standalone Activities
+      type: talk
+      start: "13:45"
+      end: "14:30"
+      location: Persenne
+      tags: [workflow, product]
+      speakers:
+        - Phil Prasek
+        - Dan Davison
+        - Edward Zhu
+      desc: "Conference talk: Durable Job Processing with Standalone Activities."
+
+    - title: How OpenAI uses Temporal
+      type: talk
+      start: "13:45"
+      end: "14:30"
+      location: Quasar
+      tags: [ai, workflow]
+      speakers:
+        - Kshitij Wadhwa
+      desc: "Conference talk: How OpenAI uses Temporal."
+
+    - title: "Engineering AI Applications: A Conversation with AI Leaders"
+      type: talk
+      start: "13:45"
+      end: "14:30"
+      location: Pulsar
+      tags: [ai, panel]
+      speakers:
+        - Dan Kador
+        - Ertan Dogrultan
+        - Ethan Ruhe
+        - Reggie Gomez
+      desc: "Conference talk: Engineering AI Applications: A Conversation with AI Leaders."
+
+    - title: Break
+      type: other
+      start: "14:30"
+      end: "15:00"
+      desc: "Short break between sessions."
+
+    - title: The Path to Temporal General Availability at Netflix
+      type: talk
+      start: "15:00"
+      end: "15:45"
+      location: Quasar
+      tags: [workflow, scale]
+      speakers:
+        - Rob Zienert
+      desc: "Conference talk: The Path to Temporal General Availability at Netflix."
+
+    - title: Reliable Migration of 4+ million CPU Cores to Kubernetes
+      type: talk
+      start: "15:00"
+      end: "15:45"
+      location: Nova
+      tags: [kubernetes, scale]
+      speakers:
+        - Ankit Rajesh Methwani
+        - Puneeth Reddy Poddutoori
+      desc: "Conference talk: Reliable Migration of 4+ million CPU Cores to Kubernetes."
+
+    - title: Lessons Learned Using Temporal to Run Temporal Cloud
+      type: talk
+      start: "15:00"
+      end: "15:45"
+      location: Persenne
+      tags: [workflow, cloud]
+      speakers:
+        - Manu Srivastava
+        - Xinyi Chen
+      desc: "Conference talk: Lessons Learned Using Temporal to Run Temporal Cloud."
+
+    - title: Lightning Round Talks
+      type: talk
+      start: "15:00"
+      end: "15:45"
+      location: Pulsar
+      tags: [lightning]
+      speakers:
+        - Jack Burns
+        - Catherine Jue
+        - Jonathan Chan
+        - Ryan Stevens
+      desc: "Conference talk: Lightning Round Talks."
+
+    - title: "Taming AI Agents with Output.ai: An Open-Source Framework Built on Temporal"
+      type: talk
+      start: "15:00"
+      end: "15:45"
+      location: Nebula
+      tags: [ai, agents]
+      speakers:
+        - Daniel Lopes
+      desc: "Conference talk: Taming AI Agents with Output.ai: An Open-Source Framework Built on Temporal."
+
+    - title: Break
+      type: other
+      start: "15:45"
+      end: "16:15"
+      desc: "Short break between sessions."
+
+    - title: "Powering AI Agents with Temporal & kgoose: Lessons from Block"
+      type: talk
+      start: "16:15"
+      end: "17:00"
+      location: Quasar
+      tags: [ai, agents]
+      speakers:
+        - Catherine Zhang
+      desc: "Conference talk: Powering AI Agents with Temporal & kgoose: Lessons from Block."
+
+    - title: Building Agentic Consumer Products with Temporal
+      type: talk
+      start: "16:15"
+      end: "17:00"
+      location: Pulsar
+      tags: [ai, agents]
+      speakers:
+        - Jeremy Stribling
+      desc: "Conference talk: Building Agentic Consumer Products with Temporal."
+
+    - title: "Resource Fairness: Implementing (and deprecating) a Lease Broker"
+      type: talk
+      start: "16:15"
+      end: "17:00"
+      location: Nebula
+      tags: [workflow, scale]
+      speakers:
+        - Andrew Wells
+      desc: "Conference talk: Resource Fairness: Implementing (and deprecating) a Lease Broker."
+
+    - title: "Build with Confidence: Announcing Major Worker Improvements"
+      type: talk
+      start: "16:15"
+      end: "17:00"
+      location: Persenne
+      tags: [workflow, product]
+      speakers:
+        - Carly de Frondeville
+        - Stefan Richter
+        - Sagar Randive
+      desc: "Conference talk: Build with Confidence: Announcing Major Worker Improvements."
+
+    - title: Networking
+      type: other
+      start: "17:00"
+      end: "19:00"
+      location: Lobby
+      desc: "Networking — details to be announced."
+
+
+- day: 3
+  events:
+    - title: Badge Pickup + Breakfast
+      type: other
+      start: "7:00"
+      end: "9:00"
+      location: Lobby
+      desc: "Breakfast service in the venue."
+
+    - title: Product Keynote
+      type: talk
+      start: "9:00"
+      end: "10:00"
+      location: The Hangar
+      tags: [keynote, product]
+      speakers:
+        - Preeti Somal
+        - Maxim Fateev
+      desc: "Conference talk: Product Keynote."
+
+    - title: Birds of a Feather
+      type: other
+      start: "10:00"
+      end: "17:00"
+      location: The Expanse
+      desc: "Open discussion meetups grouped by topic."
+
+    - title: Break / Go Upstairs
+      type: other
+      start: "10:00"
+      end: "10:30"
+      desc: "Short break between sessions."
+
+    - title: 100 Temporal Mistakes
+      type: talk
+      start: "10:30"
+      end: "11:15"
+      location: Pulsar
+      tags: [workflow, tips]
+      speakers:
+        - Jacob LeGrone
+      desc: "Conference talk: 100 Temporal Mistakes."
+
+    - title: "From Bottlenecks to Self-Service: How Duolingo Built Workflow-as-a-Service with Nexus"
+      type: talk
+      start: "10:30"
+      end: "11:15"
+      location: Quasar
+      tags: [workflow, nexus]
+      speakers:
+        - Zhihao Wang
+      desc: "Conference talk: From Bottlenecks to Self-Service: How Duolingo Built Workflow-as-a-Service with Nexus."
+
+    - title: How OpenAI Uses Codex to Change How We Build
+      type: talk
+      start: "10:30"
+      end: "11:15"
+      location: Nebula
+      tags: [ai, tooling]
+      speakers:
+        - Dominik Kundel
+      desc: "Conference talk: How OpenAI Uses Codex to Change How We Build."
+
+    - title: "A New Foundation: Building with CHASM"
+      type: talk
+      start: "10:30"
+      end: "11:15"
+      location: Persenne
+      tags: [workflow, chasm]
+      speakers:
+        - Paul Nordstrom
+      desc: "Conference talk: A New Foundation: Building with CHASM."
+
+    - title: Augmented Data Processing at Massive Scale with Temporal
+      type: talk
+      start: "10:30"
+      end: "11:15"
+      location: Nova
+      tags: [data, scale]
+      speakers:
+        - Michael Bishoff
+        - Aditya Chaturvedi
+      desc: "Conference talk: Augmented Data Processing at Massive Scale with Temporal."
+
+    - title: Break
+      type: other
+      start: "11:15"
+      end: "11:45"
+      desc: "Short break between sessions."
+
+    - title: "Durable Agents: Long-running AI workflows in a flaky world"
+      type: talk
+      start: "11:45"
+      end: "12:30"
+      location: Quasar
+      tags: [ai, agents]
+      speakers:
+        - Samuel Colvin
+      desc: "Conference talk: Durable Agents: Long-running AI workflows in a flaky world."
+
+    - title: "Retool Agents: Building a Robust, Production-Ready AI Agent Platform with Temporal"
+      type: talk
+      start: "11:45"
+      end: "12:30"
+      location: Nova
+      tags: [ai, agents]
+      speakers:
+        - Lam Tran
+      desc: "Conference talk: Retool Agents: Building a Robust, Production-Ready AI Agent Platform with Temporal."
+
+    - title: "Smarter Workflows, Leaner Costs: Inside Yum! Brands' Temporal Evolution"
+      type: talk
+      start: "11:45"
+      end: "12:30"
+      location: Nebula
+      tags: [workflow, scale]
+      speakers:
+        - Yeshwanth Kumar Pentakota
+      desc: "Conference talk: Smarter Workflows, Leaner Costs: Inside Yum! Brands' Temporal Evolution."
+
+    - title: "Cruising with Temporal: Navigating Road Bumps from Design to Production"
+      type: talk
+      start: "11:45"
+      end: "12:30"
+      location: Persenne
+      tags: [workflow]
+      speakers:
+        - Tihomir Surdilovic
+      desc: "Conference talk: Cruising with Temporal: Navigating Road Bumps from Design to Production."
+
+    - title: Lunch
+      type: other
+      start: "12:30"
+      end: "13:30"
+      location: Lobby
+      desc: "Lunch service in the venue."
+
+    - title: Break / Go Upstairs
+      type: other
+      start: "13:30"
+      end: "13:45"
+      desc: "Short break between sessions."
+
+    - title: "From Scale to Stability: High Availability in Temporal"
+      type: talk
+      start: "13:45"
+      end: "14:30"
+      location: Persenne
+      tags: [workflow, scale]
+      speakers:
+        - Liang Mei
+        - Sergey Bykov
+      desc: "Conference talk: From Scale to Stability: High Availability in Temporal."
+
+    - title: How We Reliably Send A Million Messages Per Request
+      type: talk
+      start: "13:45"
+      end: "14:30"
+      location: Nebula
+      tags: [workflow, scale]
+      speakers:
+        - Parth Nagori
+      desc: "Conference talk: How We Reliably Send A Million Messages Per Request."
+
+    - title: Agentic Ambient Listening at Abridge
+      type: talk
+      start: "13:45"
+      end: "14:30"
+      location: Nova
+      tags: [ai, agents]
+      speakers:
+        - James Gibbons
+      desc: "Conference talk: Agentic Ambient Listening at Abridge."
+
+    - title: "Scaling Temporal across the Enterprise: A Conversation with Platform Teams"
+      type: talk
+      start: "13:45"
+      end: "14:30"
+      location: Pulsar
+      tags: [workflow, panel, scale]
+      speakers:
+        - Cornelia Davis
+        - Jack Burns
+        - Jonathan Jaegerman
+        - Slava Vitebski
+        - Alban Preldakaj
+      desc: "Conference talk: Scaling Temporal across the Enterprise: A Conversation with Platform Teams."
+
+    - title: Break
+      type: other
+      start: "14:30"
+      end: "15:00"
+      desc: "Short break between sessions."
+
+    - title: "Temporal at Scale: Lessons in Migration and Security"
+      type: talk
+      start: "15:00"
+      end: "15:45"
+      location: Nova
+      tags: [workflow, scale, security]
+      speakers:
+        - Ian Yap
+        - David Nicholas
+      desc: "Conference talk: Temporal at Scale: Lessons in Migration and Security."
+
+    - title: "Beyond the State Machine: scaling order orchestration at Booking.com"
+      type: talk
+      start: "15:00"
+      end: "15:45"
+      location: Quasar
+      tags: [workflow, scale]
+      speakers:
+        - Roman Kuskov
+      desc: "Conference talk: Beyond the State Machine: scaling order orchestration at Booking.com."
+
+    - title: Announcing Priority & Fairness for Temporal
+      type: talk
+      start: "15:00"
+      end: "15:45"
+      location: Persenne
+      tags: [workflow, product]
+      speakers:
+        - David Reiss
+        - Rahul Kekre
+      desc: "Conference talk: Announcing Priority & Fairness for Temporal."
+
+    - title: "Being Creative with Temporal: Tales from the Trenches"
+      type: talk
+      start: "15:00"
+      end: "15:45"
+      location: Nebula
+      tags: [workflow]
+      speakers:
+        - James Watkins
+      desc: "Conference talk: Being Creative with Temporal: Tales from the Trenches."
+
+    - title: Lightning Round Talks
+      type: talk
+      start: "15:00"
+      end: "15:45"
+      location: Pulsar
+      tags: [lightning]
+      speakers:
+        - Franz Busch
+        - Hugh Neale
+        - Andrew Danks
+        - Alan Xu
+      desc: "Conference talk: Lightning Round Talks."
+
+    - title: Break
+      type: other
+      start: "15:45"
+      end: "16:15"
+      desc: "Short break between sessions."
+
+    - title: Streaming Messages from Temporal Workers
+      type: talk
+      start: "16:15"
+      end: "17:00"
+      location: Nebula
+      tags: [workflow]
+      speakers:
+        - Eric Ziegler
+      desc: "Conference talk: Streaming Messages from Temporal Workers."
+
+    - title: Supercharging Cloud Orchestration using Temporal Open Source
+      type: talk
+      start: "16:15"
+      end: "17:00"
+      location: Quasar
+      tags: [cloud, workflow]
+      speakers:
+        - Vivek Gupta
+        - Joseph Gilbert
+      desc: "Conference talk: Supercharging Cloud Orchestration using Temporal Open Source."
+
+    - title: "From Nothing to Everything: Managing Datacenters with AI"
+      type: talk
+      start: "16:15"
+      end: "17:00"
+      location: Nova
+      tags: [ai, cloud]
+      speakers:
+        - Jeff Ferland
+      desc: "Conference talk: From Nothing to Everything: Managing Datacenters with AI."
+
+    - title: "Bridging the CHASM: A Deep Dive into Temporal Server's State Machine SDK"
+      type: talk
+      start: "16:15"
+      end: "17:00"
+      location: Persenne
+      tags: [workflow, chasm]
+      speakers:
+        - Roey Berman
+        - Yichao Yang
+      desc: "Conference talk: Bridging the CHASM: A Deep Dive into Temporal Server's State Machine SDK."
+
+    - title: "How Temporal Powers Salesforce's AI-Driven DDoS Protection"
+      type: talk
+      start: "16:15"
+      end: "17:00"
+      location: Pulsar
+      tags: [security, ai]
+      speakers:
+        - Simone Mainardi
+        - Prabhat Singh
+        - Gagan Gangothri
+      desc: "Conference talk: How Temporal Powers Salesforce's AI-Driven DDoS Protection."
+
+    - title: Closing & After Party
+      type: other
+      start: "17:00"
+      end: "19:00"
+      location: Lobby
+      desc: "Closing & After Party — details to be announced."

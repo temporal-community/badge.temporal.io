@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "comment": "Asset registry for Replay 2026 Badge. The badge fetches this file once a day when Settings -> asset_registry_url is set and surfaces each entry in the Community Apps screen. Add new entries by PR without a firmware change. The public firmware release is a full factory image; large registry files may point at committed raw GitHub files or separately managed release assets.",
+  "assets": [
+    {
+      "id": "doom1-shareware",
+      "name": "DOOM 1 Shareware",
+      "version": "1.9",
+      "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/doom1.wad",
+      "sha256": "1d7d43be501e67d927e415e0b8f3e29c3bf33075e859721816f652a526cac771",
+      "size": 4196020,
+      "dest_path": "/doom1.wad",
+      "min_free_bytes": 4500000,
+      "description": "Original 1993 shareware episode. Required for the DOOM tile."
+    }
+  ]
+}

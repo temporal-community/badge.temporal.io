@@ -1,0 +1,12 @@
+import time
+print("=== 1. OLED ===")
+oled_clear(True)
+oled_set_cursor(0, 0)
+oled_println("1. OLED Test")
+w, h, sz = oled_get_framebuffer_size()
+oled_println(str(w) + "x" + str(h) + " " + str(sz) + "B")
+print("  fb: " + str(w) + "x" + str(h) + " " + str(sz) + "B")
+font = oled_get_current_font()
+print("  font: " + font)
+oled_println("font: " + font)
+time.sleep_ms(1200)

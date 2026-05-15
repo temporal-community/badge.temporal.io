@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Replay 2026 Badge flashing, JumperIDE setup, and first MicroPython app steps."
+    />
+    <title>Get Started | Replay 2026 Badge</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/components.css" />
+    <link rel="stylesheet" href="css/guide.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="index.html">
+        <img
+          class="brand-mark"
+          src="https://images.ctfassets.net/0uuz8ydxyd9p/5kHQtcFCSqkLDH4I6HFmyG/8e75bd66b57696eb0a7866b3cbf8ea30/Temporal_Symbol_light_1_2x.png"
+          alt=""
+          aria-hidden="true"
+          width="30"
+          height="30"
+        /><span>Replay 2026 Badge</span>
+      </a>
+      <nav class="site-nav" aria-label="Primary navigation">
+        <a href="basics.html">Basics</a>
+        <a href="developer-guide.html">Guide</a>
+        <a aria-current="page" href="get-started.html">Get Started</a>
+        <a href="hardware.html">Hardware</a>
+        <a href="api-reference.html">API</a>
+        <a href="apps.html">Apps</a>
+        <a href="hacks.html">Gotchas</a>
+        <a href="https://github.com/temporal-community/badge.temporal.io" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a
+          class="header-link"
+          href="https://temporal.io/"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Temporal</a
+        >
+      </nav>
+    </header>
+
+    <main>
+      <section class="page-hero compact">
+        <p class="eyebrow">// FLASH AND HACK</p>
+        <h1>Get Started</h1>
+        <p>
+          Flash the public firmware with Ignition, the Temporal-powered system
+          we built for bulk badge flashing, or use PlatformIO directly from the
+          <a
+            href="https://github.com/temporal-community/badge.temporal.io"
+            target="_blank"
+            rel="noopener noreferrer"
+            >public GitHub repo</a
+          >. Then write badge apps in MicroPython from the browser.
+        </p>
+      </section>
+
+      <section class="procedure-list" aria-label="Badge setup procedures">
+        <article class="procedure">
+          <div>
+            <span class="procedure-number">01</span>
+            <h2>Flash With Ignition</h2>
+            <p>
+              Use Ignition as the default path for one badge or many badges. It
+              runs local Temporal workflows to build, flash, retry, and verify
+              a whole connected batch. Start by cloning or forking the
+              <a
+                href="https://github.com/temporal-community/badge.temporal.io"
+                target="_blank"
+                rel="noopener noreferrer"
+                >GitHub repo</a
+              >.
+            </p>
+          </div>
+          <ol>
+            <li>Install the repo dependencies from <code>ignition/</code> with <code>./setup.sh</code>.</li>
+            <li>Run <code>./doctor.sh</code> to check Python, certificates, PlatformIO, Temporal, and USB.</li>
+            <li>Connect the badge over USB-C.</li>
+            <li>
+              Run <code>./start.sh -e replay2026 --firmware-dir ../firmware</code>.
+            </li>
+            <li>
+              To preload WiFi, add
+              <code>--wifi-ssid "YourNetwork" --wifi-pass "YourPassword"</code>
+              or create <code>firmware/wifi.local.env</code> from the example.
+            </li>
+            <li>
+              Ignition builds and flashes the public <code>replay2026</code>
+              firmware target, starting one child workflow per detected badge.
+            </li>
+          </ol>
+        </article>
+
+        <article class="procedure">
+          <div>
+            <span class="procedure-number">02</span>
+            <h2>PlatformIO Option</h2>
+            <p>
+              Use direct PlatformIO commands from the
+              <a
+                href="https://github.com/temporal-community/badge.temporal.io"
+                target="_blank"
+                rel="noopener noreferrer"
+                >GitHub source tree</a
+              >
+              when you want the lower-level path.
+            </p>
+          </div>
+          <ol>
+            <li>From <code>firmware/</code>, run <code>pio run -e replay2026</code>.</li>
+            <li>Flash firmware with <code>pio run -e replay2026 -t upload</code>.</li>
+            <li>Flash the filesystem with <code>pio run -e replay2026 -t uploadfs</code>.</li>
+          </ol>
+        </article>
+
+        <article class="procedure">
+          <div>
+            <span class="procedure-number">03</span>
+            <h2>Factory Image</h2>
+            <p>
+              Use the
+              <a
+                href="https://github.com/temporal-community/badge.temporal.io/releases"
+                target="_blank"
+                rel="noopener noreferrer"
+                >GitHub release image</a
+              >
+              when you do not want to build locally.
+            </p>
+          </div>
+          <ol>
+            <li>
+              Download <code>replay2026-factory-16MB.bin</code> from
+              <a
+                href="https://github.com/temporal-community/badge.temporal.io/releases"
+                target="_blank"
+                rel="noopener noreferrer"
+                >GitHub Releases</a
+              >.
+            </li>
+            <li>
+              The badge OTA updater uses the release asset named
+              <a
+                href="https://github.com/temporal-community/badge.temporal.io/releases"
+                target="_blank"
+                rel="noopener noreferrer"
+                ><code>firmware.bin</code></a
+              >.
+            </li>
+            <li>
+              Flash the
+              <a
+                href="https://github.com/temporal-community/badge.temporal.io/releases"
+                target="_blank"
+                rel="noopener noreferrer"
+                >release image</a
+              >
+              with Ignition:
+              <code>./start.sh --no-build --factory-image ~/Downloads/replay2026-factory-16MB.bin</code>.
+            </li>
+            <li>Factory flashing restores firmware and filesystem contents and wipes existing on-badge data.</li>
+          </ol>
+        </article>
+
+        <article class="procedure">
+          <div>
+            <span class="procedure-number">04</span>
+            <h2>Connect JumperIDE</h2>
+            <p>Open <a href="https://ide.jumperless.org/" target="_blank" rel="noopener noreferrer">JumperIDE</a> and select the badge serial device.</p>
+          </div>
+          <ol>
+            <li>Use a browser that supports WebSerial.</li>
+            <li>Press Connect and choose the ESP32-S3 USB/JTAG serial port.</li>
+            <li>Browse <code>/apps</code>, <code>/lib</code>, and <code>/tests</code> on the badge filesystem.</li>
+          </ol>
+        </article>
+      </section>
+
+      <section class="section split-band">
+        <div>
+          <p class="eyebrow">// HELLO BADGE</p>
+          <h2>Starter Script</h2>
+          <p>
+            In a single-file app, the badge hardware calls are already injected
+            into the global scope. Imported modules should use
+            <code>from badge import *</code>.
+          </p>
+        </div>
+        <pre class="code-block"><code>import time
+
+oled_clear()
+oled_println("Hello")
+oled_println("Temporal")
+oled_show()
+
+led_override_begin()
+led_show_image(IMG_HEART)
+time.sleep(3)
+
+led_clear()
+led_override_end()
+exit()</code></pre>
+      </section>
+
+      <section class="section">
+        <div class="section-heading">
+          <p class="eyebrow">// INPUT LOOP</p>
+          <h2>Read Buttons Once</h2>
+          <p>
+            Use edge-triggered input for menu navigation and level-triggered
+            input for continuous movement.
+          </p>
+        </div>
+        <div class="card-grid two">
+          <article class="app-card wide">
+            <div class="app-icon trace"></div>
+            <h3><code>button_pressed(id)</code></h3>
+            <p>
+              Returns true once per press, then stays false until release and a
+              new press. Store the result if more than one branch needs it.
+            </p>
+          </article>
+          <article class="app-card wide">
+            <div class="app-icon pulse"></div>
+            <h3><code>button(id)</code></h3>
+            <p>
+              Returns true while the button is held. Use it for movement,
+              repeated actions, or joystick-style controls.
+            </p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div>
+        <h2>Replay 2026 Badge</h2>
+        <p>
+          Setup steps for flashing and hacking on the Replay 2026 Badge.
+        </p>
+      </div>
+      <nav aria-label="Footer navigation">
+        <a href="index.html">Home</a>
+        <a href="developer-guide.html">Guide</a>
+        <a href="hardware.html">Hardware</a>
+        <a href="api-reference.html">API</a>
+      </nav>
+    </footer>
+  </body>
+</html>

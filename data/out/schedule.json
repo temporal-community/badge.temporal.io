@@ -1,0 +1,861 @@
+[
+  [
+    {
+      "type": 2,
+      "title": "Badge Pickup + Breakfast",
+      "start": 730,
+      "end": 900,
+      "loc": 199,
+      "desc": "Breakfast service in the venue."
+    },
+    {
+      "type": 1,
+      "title": "Beginner to Builder Bootcamp",
+      "start": 900,
+      "end": 1230,
+      "loc": 399,
+      "tags": "go",
+      "desc": "Accelerated intro to Temporal. Covers durable execution and crash-proof execution. No prior Temporal knowledge required."
+    },
+    {
+      "type": 1,
+      "title": "Beginner to Builder Bootcamp",
+      "start": 900,
+      "end": 1230,
+      "loc": 399,
+      "tags": "java,sold-out",
+      "desc": "Accelerated intro to Temporal. Covers durable execution and crash-proof execution. No prior Temporal knowledge required."
+    },
+    {
+      "type": 1,
+      "title": "Building Durable AI Agents + Versioning Temporal Workflows",
+      "start": 900,
+      "end": 1700,
+      "loc": 399,
+      "tags": "python,ai,agents",
+      "desc": "Morning: build production-ready AI agents with OpenAI and Pydantic SDKs. Afternoon: versioning strategies for safely evolving Workflows and Workers."
+    },
+    {
+      "type": 1,
+      "title": "Building Durable AI Applications With Temporal",
+      "start": 900,
+      "end": 1700,
+      "loc": 399,
+      "tags": "python,ai,nexus",
+      "desc": "Connect Durable Executions across team, namespace, and cloud boundaries with Nexus. Afternoon covers production-ready AI agents."
+    },
+    {
+      "type": 2,
+      "title": "Hackathon",
+      "start": 900,
+      "end": 1700,
+      "loc": 99,
+      "tags": "hackathon",
+      "desc": "Experienced Temporal users form teams to build projects for the code exchange."
+    },
+    {
+      "type": 2,
+      "title": "Lunch",
+      "start": 1230,
+      "end": 1330,
+      "loc": 399,
+      "desc": "Lunch service in the venue."
+    },
+    {
+      "type": 1,
+      "title": "Beginner to Builder Bootcamp",
+      "start": 1330,
+      "end": 1700,
+      "loc": 399,
+      "tags": "go",
+      "desc": "Continuation of the morning Go workshop session."
+    },
+    {
+      "type": 1,
+      "title": "Beginner to Builder Bootcamp",
+      "start": 1330,
+      "end": 1700,
+      "loc": 399,
+      "tags": "java,sold-out",
+      "desc": "Continuation of the morning Java workshop session."
+    },
+    {
+      "type": 2,
+      "title": "Reception",
+      "start": 1700,
+      "end": 1900,
+      "loc": 199,
+      "desc": "Casual reception with food, drink, and conversation."
+    }
+  ],
+  [
+    {
+      "type": 2,
+      "title": "Replay 5K Fun Run",
+      "start": 700,
+      "end": 800,
+      "loc": 900,
+      "desc": "Group run for early-rising attendees."
+    },
+    {
+      "type": 2,
+      "title": "Badge Pickup + Breakfast",
+      "start": 700,
+      "end": 900,
+      "loc": 199,
+      "desc": "Breakfast service in the venue."
+    },
+    {
+      "type": 0,
+      "title": "Keynote",
+      "start": 900,
+      "end": 1000,
+      "loc": 10,
+      "tags": "keynote",
+      "desc": "Conference talk: Keynote.",
+      "speakers": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "type": 2,
+      "title": "Birds of a Feather",
+      "start": 1000,
+      "end": 1700,
+      "loc": 200,
+      "desc": "Open discussion meetups grouped by topic."
+    },
+    {
+      "type": 2,
+      "title": "Break / Go Upstairs",
+      "start": 1000,
+      "end": 1030,
+      "desc": "Short break between sessions."
+    },
+    {
+      "type": 0,
+      "title": "Orchestrating Data Pipelines at Scale with Temporal at Fivetran",
+      "start": 1030,
+      "end": 1115,
+      "loc": 300,
+      "tags": "workflow,data",
+      "desc": "Conference talk: Orchestrating Data Pipelines at Scale with Temporal at Fivetran.",
+      "speakers": [
+        3,
+        4
+      ]
+    },
+    {
+      "type": 0,
+      "title": "When Money Moves",
+      "start": 1030,
+      "end": 1115,
+      "loc": 310,
+      "tags": "workflow,fintech",
+      "desc": "Conference talk: When Money Moves.",
+      "speakers": [
+        5
+      ]
+    },
+    {
+      "type": 0,
+      "title": "Agentic Data Infra: How Instacart is Leveraging Temporal",
+      "start": 1030,
+      "end": 1115,
+      "loc": 330,
+      "tags": "ai,agents,workflow",
+      "desc": "Conference talk: Agentic Data Infra: How Instacart is Leveraging Temporal.",
+      "speakers": [
+        6
+      ]
+    },
+    {
+      "type": 0,
+      "title": "How we built a real-time voice agent with Temporal",
+      "start": 1030,
+      "end": 1115,
+      "loc": 320,
+      "tags": "ai,agents",
+      "desc": "Conference talk: How we built a real-time voice agent with Temporal.",
+      "speakers": [
+        7
+      ]
+    },
+    {
+      "type": 0,
+      "title": "Announcing New AI Capabilities",
+      "start": 1030,
+      "end": 1115,
+      "loc": 240,
+      "tags": "ai,product",
+      "desc": "Conference talk: Announcing New AI Capabilities.",
+      "speakers": [
+        8,
+        9
+      ]
+    },
+    {
+      "type": 1,
+      "title": "Workshop: Secure Your Temporal Agents with Tailscale",
+      "start": 1030,
+      "end": 1200,
+      "loc": 230,
+      "tags": "security,agents",
+      "desc": "Hands-on workshop: Workshop: Secure Your Temporal Agents with Tailscale. Bring a laptop.",
+      "speakers": [
+        10,
+        11
+      ]
+    },
+    {
+      "type": 2,
+      "title": "Break",
+      "start": 1115,
+      "end": 1145,
+      "desc": "Short break between sessions."
+    },
+    {
+      "type": 0,
+      "title": "Temporal and Autonomous Vehicles Infrastructure at Nvidia",
+      "start": 1145,
+      "end": 1230,
+      "loc": 310,
+      "tags": "workflow,ai",
+      "desc": "Conference talk: Temporal and Autonomous Vehicles Infrastructure at Nvidia.",
+      "speakers": [
+        12,
+        13
+      ]
+    },
+    {
+      "type": 0,
+      "title": "From Normalizing Complexity to Recognizing the Price",
+      "start": 1145,
+      "end": 1230,
+      "loc": 320,
+      "tags": "workflow",
+      "desc": "Conference talk: From Normalizing Complexity to Recognizing the Price.",
+      "speakers": [
+        14
+      ]
+    },
+    {
+      "type": 0,
+      "title": "The Future Is Deterministic - Building the Next Generation on Temporal",
+      "start": 1145,
+      "end": 1230,
+      "loc": 330,
+      "tags": "workflow",
+      "desc": "Conference talk: The Future Is Deterministic - Building the Next Generation on Temporal.",
+      "speakers": [
+        15
+      ]
+    },
+    {
+      "type": 0,
+      "title": "Free Your Mind and Your App Will Follow",
+      "start": 1145,
+      "end": 1230,
+      "loc": 240,
+      "tags": "workflow",
+      "desc": "Conference talk: Free Your Mind and Your App Will Follow.",
+      "speakers": [
+        16
+      ]
+    },
+    {
+      "type": 2,
+      "title": "Lunch",
+      "start": 1230,
+      "end": 1330,
+      "loc": 199,
+      "desc": "Lunch service in the venue."
+    },
+    {
+      "type": 2,
+      "title": "Break / Go Upstairs",
+      "start": 1330,
+      "end": 1345,
+      "desc": "Short break between sessions."
+    },
+    {
+      "type": 0,
+      "title": "Rainbow Deployments in The Cloud",
+      "start": 1345,
+      "end": 1430,
+      "loc": 320,
+      "tags": "deployment,cloud",
+      "desc": "Conference talk: Rainbow Deployments in The Cloud.",
+      "speakers": [
+        17,
+        18
+      ]
+    },
+    {
+      "type": 0,
+      "title": "Confidently Shipping with Temporal",
+      "start": 1345,
+      "end": 1430,
+      "loc": 330,
+      "tags": "workflow,tooling",
+      "desc": "Conference talk: Confidently Shipping with Temporal.",
+      "speakers": [
+        19,
+        20
+      ]
+    },
+    {
+      "type": 0,
+      "title": "Durable Job Processing with Standalone Activities",
+      "start": 1345,
+      "end": 1430,
+      "loc": 240,
+      "tags": "workflow,product",
+      "desc": "Conference talk: Durable Job Processing with Standalone Activities.",
+      "speakers": [
+        21,
+        22,
+        23
+      ]
+    },
+    {
+      "type": 0,
+      "title": "How OpenAI uses Temporal",
+      "start": 1345,
+      "end": 1430,
+      "loc": 310,
+      "tags": "ai,workflow",
+      "desc": "Conference talk: How OpenAI uses Temporal.",
+      "speakers": [
+        24
+      ]
+    },
+    {
+      "type": 0,
+      "title": "Engineering AI Applications: A Conversation with AI Leaders",
+      "start": 1345,
+      "end": 1430,
+      "loc": 300,
+      "tags": "ai,panel",
+      "desc": "Conference talk: Engineering AI Applications: A Conversation with AI Leaders.",
+      "speakers": [
+        25,
+        26,
+        9,
+        27
+      ]
+    },
+    {
+      "type": 2,
+      "title": "Break",
+      "start": 1430,
+      "end": 1500,
+      "desc": "Short break between sessions."
+    },
+    {
+      "type": 0,
+      "title": "The Path to Temporal General Availability at Netflix",
+      "start": 1500,
+      "end": 1545,
+      "loc": 310,
+      "tags": "workflow,scale",
+      "desc": "Conference talk: The Path to Temporal General Availability at Netflix.",
+      "speakers": [
+        28
+      ]
+    },
+    {
+      "type": 0,
+      "title": "Reliable Migration of 4+ million CPU Cores to Kubernetes",
+      "start": 1500,
+      "end": 1545,
+      "loc": 330,
+      "tags": "kubernetes,scale",
+      "desc": "Conference talk: Reliable Migration of 4+ million CPU Cores to Kubernetes.",
+      "speakers": [
+        29,
+        30
+      ]
+    },
+    {
+      "type": 0,
+      "title": "Lessons Learned Using Temporal to Run Temporal Cloud",
+      "start": 1500,
+      "end": 1545,
+      "loc": 240,
+      "tags": "workflow,cloud",
+      "desc": "Conference talk: Lessons Learned Using Temporal to Run Temporal Cloud.",
+      "speakers": [
+        31,
+        32
+      ]
+    },
+    {
+      "type": 0,
+      "title": "Lightning Round Talks",
+      "start": 1500,
+      "end": 1545,
+      "loc": 300,
+      "tags": "lightning",
+      "desc": "Conference talk: Lightning Round Talks.",
+      "speakers": [
+        33,
+        34,
+        35,
+        36
+      ]
+    },
+    {
+      "type": 0,
+      "title": "Taming AI Agents with Output.ai: An Open-Source Framework Built on Temporal",
+      "start": 1500,
+      "end": 1545,
+      "loc": 320,
+      "tags": "ai,agents",
+      "desc": "Conference talk: Taming AI Agents with Output.ai: An Open-Source Framework Built on Temporal.",
+      "speakers": [
+        37
+      ]
+    },
+    {
+      "type": 2,
+      "title": "Break",
+      "start": 1545,
+      "end": 1615,
+      "desc": "Short break between sessions."
+    },
+    {
+      "type": 0,
+      "title": "Powering AI Agents with Temporal & kgoose: Lessons from Block",
+      "start": 1615,
+      "end": 1700,
+      "loc": 310,
+      "tags": "ai,agents",
+      "desc": "Conference talk: Powering AI Agents with Temporal & kgoose: Lessons from Block.",
+      "speakers": [
+        38
+      ]
+    },
+    {
+      "type": 0,
+      "title": "Building Agentic Consumer Products with Temporal",
+      "start": 1615,
+      "end": 1700,
+      "loc": 300,
+      "tags": "ai,agents",
+      "desc": "Conference talk: Building Agentic Consumer Products with Temporal.",
+      "speakers": [
+        39
+      ]
+    },
+    {
+      "type": 0,
+      "title": "Resource Fairness: Implementing (and deprecating) a Lease Broker",
+      "start": 1615,
+      "end": 1700,
+      "loc": 320,
+      "tags": "workflow,scale",
+      "desc": "Conference talk: Resource Fairness: Implementing (and deprecating) a Lease Broker.",
+      "speakers": [
+        40
+      ]
+    },
+    {
+      "type": 0,
+      "title": "Build with Confidence: Announcing Major Worker Improvements",
+      "start": 1615,
+      "end": 1700,
+      "loc": 240,
+      "tags": "workflow,product",
+      "desc": "Conference talk: Build with Confidence: Announcing Major Worker Improvements.",
+      "speakers": [
+        41,
+        42,
+        43
+      ]
+    },
+    {
+      "type": 2,
+      "title": "Networking",
+      "start": 1700,
+      "end": 1900,
+      "loc": 199,
+      "desc": "Networking — details to be announced."
+    }
+  ],
+  [
+    {
+      "type": 2,
+      "title": "Badge Pickup + Breakfast",
+      "start": 700,
+      "end": 900,
+      "loc": 199,
+      "desc": "Breakfast service in the venue."
+    },
+    {
+      "type": 0,
+      "title": "Product Keynote",
+      "start": 900,
+      "end": 1000,
+      "loc": 10,
+      "tags": "keynote,product",
+      "desc": "Conference talk: Product Keynote.",
+      "speakers": [
+        44,
+        45
+      ]
+    },
+    {
+      "type": 2,
+      "title": "Birds of a Feather",
+      "start": 1000,
+      "end": 1700,
+      "loc": 200,
+      "desc": "Open discussion meetups grouped by topic."
+    },
+    {
+      "type": 2,
+      "title": "Break / Go Upstairs",
+      "start": 1000,
+      "end": 1030,
+      "desc": "Short break between sessions."
+    },
+    {
+      "type": 0,
+      "title": "100 Temporal Mistakes",
+      "start": 1030,
+      "end": 1115,
+      "loc": 300,
+      "tags": "workflow,tips",
+      "desc": "Conference talk: 100 Temporal Mistakes.",
+      "speakers": [
+        46
+      ]
+    },
+    {
+      "type": 0,
+      "title": "From Bottlenecks to Self-Service: How Duolingo Built Workflow-as-a-Service with Nexus",
+      "start": 1030,
+      "end": 1115,
+      "loc": 310,
+      "tags": "workflow,nexus",
+      "desc": "Conference talk: From Bottlenecks to Self-Service: How Duolingo Built Workflow-as-a-Service with Nexus.",
+      "speakers": [
+        47
+      ]
+    },
+    {
+      "type": 0,
+      "title": "How OpenAI Uses Codex to Change How We Build",
+      "start": 1030,
+      "end": 1115,
+      "loc": 320,
+      "tags": "ai,tooling",
+      "desc": "Conference talk: How OpenAI Uses Codex to Change How We Build.",
+      "speakers": [
+        48
+      ]
+    },
+    {
+      "type": 0,
+      "title": "A New Foundation: Building with CHASM",
+      "start": 1030,
+      "end": 1115,
+      "loc": 240,
+      "tags": "workflow,chasm",
+      "desc": "Conference talk: A New Foundation: Building with CHASM.",
+      "speakers": [
+        49
+      ]
+    },
+    {
+      "type": 0,
+      "title": "Augmented Data Processing at Massive Scale with Temporal",
+      "start": 1030,
+      "end": 1115,
+      "loc": 330,
+      "tags": "data,scale",
+      "desc": "Conference talk: Augmented Data Processing at Massive Scale with Temporal.",
+      "speakers": [
+        50,
+        51
+      ]
+    },
+    {
+      "type": 2,
+      "title": "Break",
+      "start": 1115,
+      "end": 1145,
+      "desc": "Short break between sessions."
+    },
+    {
+      "type": 0,
+      "title": "Durable Agents: Long-running AI workflows in a flaky world",
+      "start": 1145,
+      "end": 1230,
+      "loc": 310,
+      "tags": "ai,agents",
+      "desc": "Conference talk: Durable Agents: Long-running AI workflows in a flaky world.",
+      "speakers": [
+        52
+      ]
+    },
+    {
+      "type": 0,
+      "title": "Retool Agents: Building a Robust, Production-Ready AI Agent Platform with Temporal",
+      "start": 1145,
+      "end": 1230,
+      "loc": 330,
+      "tags": "ai,agents",
+      "desc": "Conference talk: Retool Agents: Building a Robust, Production-Ready AI Agent Platform with Temporal.",
+      "speakers": [
+        53
+      ]
+    },
+    {
+      "type": 0,
+      "title": "Smarter Workflows, Leaner Costs: Inside Yum! Brands' Temporal Evolution",
+      "start": 1145,
+      "end": 1230,
+      "loc": 320,
+      "tags": "workflow,scale",
+      "desc": "Conference talk: Smarter Workflows, Leaner Costs: Inside Yum! Brands' Temporal Evolution.",
+      "speakers": [
+        54
+      ]
+    },
+    {
+      "type": 0,
+      "title": "Cruising with Temporal: Navigating Road Bumps from Design to Production",
+      "start": 1145,
+      "end": 1230,
+      "loc": 240,
+      "tags": "workflow",
+      "desc": "Conference talk: Cruising with Temporal: Navigating Road Bumps from Design to Production.",
+      "speakers": [
+        55
+      ]
+    },
+    {
+      "type": 2,
+      "title": "Lunch",
+      "start": 1230,
+      "end": 1330,
+      "loc": 199,
+      "desc": "Lunch service in the venue."
+    },
+    {
+      "type": 2,
+      "title": "Break / Go Upstairs",
+      "start": 1330,
+      "end": 1345,
+      "desc": "Short break between sessions."
+    },
+    {
+      "type": 0,
+      "title": "From Scale to Stability: High Availability in Temporal",
+      "start": 1345,
+      "end": 1430,
+      "loc": 240,
+      "tags": "workflow,scale",
+      "desc": "Conference talk: From Scale to Stability: High Availability in Temporal.",
+      "speakers": [
+        56,
+        57
+      ]
+    },
+    {
+      "type": 0,
+      "title": "How We Reliably Send A Million Messages Per Request",
+      "start": 1345,
+      "end": 1430,
+      "loc": 320,
+      "tags": "workflow,scale",
+      "desc": "Conference talk: How We Reliably Send A Million Messages Per Request.",
+      "speakers": [
+        58
+      ]
+    },
+    {
+      "type": 0,
+      "title": "Agentic Ambient Listening at Abridge",
+      "start": 1345,
+      "end": 1430,
+      "loc": 330,
+      "tags": "ai,agents",
+      "desc": "Conference talk: Agentic Ambient Listening at Abridge.",
+      "speakers": [
+        59
+      ]
+    },
+    {
+      "type": 0,
+      "title": "Scaling Temporal across the Enterprise: A Conversation with Platform Teams",
+      "start": 1345,
+      "end": 1430,
+      "loc": 300,
+      "tags": "workflow,panel,scale",
+      "desc": "Conference talk: Scaling Temporal across the Enterprise: A Conversation with Platform Teams.",
+      "speakers": [
+        60,
+        33,
+        61,
+        62,
+        15
+      ]
+    },
+    {
+      "type": 2,
+      "title": "Break",
+      "start": 1430,
+      "end": 1500,
+      "desc": "Short break between sessions."
+    },
+    {
+      "type": 0,
+      "title": "Temporal at Scale: Lessons in Migration and Security",
+      "start": 1500,
+      "end": 1545,
+      "loc": 330,
+      "tags": "workflow,scale,security",
+      "desc": "Conference talk: Temporal at Scale: Lessons in Migration and Security.",
+      "speakers": [
+        63,
+        64
+      ]
+    },
+    {
+      "type": 0,
+      "title": "Beyond the State Machine: scaling order orchestration at Booking.com",
+      "start": 1500,
+      "end": 1545,
+      "loc": 310,
+      "tags": "workflow,scale",
+      "desc": "Conference talk: Beyond the State Machine: scaling order orchestration at Booking.com.",
+      "speakers": [
+        65
+      ]
+    },
+    {
+      "type": 0,
+      "title": "Announcing Priority & Fairness for Temporal",
+      "start": 1500,
+      "end": 1545,
+      "loc": 240,
+      "tags": "workflow,product",
+      "desc": "Conference talk: Announcing Priority & Fairness for Temporal.",
+      "speakers": [
+        66,
+        67
+      ]
+    },
+    {
+      "type": 0,
+      "title": "Being Creative with Temporal: Tales from the Trenches",
+      "start": 1500,
+      "end": 1545,
+      "loc": 320,
+      "tags": "workflow",
+      "desc": "Conference talk: Being Creative with Temporal: Tales from the Trenches.",
+      "speakers": [
+        68
+      ]
+    },
+    {
+      "type": 0,
+      "title": "Lightning Round Talks",
+      "start": 1500,
+      "end": 1545,
+      "loc": 300,
+      "tags": "lightning",
+      "desc": "Conference talk: Lightning Round Talks.",
+      "speakers": [
+        69,
+        70,
+        71,
+        72
+      ]
+    },
+    {
+      "type": 2,
+      "title": "Break",
+      "start": 1545,
+      "end": 1615,
+      "desc": "Short break between sessions."
+    },
+    {
+      "type": 0,
+      "title": "Streaming Messages from Temporal Workers",
+      "start": 1615,
+      "end": 1700,
+      "loc": 320,
+      "tags": "workflow",
+      "desc": "Conference talk: Streaming Messages from Temporal Workers.",
+      "speakers": [
+        73
+      ]
+    },
+    {
+      "type": 0,
+      "title": "Supercharging Cloud Orchestration using Temporal Open Source",
+      "start": 1615,
+      "end": 1700,
+      "loc": 310,
+      "tags": "cloud,workflow",
+      "desc": "Conference talk: Supercharging Cloud Orchestration using Temporal Open Source.",
+      "speakers": [
+        74,
+        75
+      ]
+    },
+    {
+      "type": 0,
+      "title": "From Nothing to Everything: Managing Datacenters with AI",
+      "start": 1615,
+      "end": 1700,
+      "loc": 330,
+      "tags": "ai,cloud",
+      "desc": "Conference talk: From Nothing to Everything: Managing Datacenters with AI.",
+      "speakers": [
+        76
+      ]
+    },
+    {
+      "type": 0,
+      "title": "Bridging the CHASM: A Deep Dive into Temporal Server's State Machine SDK",
+      "start": 1615,
+      "end": 1700,
+      "loc": 240,
+      "tags": "workflow,chasm",
+      "desc": "Conference talk: Bridging the CHASM: A Deep Dive into Temporal Server's State Machine SDK.",
+      "speakers": [
+        77,
+        78
+      ]
+    },
+    {
+      "type": 0,
+      "title": "How Temporal Powers Salesforce's AI-Driven DDoS Protection",
+      "start": 1615,
+      "end": 1700,
+      "loc": 300,
+      "tags": "security,ai",
+      "desc": "Conference talk: How Temporal Powers Salesforce's AI-Driven DDoS Protection.",
+      "speakers": [
+        79,
+        80,
+        81
+      ]
+    },
+    {
+      "type": 2,
+      "title": "Closing & After Party",
+      "start": 1700,
+      "end": 1900,
+      "loc": 199,
+      "desc": "Closing & After Party — details to be announced."
+    }
+  ]
+]

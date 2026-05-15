@@ -1,0 +1,139 @@
+name: release-firmware
+
+# Builds the public Replay 2026 Badge OTA binary and factory image, then
+# attaches both to a GitHub release.
+#
+# firmware.bin is consumed by badge OTA. replay2026-factory-16MB.bin is a full
+# 16 MB factory flash: bootloader, partition table, application firmware, FAT
+# filesystem, and firmware/initial_filesystem/doom1.wad.
+#
+# Triggers:
+#   - Automatically when a release is published.
+#   - Manually via the Actions tab (workflow_dispatch).
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to attach the asset to (must already exist)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build Replay 2026 firmware artifacts
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Cache PlatformIO core + toolchains
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.platformio/.cache
+            ~/.platformio/packages
+            ~/.platformio/platforms
+          key: pio-${{ runner.os }}-${{ hashFiles('firmware/platformio.ini') }}
+          restore-keys: |
+            pio-${{ runner.os }}-
+
+      - name: Install PlatformIO
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install platformio esptool
+          mkdir -p "$HOME/.platformio/penv/bin"
+          ln -sf "$(command -v pio)" "$HOME/.platformio/penv/bin/pio"
+          ln -sf "$(command -v esptool)" "$HOME/.platformio/penv/bin/esptool"
+
+      - name: Require bundled DOOM shareware data
+        run: |
+          test -f firmware/initial_filesystem/doom1.wad
+
+      - name: Verify generated Community Apps registry
+        run: |
+          python3 firmware/scripts/generate_startup_files.py
+          git diff --exit-code -- registry/community_apps.json
+
+      - name: Build firmware and filesystem
+        run: |
+          cd firmware
+          [ -f settings.txt ] || cp settings.txt.example settings.txt
+          pio run -e replay2026
+          pio run -e replay2026 -t buildfs
+
+      - name: Build factory image
+        run: |
+          cd firmware
+          ./make_factory.sh replay2026
+
+      - name: Stage release artifacts
+        run: |
+          mkdir -p artifacts/release
+          cp firmware/.pio/build/replay2026/firmware.bin artifacts/release/firmware.bin
+          cp firmware/factory_replay2026_16MB.bin artifacts/release/replay2026-factory-16MB.bin
+
+      - name: List release artifacts
+        run: ls -lh artifacts/release/
+
+      - name: Determine release tag
+        id: tag
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            echo "tag=${{ github.event.release.tag_name }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=${{ github.event.inputs.tag }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Prepare release metadata
+        id: release
+        env:
+          RELEASE_TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          firmware_version="$(tr -d '[:space:]' < firmware/VERSION)"
+          tag_version="${RELEASE_TAG#v}"
+
+          if [ "$tag_version" != "$firmware_version" ]; then
+            echo "::error::Release tag '$RELEASE_TAG' does not match firmware/VERSION '$firmware_version'. Use tag v$firmware_version or $firmware_version."
+            exit 1
+          fi
+
+          echo "version=${firmware_version}" >> "$GITHUB_OUTPUT"
+          echo "tag_version=${tag_version}" >> "$GITHUB_OUTPUT"
+
+          {
+            printf '## Replay 2026 Badge v%s\n\n' "$firmware_version"
+            printf 'Firmware release v%s for the Replay 2026 Badge.\n\n' "$firmware_version"
+            printf '### Downloads\n\n'
+            printf -- '- `firmware.bin`: OTA update image. The badge firmware updater looks for this exact asset name on the latest GitHub release.\n'
+            printf -- '- `replay2026-factory-16MB.bin`: complete 16 MB factory image for Ignition, first-time setup, or recovery. This includes bootloader, partition table, firmware, filesystem, bundled apps, docs, and the DOOM shareware data file.\n\n'
+            printf '### Flashing\n\n'
+            printf 'Use Ignition for the recommended flashing path:\n\n'
+            printf '```bash\n'
+            printf './start.sh --no-build --factory-image ~/Downloads/replay2026-factory-16MB.bin\n'
+            printf '```\n\n'
+            printf 'Developers can also build and flash from `firmware/` with PlatformIO using the `replay2026` environment.\n\n'
+            printf '### Notes\n\n'
+            printf -- '- `doom1.wad` is freely redistributable shareware game data with separate terms; it is not MIT-licensed source code.\n'
+            printf -- '- See the repository docs for Ignition setup, OTA behavior, firmware development, hardware files, and third-party notices.\n'
+          } > artifacts/release/release-notes.md
+
+      - name: Upload firmware artifacts to release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: Replay 2026 Badge v${{ steps.release.outputs.version }}
+          body_path: artifacts/release/release-notes.md
+          files: |
+            artifacts/release/firmware.bin
+            artifacts/release/replay2026-factory-16MB.bin
+          fail_on_unmatched_files: true

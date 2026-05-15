@@ -1,0 +1,60 @@
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 28px clamp(16px, 4vw, 56px) 0;
+}
+
+.filter-row a {
+  padding: 9px 14px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--muted);
+  font-family:
+    "Space Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+}
+
+.filter-row a:hover {
+  border-color: var(--yellow);
+  color: var(--yellow);
+}
+
+.hack-directory {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  padding-top: 36px;
+  background: var(--line);
+}
+
+.hack-directory h2 {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 0 0 20px;
+  background: var(--bg);
+}
+
+#beginner h2::before {
+  content: "_01 / ";
+}
+
+#intermediate h2::before {
+  content: "_02 / ";
+}
+
+#advanced h2::before {
+  content: "_03 / ";
+}
+
+.hack-card {
+  padding: 20px;
+}
+
+.hack-card em {
+  float: right;
+}
+

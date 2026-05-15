@@ -1,0 +1,48 @@
+{
+  "name": "micropython_embed",
+  "version": "1.0.0",
+  "build": {
+    "includeDir": "src",
+    "flags": [
+      "-Isrc/ports/esp32"
+    ],
+    "srcFilter": [
+      "+<*>",
+      "-<port/modmachine_esp32_subset.c>",
+      "-<port/replay_os_includefile.c>",
+      "-<ports/esp32/*>",
+      "+<genhdr/pins.c>",
+      "+<ports/esp32/adc.c>",
+      "+<ports/esp32/machine_pin.c>",
+      "+<ports/esp32/machine_timer.c>",
+      "+<ports/esp32/machine_rtc.c>",
+      "+<ports/esp32/machine_touchpad.c>",
+      "+<ports/esp32/machine_hw_spi.c>",
+      "-<extmod/modnetwork.c>",
+      "-<extmod/modsocket.c>",
+      "-<extmod/modssl_mbedtls.c>",
+      "-<extmod/modwebsocket.c>",
+      "-<extmod/modwebrepl.c>",
+      "-<extmod/modbluetooth.c>",
+      "-<extmod/modasyncio.c>",
+      "-<extmod/nimble/*>",
+      "-<ports/esp32/modnetwork.c>",
+      "-<ports/esp32/network_wlan.c>",
+      "-<ports/esp32/network_lan.c>",
+      "-<ports/esp32/network_ppp.c>",
+      "-<ports/esp32/network_common.c>",
+      "-<ports/esp32/modsocket.c>",
+      "-<ports/esp32/modespnow.c>",
+      "-<ports/esp32/modesp32.c>",
+      "-<ports/esp32/modesp.c>",
+      "-<ports/esp32/mpthreadport.c>",
+      "-<ports/esp32/mpnimbleport.c>",
+      "-<ports/esp32/mphalport.c>"
+    ]
+  },
+  "_notes": [
+    "Copied into lib/micropython_embed/library.json by setup_arduino_embed.sh",
+    "after each regen so PlatformIO srcFilter stays in sync with the repo.",
+    "Run firmware/scripts/fetch_micropython_sources.py for extra upstream files."
+  ]
+}
