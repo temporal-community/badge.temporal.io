@@ -15,6 +15,7 @@ should stay outside the default home menu.
 | Tardigotchi | aask42 | Hatch and care for a tiny tardigrade. |
 | Durable Snake | Alexandre Roman | Snake game with three retries. |
 | Starfield Nametag | Alexandre Roman | Animated starfield with a personalized nametag. |
+| Dad Jokes | iandouglas | Fetch a random dad joke. |
 
 ## Adding an App
 

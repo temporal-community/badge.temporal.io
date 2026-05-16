@@ -3,6 +3,33 @@
   "generator": "generate_startup_files.py",
   "assets": [
     {
+      "id": "dad-jokes",
+      "kind": "app",
+      "name": "Dad Jokes",
+      "version": "3d99f2757794",
+      "dest_dir": "/apps/dad_jokes",
+      "size": 6838,
+      "min_free_bytes": 10934,
+      "description": "Fetch a random dad joke.",
+      "files": [
+        {
+          "path": "/README.md",
+          "size": 1251,
+          "sha256": "6fd154872f6e73c615e6b7b16072ac00b7f360c477aaf46f676874e77e144c4a",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/registry/community_apps/dad_jokes/README.md"
+        },
+        {
+          "path": "/main.py",
+          "size": 5587,
+          "sha256": "b6ba331d01c1b755f41dd174e4ceda092d3b43af3276e1399b0e1691dc344979",
+          "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/registry/community_apps/dad_jokes/main.py"
+        }
+      ],
+      "community_contributors": [
+        "iandouglas <iandouglas736@gmail.com>"
+      ]
+    },
+    {
       "id": "durable-snake",
       "kind": "app",
       "name": "Durable Snake",
