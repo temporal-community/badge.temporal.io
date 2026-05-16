@@ -157,6 +157,14 @@ the factory filesystem live under
 `community_apps.json` from those folders, uploads it as a GitHub Release asset,
 and the badge installs apps into `/apps/<app>/` from the Community Apps screen.
 
+Current community app submissions:
+
+| App | Contributor | Description |
+|---|---|---|
+| Tardigotchi | aask42 | Hatch and care for a tiny tardigrade. |
+| Durable Snake | Alexandre Roman | Snake game with three retries. |
+| Starfield Nametag | Alexandre Roman | Animated starfield with a personalized nametag. |
+
 ## Building and Validating App Changes
 
 Run these from `firmware/` before committing an app change:

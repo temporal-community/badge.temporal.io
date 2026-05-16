@@ -42,9 +42,18 @@ repository's MIT License.
 
 ## Community Badge Apps
 
-Installable Community Apps live under `community_apps/` when contributed.
-Individual app licenses and third-party notices should be preserved with each
-submission and reflected here when needed.
+The following installable Community Apps are contributed by their named
+authors and live under `community_apps/`:
+
+- Tardigotchi by aask42.
+- Durable Snake by Alexandre Roman.
+- Starfield Nametag by Alexandre Roman.
+
+Durable Snake and Starfield Nametag were imported from Alexandre Roman's
+`temporal-replay-2026-badge-apps` repository and are licensed under the
+Apache License, Version 2.0. The Apache-2.0 license text is included at
+`licenses/Apache-2.0.txt`. Preserve the Apache notices in those files when
+redistributing source or binaries.
 
 ## Other Firmware Dependencies
 

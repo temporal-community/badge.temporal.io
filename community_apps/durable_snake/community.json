@@ -1,0 +1,5 @@
+{
+  "name": "Durable Snake",
+  "description": "Snake game with three retries.",
+  "contributors": ["Alexandre Roman <alexandre.roman@temporal.io>"]
+}

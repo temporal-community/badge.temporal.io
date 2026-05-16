@@ -117,6 +117,14 @@ are not part of the factory filesystem, but `scripts/generate_startup_files.py`
 generates the release-hosted `community_apps.json` catalog so badges can
 install them over WiFi.
 
+Current community app submissions:
+
+| App | Contributor | Description |
+|---|---|---|
+| Tardigotchi | aask42 | Hatch and care for a tiny tardigrade. |
+| Durable Snake | Alexandre Roman | Snake game with three retries. |
+| Starfield Nametag | Alexandre Roman | Animated starfield with a personalized nametag. |
+
 ## Notes on FAT and "mountable on computer"
 
 - This board config uses a FAT data partition (`vfs.VfsFat`) on internal flash.
