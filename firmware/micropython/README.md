@@ -160,9 +160,13 @@ are not part of the factory filesystem, but `scripts/generate_startup_files.py`
 publishes them to `registry/community_apps.json` so badges can install them over
 WiFi.
 
-Community app submissions live under `community_apps/apps/` and land
-separately from the initial public release so authorship and licensing stay
-easy to audit.
+Current community app submissions:
+
+| App | Contributor | Description |
+|---|---|---|
+| Tardigotchi | aask42 | Hatch and care for a tiny tardigrade. |
+| Durable Snake | Alexandre Roman | Snake game with three retries. |
+| Starfield Nametag | Alexandre Roman | Animated starfield with a personalized nametag. |
 
 ## Notes on FAT and "mountable on computer"
 
