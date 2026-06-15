@@ -6,8 +6,8 @@
 // ─── Badge info view + edit screen ──────────────────────────────────────────
 // Lists the local badge's identity fields. Confirm on a row pushes a
 // TextInputScreen pre-loaded with the current value. On submit we write
-// the new value back to NVS and reload the running globals so the next
-// boop transmits the updated field without a reboot.
+// the new value back to /badgeInfo.json and reload the running globals
+// so the next boop transmits the updated field without a reboot.
 
 class BadgeInfoViewScreen : public ListMenuScreen {
  public:
@@ -31,6 +31,7 @@ class BadgeInfoViewScreen : public ListMenuScreen {
   // Index of the row currently being edited; valid only between
   // onItemSelect (push) and onEditSubmit (pop).
   uint8_t editIndex_ = 0;
-  // Scratch buffer the keyboard writes into.
+  // Scratch buffer the keyboard writes into. Sized for the longest
+  // editable field (bio, 128 bytes).
   char editBuf_[128] = {};
 };

@@ -85,6 +85,10 @@ int temporalbadge_runtime_led_clear(void);
 int temporalbadge_runtime_led_fill(int brightness);
 int temporalbadge_runtime_led_set_pixel(int x, int y, int brightness);
 int temporalbadge_runtime_led_get_pixel(int x, int y);
+// Snapshot the full 8×8 logical LED image (after global brightness), copied
+// from the matrix framebuffer.  out must hold 64 bytes; filled row-major
+// (out[y*8+x]).  Returns 1 on success, 0 if the matrix is off-line.
+int temporalbadge_runtime_led_snapshot(uint8_t out[64]);
 int temporalbadge_runtime_led_show_image(const char *name);
 int temporalbadge_runtime_led_set_frame(const uint8_t *rows, int brightness);
 int temporalbadge_runtime_led_start_animation(const char *name, int interval_ms);
@@ -158,21 +162,12 @@ uint32_t temporalbadge_runtime_ir_ms_since_rx(void);
 // Badge identity / boops
 const char *temporalbadge_runtime_my_uuid(void);
 const char *temporalbadge_runtime_boops(void);
-int temporalbadge_runtime_contact_get(const char *key,
-                                       char *buf,
-                                       size_t buf_cap);
-int temporalbadge_runtime_contact_set(const char *key,
-                                       const char *value);
 
 // Apps registry — re-scan /apps/<slug>/main.py for self-describing
 // MicroPython apps and rebuild the main-menu grid. Returns the number
 // of dynamic apps now registered. Used by JumperIDE / users to refresh
 // the menu after writing a new script without rebooting.
 int temporalbadge_runtime_rescan_apps(void);
-
-// Wall-clock time. Sets the device RTC from a Unix epoch and returns the epoch
-// now visible to time(nullptr), or -1 on error.
-int64_t temporalbadge_runtime_set_time(int64_t epoch);
 
 // ── NVS-backed key/value store (badge.kv_*) ────────────────────────────
 //
@@ -203,6 +198,12 @@ int  temporalbadge_runtime_kv_get(const char *key, char *out_type,
                                   uint8_t *buf, size_t buf_cap);
 int  temporalbadge_runtime_kv_delete(const char *key);
 int  temporalbadge_runtime_kv_keys(char *buf, size_t buf_cap);
+
+// ── time ───────────────────────────────────────────────────────────────────
+// Set the system clock from a Unix epoch (seconds). Returns the resulting
+// epoch on success, or -1 on error. Implemented in
+// src/micropython/badge_mp_api/mp_api_time.cpp.
+int64_t temporalbadge_runtime_set_time(int64_t epoch);
 
 #if defined(BADGE_ENABLE_MP_DEV)
 // Dev/test harness — called from MicroPython as badge.dev(*string_args).

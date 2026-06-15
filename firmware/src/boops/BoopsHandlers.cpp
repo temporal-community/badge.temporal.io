@@ -111,10 +111,12 @@ static void secondaryTick(uint32_t nowMs);
 // kPpTagOrder in lockstep: send my FIELD(tag), wait for peer's
 // FIELD(tag), advance cursor. Each round handles exactly one field, so
 // a lost frame just means one round is retried (not the entire
-// stream). The public contact card is a compact MessagePack map carried
-// as one FIELD payload so the common boop path avoids many small frames.
+// stream). Per-tag arrival fires BoopFeedback chips so the user sees
+// "name… title… company…" appear progressively on the boop screen.
 constexpr uint8_t kPpTagOrder[] = {
-    FIELD_CONTACT_CARD,
+    FIELD_NAME, FIELD_TITLE, FIELD_COMPANY,
+    FIELD_EMAIL, FIELD_WEBSITE, FIELD_PHONE,
+    FIELD_BIO,
 };
 constexpr uint8_t kPpTagOrderCount =
     sizeof(kPpTagOrder) / sizeof(kPpTagOrder[0]);
@@ -322,17 +324,10 @@ static void ppSendField(uint8_t tag, uint32_t nowMs) {
     // didn't share that field.
     const char* v = "";
     uint8_t len = 0;
-    uint8_t cardBuf[242];
-    const uint8_t* payload = nullptr;
     // Skip server-only fields and tags peer can't use.  Mirrors
     // BoopsProtocol.cpp's tagIsTxEligible() but inlined here so we
     // don't depend on a static helper from another TU.
-    if (tag == FIELD_CONTACT_CARD) {
-        const size_t packed = buildLocalContactCardMsgPack(cardBuf, sizeof(cardBuf));
-        payload = cardBuf;
-        len = (uint8_t)packed;
-    } else if (tag < FIELD_TAG_COUNT && tag != FIELD_ATTENDEE_TYPE &&
-               tag != FIELD_TICKET_UUID) {
+    if (tag < FIELD_TAG_COUNT && tag != FIELD_ATTENDEE_TYPE) {
         v = getLocalField(tag);
         if (!v) v = "";
         const size_t slen = strlen(v);
@@ -340,12 +335,11 @@ static void ppSendField(uint8_t tag, uint32_t nowMs) {
         // payload area; minus 2 B TLV header = 242 B max value bytes.
         // Bio chunks are already <=32 B; non-bio fields top out at 128 B.
         len = (uint8_t)(slen > 240 ? 240 : slen);
-        payload = (const uint8_t*)v;
     }
 
     uint8_t buf[NEC_MAX_WORDS * 4];
-    size_t wrote = packOneTlv(buf, 0, sizeof(buf), tag, /*chunkIdx=*/0,
-                              payload ? (const char*)payload : "", len);
+    size_t wrote = packOneTlv(buf, 0, sizeof(buf),
+                               tag, /*chunkIdx=*/0, v, len);
     if (wrote == 0) {
         // packOneTlv returned 0 — write the bare 2-byte header so peer
         // still sees a FIELD frame for this tag (advances their cursor).
@@ -443,11 +437,7 @@ static void processPpFrame(const nec_mw_result_t& f, uint32_t nowMs) {
 
         if (tag >= FIELD_TAG_COUNT) continue;
 
-        if (tag == FIELD_CONTACT_CARD) {
-            if (len > 0) {
-                storeReceivedContactCardMsgPack((const uint8_t*)payload, len);
-            }
-        } else if (tag == FIELD_BIO) {
+        if (tag == FIELD_BIO) {
             if (len > 0) {
                 storeBioChunk(chunkIdx, payload, len);
                 s_xchg.peerBioChunkMask |= (1U << chunkIdx);
@@ -1054,7 +1044,7 @@ static void txOneDataFrame(uint8_t seq, uint8_t groupCount, bool hasMore,
 // everything, or peer's NEED-repair path picks up exactly what was
 // missing on the next round.  At NEC_MAX_WORDS=64 the payload area
 // holds ~244 B, plenty for name + title + company + email + website
-// + legacy optional fields.
+// + phone + bio chunks.
 static void serveStreamReq(uint32_t nowMs) {
     Serial.printf("[%s] serveStreamReq: tagMask=0x%03X bioChunks=%u\n",
                   TAG, (unsigned)s_xchg.myTagMask,

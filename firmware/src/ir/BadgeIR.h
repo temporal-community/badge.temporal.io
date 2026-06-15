@@ -148,8 +148,7 @@ enum BoopFieldTag : uint8_t {
     FIELD_WEBSITE       = 6,
     FIELD_PHONE         = 7,
     FIELD_BIO           = 8,
-    FIELD_CONTACT_CARD  = 9,   // MessagePack map: n/t/c/e/w/p/b
-    FIELD_TAG_COUNT     = 10,
+    FIELD_TAG_COUNT     = 9,
 };
 
 // Bio segmentation: up to 4 chunks of up to 32 bytes each reassembles into

@@ -20,7 +20,6 @@ from pathlib import Path
 
 try:
     import serial
-    from serial.tools import list_ports
 except ImportError:
     print(
         "ERROR: pyserial not found. Run with PlatformIO's Python:\n"
@@ -65,47 +64,6 @@ print(badge.dev('fb'))
 """
 
 
-CURRENT_SCREEN_SNIPPET = r"""
-import badge
-print(badge.dev('fb'))
-"""
-
-
-def default_output_path() -> Path:
-    return Path(__file__).resolve().parents[2] / "docs" / "assets" / "screenshots" / "badge-screenshot.png"
-
-
-def find_badge_ports() -> list[str]:
-    ports: list[str] = []
-    for port in list_ports.comports():
-        device = port.device or ""
-        name = device.lower()
-        desc = (port.description or "").lower()
-        if (
-            "usbmodem" in name
-            or "usbserial" in name
-            or "ttyacm" in name
-            or "ttyusb" in name
-            or "usb jtag/serial" in desc
-        ):
-            ports.append(device)
-    return sorted(ports)
-
-
-def resolve_port(requested: str | None) -> str:
-    if requested:
-        return requested
-    ports = find_badge_ports()
-    if len(ports) == 1:
-        return ports[0]
-    if not ports:
-        raise RuntimeError("no badge serial ports detected; pass --port /dev/cu.usbmodemXXX")
-    raise RuntimeError(
-        "multiple badge serial ports detected; pass --port explicitly:\n  "
-        + "\n  ".join(ports)
-    )
-
-
 def png_chunk(kind: bytes, data: bytes) -> bytes:
     body = kind + data
     return (
@@ -122,7 +80,7 @@ def write_png(path: Path, pixels: list[list[int]], scale: int) -> None:
     for row in pixels:
         scaled_row = bytearray()
         for bit in row:
-            value = 255 if bit else 0
+            value = 0 if bit else 255
             scaled_row.extend([value, value, value] * scale)
         packed = bytes([0]) + bytes(scaled_row)
         for _ in range(scale):
@@ -223,46 +181,27 @@ def parse_pages(output: str) -> list[bytes]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--port",
-        help="Badge serial port, e.g. /dev/cu.usbmodem101. Optional when exactly one badge is connected.",
+        "--port", required=True, help="Badge serial port, e.g. /dev/cu.usbmodem101"
     )
-    parser.add_argument(
-        "--out",
-        type=Path,
-        default=default_output_path(),
-        help="PNG output path (default: docs/assets/screenshots/badge-screenshot.png)",
-    )
+    parser.add_argument("--out", required=True, type=Path, help="PNG output path")
     parser.add_argument("--baud", type=int, default=115200)
     parser.add_argument("--scale", type=int, default=6)
     parser.add_argument(
-        "--list-ports",
-        action="store_true",
-        help="List candidate badge serial ports and exit",
-    )
-    parser.add_argument(
         "--screen",
-        default="current",
-        choices=("current", "synth-live", "synth-sounds"),
+        default="synth-live",
+        choices=("synth-live", "synth-sounds"),
         help="Built-in screen capture snippet to run",
     )
     args = parser.parse_args()
 
-    if args.list_ports:
-        ports = find_badge_ports()
-        if ports:
-            print("\n".join(ports))
-        return 0 if ports else 1
-
     snippet = {
-        "current": CURRENT_SCREEN_SNIPPET,
         "synth-live": SYNTH_LIVE_SNIPPET,
         "synth-sounds": SYNTH_SOUNDS_SNIPPET,
     }[args.screen]
-    port = resolve_port(args.port)
-    output = exec_raw(port, snippet, args.baud)
+    output = exec_raw(args.port, snippet, args.baud)
     pages = parse_pages(output)
     write_png(args.out, unpack_framebuffer(pages), max(1, args.scale))
-    print(f"{os.fspath(args.out)} ({SCREEN_W * max(1, args.scale)}x{SCREEN_H * max(1, args.scale)}, captured from {port})")
+    print(os.fspath(args.out))
     return 0
 
 

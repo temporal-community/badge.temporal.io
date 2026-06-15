@@ -94,8 +94,8 @@ class BrownoutSilencer {
 
 // ---------------------------------------------------------------------------
 //  SleepService — light/deep sleep driven by IMU motion events.
-//  Full implementation requires BADGE_HAS_SLEEP_SERVICE. Builds without that
-//  feature get a stub that exposes the same API as no-ops.
+//  Full implementation requires BADGE_HAS_SLEEP_SERVICE (Charlie board).
+//  DELTA gets a stub that exposes the same API as no-ops.
 // ---------------------------------------------------------------------------
 
 class Inputs;

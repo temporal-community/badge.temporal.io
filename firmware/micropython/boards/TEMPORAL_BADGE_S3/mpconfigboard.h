@@ -8,6 +8,6 @@
 // Network defaults.
 #define MICROPY_PY_NETWORK_HOSTNAME_DEFAULT "temporal-badge"
 
-// Badge I2C defaults from the public hardware configuration.
+// Badge I2C defaults from CharlieDefines.h.
 #define MICROPY_HW_I2C0_SCL                 (9)
 #define MICROPY_HW_I2C0_SDA                 (8)

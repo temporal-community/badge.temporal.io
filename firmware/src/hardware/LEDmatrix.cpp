@@ -963,6 +963,18 @@ uint8_t LEDmatrix::getPixel(uint8_t x, uint8_t y) const {
   return applyGlobalBrightness(framebuffer_[y][x]);
 }
 
+bool LEDmatrix::snapshotFramebufferDisplay(uint8_t out[LED_MATRIX_HEIGHT][LED_MATRIX_WIDTH]) {
+  if (!initialized_ || out == nullptr) {
+    return false;
+  }
+  for (uint8_t y = 0; y < LED_MATRIX_HEIGHT; ++y) {
+    for (uint8_t x = 0; x < LED_MATRIX_WIDTH; ++x) {
+      out[y][x] = applyGlobalBrightness(framebuffer_[y][x]);
+    }
+  }
+  return true;
+}
+
 bool LEDmatrix::showCheckerboard(uint8_t offBrightness) {
   return showCheckerboard(brightness_, offBrightness);
 }

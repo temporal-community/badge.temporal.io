@@ -179,7 +179,6 @@ bool clusterToken(const char* text, size_t pos, ClusterGlyph* cluster,
     return false;
   };
   if (match("ALL", 3, ClusterGlyph::kAll)) return true;
-  if (match("ANY", 3, ClusterGlyph::kAll)) return true;
   if (match("L/R", 3, ClusterGlyph::kLR))  return true;
   if (match("X/B", 3, ClusterGlyph::kLR))  return true;
   if (match("U/D", 3, ClusterGlyph::kUD))  return true;

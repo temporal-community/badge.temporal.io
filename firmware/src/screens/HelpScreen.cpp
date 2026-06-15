@@ -21,7 +21,7 @@ constexpr uint8_t kQrIde = 1;
 constexpr uint8_t kQrTemporal = 2;
 
 constexpr const char* kQrUrls[] = {
-    "https://badge.temporal.io/developer-guide.html",
+    "https://docs.jumperless.org/badge-developer-guide/",
     "https://ide.jumperless.org/",
     "https://badge.temporal.io/",
 };
@@ -114,8 +114,8 @@ constexpr Item kItems[] = {
 
     // ── Docs URLs ────────────────────────────────────────────────────
     {ItemKind::kHeading, "DEV GUIDE",                     0},
-    {ItemKind::kText,    "badge.temporal.io/",             0},
-    {ItemKind::kText,    "developer-guide.html",           0},
+    {ItemKind::kText,    "docs.jumperless.org/",               0},
+    {ItemKind::kText,    "badge-developer-guide/",         0},
     {ItemKind::kQr,      "docs",                          kQrDocs},
     {ItemKind::kGap,     nullptr,                         0},
 
@@ -124,7 +124,7 @@ constexpr Item kItems[] = {
     {ItemKind::kQr,      "ide",                           kQrIde},
     {ItemKind::kGap,     nullptr,                         0},
 
-    {ItemKind::kHeading, "SITE",                          0},
+    {ItemKind::kHeading, "MIRROR",                        0},
     {ItemKind::kText,    "badge.temporal.io",             0},
     {ItemKind::kQr,      "temporal",                      kQrTemporal},
 };

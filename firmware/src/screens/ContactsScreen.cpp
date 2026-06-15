@@ -4,6 +4,7 @@
 #include <cstring>
 
 #include "../identity/BadgeInfo.h"
+#include "../infra/PsramAllocator.h"
 #include "../ui/GUI.h"
 
 ContactsScreen sContacts;
@@ -42,8 +43,17 @@ void ContactsScreen::onResume(GUIManager& /*gui*/) {
     reload();
 }
 
+void ContactsScreen::ensureEntries() {
+    if (entries_) return;
+    entries_ = static_cast<BadgeBoops::PeerEntry*>(
+        BadgeMemory::allocPreferPsram(kMaxContacts * sizeof(BadgeBoops::PeerEntry)));
+    if (entries_) std::memset(entries_, 0, kMaxContacts * sizeof(BadgeBoops::PeerEntry));
+}
+
 void ContactsScreen::reload() {
     entryCount_ = 0;
+    ensureEntries();
+    if (!entries_) return;
     BadgeInfo::Fields me;
     BadgeInfo::getCurrent(me);
 
@@ -68,7 +78,7 @@ void ContactsScreen::formatItem(uint8_t index, char* buf,
 }
 
 const BadgeBoops::PeerEntry* ContactsScreen::entryAt(uint8_t index) const {
-    if (index >= entryCount_) return nullptr;
+    if (!entries_ || index >= entryCount_) return nullptr;
     return &entries_[index];
 }
 

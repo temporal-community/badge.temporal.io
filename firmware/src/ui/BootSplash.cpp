@@ -233,7 +233,7 @@ static void drawLogoSolid() {
 static void drawVersionBadge() {
   badgeDisplay.setDrawColor(1);
   badgeDisplay.setFontPreset(FONT_TINY);
-  const char* v = FIRMWARE_VERSION;
+  const char* v = FIRMWARE_VERSION_DISPLAY;
   const int w = badgeDisplay.getStrWidth(v);
   badgeDisplay.drawStr(kWidth - w - 1, kHeight - 1, v);
 }

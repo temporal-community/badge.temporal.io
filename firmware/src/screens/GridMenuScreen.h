@@ -36,7 +36,16 @@ class GridMenuScreen : public Screen {
   // the dynamic-app rows). Invalidates the visibility cache so the
   // next render walks the fresh array. Items must remain valid for
   // the lifetime of the screen — caller owns storage.
+  // Does not reset cursor or scroll — rebuildMainMenuFromRegistry()
+  // captures/applies an anchor so selection and viewport stay aligned.
   void setItems(const GridMenuItem* items, uint8_t count);
+
+  // Capture the visible selection before mutating the menu item array;
+  // call applyRebuildAnchor() after setItems(). Used from
+  // rebuildMainMenuFromRegistry() only.
+  void captureRebuildAnchor(char* labelOut, size_t labelCap,
+                            ScreenId* targetOut) const;
+  void applyRebuildAnchor(const char* labelIn, ScreenId targetIn);
 
   // Snapshot accessors used by MenuOrderScreen and other diagnostics.
   // Returns the array currently in use; the pointer is owned by whoever

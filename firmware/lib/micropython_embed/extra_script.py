@@ -78,3 +78,24 @@ env.AppendUnique(
         ("CONFIG_IDF_TARGET_ARCH_XTENSA", 1),
     ]
 )
+
+# NimBLE include paths for modbluetooth / nimble bindings
+arduino_libs_dir = platform.get_package_dir("framework-arduinoespressif32-libs")
+if arduino_libs_dir:
+    nimble_base = Path(arduino_libs_dir) / mcu / "include" / "bt" / "host" / "nimble"
+    nimble_inc_dirs = _existing([
+        nimble_base / "nimble" / "nimble" / "include",
+        nimble_base / "nimble" / "porting" / "nimble" / "include",
+        nimble_base / "nimble" / "porting" / "npl" / "freertos" / "include",
+        nimble_base / "port" / "include",
+        nimble_base / "esp-hci" / "include",
+        nimble_base / "nimble" / "nimble" / "host" / "include",
+        nimble_base / "nimble" / "nimble" / "host" / "services" / "ans" / "include",
+        nimble_base / "nimble" / "nimble" / "host" / "services" / "gap" / "include",
+        nimble_base / "nimble" / "nimble" / "host" / "services" / "gatt" / "include",
+        nimble_base / "nimble" / "nimble" / "host" / "store" / "config" / "include",
+        nimble_base / "nimble" / "nimble" / "host" / "src",
+        nimble_base / "nimble" / "nimble" / "transport" / "include",
+    ])
+    if nimble_inc_dirs:
+        env.AppendUnique(CPPPATH=nimble_inc_dirs)

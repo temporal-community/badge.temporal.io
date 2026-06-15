@@ -1,13 +1,10 @@
 #include <Arduino.h>
-#include <WiFi.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "../../identity/BadgeUID.h"
 #include "../../hardware/Inputs.h"
-#include "../../infra/BadgeConfig.h"
-#include "../../ota/BadgeOTA.h"
 
 #include "temporalbadge_runtime.h"
 
@@ -21,9 +18,6 @@ extern Inputs inputs;
 //
 //   badge.dev("btn", "up"|"down"|"left"|"right")
 //   badge.dev("fb")                  # dumps OLED framebuffer rows as hex
-//   badge.dev("wifi-scan")           # dumps nearby 2.4 GHz APs to serial
-//   badge.dev("wifi-set", ssid, pass[, slot])  # updates a saved WiFi slot
-//   badge.dev("ota-check")           # forces an OTA manifest check
 //   badge.dev("uid")                 # returns the badge UUID
 //
 // The return value is always a short C string (stashed in a static
@@ -111,64 +105,9 @@ extern "C" const char *temporalbadge_runtime_dev(int argc, const char **argv)
         return uid_hex;
     }
 
-    if (strcmp(cmd, "wifi-scan") == 0)
-    {
-        WiFi.mode(WIFI_STA);
-        WiFi.disconnect(false, true);
-        delay(100);
-        const int count = WiFi.scanNetworks(/*async=*/false,
-                                            /*hidden=*/true);
-        Serial.printf("WIFI SCAN count=%d\n", count);
-        for (int i = 0; i < count; ++i)
-        {
-            Serial.printf("AP ssid='%s' chan=%d rssi=%d auth=%d\n",
-                          WiFi.SSID(i).c_str(),
-                          WiFi.channel(i),
-                          WiFi.RSSI(i),
-                          static_cast<int>(WiFi.encryptionType(i)));
-        }
-        WiFi.scanDelete();
-        WiFi.mode(WIFI_OFF);
-        return "OK wifi-scan -> serial";
-    }
-
-    if (strcmp(cmd, "wifi-set") == 0)
-    {
-        if (argc < 3)
-            return "ERR: wifi-set <ssid> <pass> [slot]";
-        uint8_t slot = 0;
-        if (argc >= 4 && argv[3] && argv[3][0])
-        {
-            char *end = nullptr;
-            long v = strtol(argv[3], &end, 10);
-            if (!end || *end != '\0' || v < 0 ||
-                v >= Config::kMaxWifiNetworks)
-            {
-                return "ERR: bad wifi slot";
-            }
-            slot = static_cast<uint8_t>(v);
-        }
-        badgeConfig.setWifiCredentialsAt(slot, argv[1], argv[2]);
-        badgeConfig.save();
-        snprintf(s_dev_result, sizeof(s_dev_result), "OK wifi slot %u",
-                 static_cast<unsigned>(slot));
-        return s_dev_result;
-    }
-
-    if (strcmp(cmd, "ota-check") == 0)
-    {
-        ota::CheckResult r = ota::checkNow(/*ignoreCooldown=*/true);
-        snprintf(s_dev_result, sizeof(s_dev_result),
-                 "OTA check=%u tag=%s err=%s",
-                 static_cast<unsigned>(r),
-                 ota::latestKnownTag(),
-                 ota::lastErrorMessage());
-        return s_dev_result;
-    }
-
     if (strcmp(cmd, "help") == 0)
     {
-        return "btn|fb|wifi-scan|wifi-set|ota-check|uid|help";
+        return "btn|fb|uid|help";
     }
 
     snprintf(s_dev_result, sizeof(s_dev_result),

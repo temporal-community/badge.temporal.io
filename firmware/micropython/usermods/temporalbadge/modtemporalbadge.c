@@ -214,6 +214,241 @@ static mp_obj_t temporalbadge_oled_get_framebuffer_size(void) {
 static MP_DEFINE_CONST_FUN_OBJ_0(temporalbadge_oled_get_framebuffer_size_obj,
                                   temporalbadge_oled_get_framebuffer_size);
 
+// ── OLED -- screenshot ──────────────────────────────────────────────────────
+
+// Quarter-block glyph lookup for oled_screenshot(quarter=True).
+// Index = (top_left<<3 | top_right<<2 | bottom_left<<1 | bottom_right).
+// U+2580–U+259F all encode as E2 96 {80–9F} in UTF-8.
+// Half-block lookup: index = (top_pixel << 1) | bottom_pixel.
+// Two vertically-adjacent pixels → one glyph; at 2:1-height monospace fonts
+// each cell is 1W×2W = square — correct aspect ratio without horizontal compression.
+static const char * const _screenshot_half[4] = {
+    " ",            // 0b00  both off
+    "\xe2\x96\x84", // 0b01  ▄  U+2584  lower half (bottom pixel lit)
+    "\xe2\x96\x80", // 0b10  ▀  U+2580  upper half (top pixel lit)
+    "\xe2\x96\x88", // 0b11  █  U+2588  full block  (both lit)
+};
+
+// Quarter-block lookup: index = (TL<<3) | (TR<<2) | (BL<<1) | BR.
+// Four pixels in a 2×2 block → one glyph (U+2580..U+259F).
+// Used as the smallest "compact" rendering, below half-block on the size ladder.
+static const char * const _screenshot_quarter[16] = {
+    " ",            // 0b0000  (space)
+    "\xe2\x96\x97", // 0b0001  ▗  lower-right
+    "\xe2\x96\x96", // 0b0010  ▖  lower-left
+    "\xe2\x96\x84", // 0b0011  ▄  lower-half
+    "\xe2\x96\x9d", // 0b0100  ▝  upper-right
+    "\xe2\x96\x90", // 0b0101  ▐  right-half
+    "\xe2\x96\x9e", // 0b0110  ▞  upper-right + lower-left
+    "\xe2\x96\x9f", // 0b0111  ▟  all except upper-left
+    "\xe2\x96\x98", // 0b1000  ▘  upper-left
+    "\xe2\x96\x9a", // 0b1001  ▚  upper-left + lower-right
+    "\xe2\x96\x8c", // 0b1010  ▌  left-half
+    "\xe2\x96\x99", // 0b1011  ▙  all except upper-right
+    "\xe2\x96\x80", // 0b1100  ▀  upper-half
+    "\xe2\x96\x9c", // 0b1101  ▜  all except lower-left
+    "\xe2\x96\x9b", // 0b1110  ▛  all except lower-right
+    "\xe2\x96\x88", // 0b1111  █  full block
+};
+
+// U8G2 SSD1306 F-buffer: page-major, LSB of each byte = top pixel of page.
+// Assumes R0 rotation (default).  For R2 (flipped badge) invert x and y.
+static inline int _oled_px(const uint8_t *buf, int x, int y) {
+    return (buf[(y >> 3) * 128 + x] >> (y & 7)) & 1;
+}
+
+// Rounded-corner box-drawing characters (all 3-byte UTF-8 sequences).
+static const char _BOX_TL[] = "\xe2\x95\xad"; // ╭  U+256D
+static const char _BOX_TR[] = "\xe2\x95\xae"; // ╮  U+256E
+static const char _BOX_BR[] = "\xe2\x95\xaf"; // ╯  U+256F
+static const char _BOX_BL[] = "\xe2\x95\xb0"; // ╰  U+2570
+static const char _BOX_H[]  = "\xe2\x94\x80"; // ─  U+2500
+static const char _BOX_V[]  = "\xe2\x94\x82"; // │  U+2502
+
+// Write a 3-byte UTF-8 sequence s into buf at position p; return p+3.
+static inline int _put3(char *b, int p, const char *s) {
+    b[p] = s[0]; b[p+1] = s[1]; b[p+2] = s[2]; return p + 3;
+}
+
+// Print n spaces in 64-byte chunks; stack-safe for any n.
+static void _print_spaces(int n) {
+    char buf[65]; memset(buf, ' ', 64); buf[64] = '\0';
+    while (n > 64) { mp_print_str(&mp_plat_print, buf); n -= 64; }
+    if (n > 0) { buf[n] = '\0'; mp_print_str(&mp_plat_print, buf); }
+}
+
+// Print a horizontal border line: LEFT + n×─ + RIGHT + '\n'.
+// Flushes every 64 ─ chars so the 202-byte stack buffer handles any n.
+static void _print_hborder(const char *left, int n, const char *right) {
+    char buf[3 + 64 * 3 + 3 + 2]; // = 202 bytes
+    int pos = _put3(buf, 0, left);
+    for (int i = 0; i < n; i++) {
+        pos = _put3(buf, pos, _BOX_H);
+        if (pos >= 3 + 64 * 3) { // flush when buffer is nearly full
+            buf[pos] = '\0';
+            mp_print_str(&mp_plat_print, buf);
+            pos = 0;
+        }
+    }
+    pos = _put3(buf, pos, right);
+    buf[pos++] = '\n'; buf[pos] = '\0';
+    mp_print_str(&mp_plat_print, buf);
+}
+
+// ── Mode → geometry decoder ──────────────────────────────────────────────────
+//
+// Screenshot mode arguments map to a (h, v, half, quarter) tuple describing
+// how each source pixel (OLED) or LED is rendered:
+//
+//   quarter=1 : use _screenshot_quarter table (2×2 pixels packed into one glyph,
+//               smallest size, sub-half).
+//   half=1    : use _screenshot_half table (1 col × ½ char-row per pixel,
+//               two vertically-adjacent pixels packed into one row).
+//   otherwise : pixel becomes h chars wide × v char-rows tall.
+//
+// Integers are aspect-locked to square pixels on 2:1-height fonts; floats are
+// the escape hatch for literal 1-char-row-per-pixel "tall" layout (or, below
+// 1.0, the quarter-block rung).
+//
+//   int 0     →  half-block                              1W × 1W square (compact)
+//   int N≥1   →  h=2N, v=N                              2NW × 2NW square
+//   float <1  →  quarter-block                          smallest (2×2 pixels/glyph)
+//   float ≥1  →  h=max(1,round(2·(N−1))), v=1           tall escape hatch
+//
+// Example ladder:
+//   0    → half-block        OLED 128×32   LED 8×4
+//   0.5  → quarter-block     OLED 64×32    LED 4×4         ← NEW (smallest)
+//   1    → 2 cols × 1 row    (square 2W×2W)
+//   1.5  → 1 col  × 1 row    (tall 1W×2W — old "0.5")
+//   2    → 4 cols × 2 rows   (square 4W×4W)
+//   2.5  → 3 cols × 1 row    (tall 3W×2W — old "1.5")
+//
+// The .5 float-ladder was shifted up one notch so 0.5 can host quarter-block.
+
+typedef struct { int h; int v; int half; int quarter; } _ss_geom_t;
+
+// Decode a float (N) into the tall-or-quarter geometry slot.
+static inline _ss_geom_t _ss_decode_float(mp_float_t n) {
+    _ss_geom_t g = { 1, 0, 0, 0 };
+    if (n < (mp_float_t)1.0) {
+        // Below 1.0 → quarter-block rung (incl. the canonical 0.5).
+        g.h = 1; g.v = 0; g.half = 0; g.quarter = 1;
+        return g;
+    }
+    // Tall escape hatch, shifted: round(2·(N−1)) chars × 1 row per pixel.
+    int w = (int)((mp_float_t)2.0 * (n - (mp_float_t)1.0) + (mp_float_t)0.5);
+    if (w < 1)  w = 1;
+    if (w > 64) w = 64;
+    g.h = w; g.v = 1; g.half = 0; g.quarter = 0;
+    return g;
+}
+
+// Decode an int (n) into the square-or-half geometry slot.
+static inline _ss_geom_t _ss_decode_int(int n) {
+    _ss_geom_t g = { 1, 0, 1, 0 }; // default = half-block
+    if (n <= 0) return g;
+    if (n > 32) n = 32;            // cap so 2N fits in 64-char pixel buffers
+    g.h = 2 * n; g.v = n; g.half = 0; g.quarter = 0;
+    return g;
+}
+
+static _ss_geom_t _ss_decode(mp_obj_t arg) {
+    if (mp_obj_is_float(arg)) {
+        return _ss_decode_float(mp_obj_get_float(arg));
+    }
+    return _ss_decode_int(mp_obj_get_int(arg));
+}
+
+// _ss_bump: like _ss_decode but renders one "size" larger.  Used to scale up
+// the LED in screenshot() so its visual cell matches a step bigger than the
+// OLED's pixel cell.  Preserves int/float family of the original arg.
+static _ss_geom_t _ss_bump(mp_obj_t arg) {
+    if (mp_obj_is_float(arg)) {
+        return _ss_decode_float(mp_obj_get_float(arg) + (mp_float_t)1.0);
+    }
+    return _ss_decode_int(mp_obj_get_int(arg) + 1);
+}
+
+// _render_oled_geom: draw the OLED framebuffer using a decoded geometry.
+static void _render_oled_geom(const uint8_t *fb, int w, int h, _ss_geom_t g) {
+    char endl[5]; memcpy(endl, _BOX_V, 3); endl[3] = '\n'; endl[4] = '\0';
+    if (g.quarter) {
+        // quarter-block: each 2×2 pixel cell → one glyph.  Smallest output.
+        int cols = w / 2, rows = h / 2;
+        _print_hborder(_BOX_TL, cols, _BOX_TR);
+        for (int cy = 0; cy < rows; cy++) {
+            int y0 = cy * 2, y1 = y0 + 1;
+            mp_print_str(&mp_plat_print, _BOX_V);
+            for (int cx = 0; cx < cols; cx++) {
+                int x0 = cx * 2, x1 = x0 + 1;
+                int idx = (_oled_px(fb, x0, y0) << 3)
+                        | (_oled_px(fb, x1, y0) << 2)
+                        | (_oled_px(fb, x0, y1) << 1)
+                        |  _oled_px(fb, x1, y1);
+                mp_print_str(&mp_plat_print, _screenshot_quarter[idx]);
+            }
+            mp_print_str(&mp_plat_print, endl);
+        }
+        _print_hborder(_BOX_BL, cols, _BOX_BR);
+        return;
+    }
+    if (g.half) {
+        // half-block: each column of 2 pixels → ▀/▄/█/space.
+        int cols = w, rows = h / 2;
+        _print_hborder(_BOX_TL, cols, _BOX_TR);
+        for (int cy = 0; cy < rows; cy++) {
+            int y0 = cy * 2, y1 = y0 + 1;
+            mp_print_str(&mp_plat_print, _BOX_V);
+            for (int cx = 0; cx < cols; cx++) {
+                int idx = (_oled_px(fb, cx, y0) << 1) | _oled_px(fb, cx, y1);
+                mp_print_str(&mp_plat_print, _screenshot_half[idx]);
+            }
+            mp_print_str(&mp_plat_print, endl);
+        }
+        _print_hborder(_BOX_BL, cols, _BOX_BR);
+        return;
+    }
+    int s = g.h;
+    char lit_px[64 * 3 + 1], dark_px[64 + 1];
+    for (int i = 0; i < s; i++) {
+        lit_px[i * 3]     = '\xe2';
+        lit_px[i * 3 + 1] = '\x96';
+        lit_px[i * 3 + 2] = '\x88'; // █
+        dark_px[i] = ' ';
+    }
+    lit_px[s * 3] = '\0'; dark_px[s] = '\0';
+    _print_hborder(_BOX_TL, w * s, _BOX_TR);
+    for (int y = 0; y < h; y++) {
+        for (int rep = 0; rep < g.v; rep++) {
+            mp_print_str(&mp_plat_print, _BOX_V);
+            for (int x = 0; x < w; x++) {
+                mp_print_str(&mp_plat_print, _oled_px(fb, x, y) ? lit_px : dark_px);
+            }
+            mp_print_str(&mp_plat_print, endl);
+        }
+    }
+    _print_hborder(_BOX_BL, w * s, _BOX_BR);
+}
+
+// oled_screenshot(mode=1)
+//   See "Mode → geometry decoder" above for the mode argument semantics.
+//   Default mode=1 (smallest aspect-locked square: 2 chars × 1 row per pixel).
+static mp_obj_t temporalbadge_oled_screenshot(size_t n_args,
+                                               const mp_obj_t *args) {
+    mp_obj_t mode_arg = (n_args > 0) ? args[0] : MP_OBJ_NEW_SMALL_INT(1);
+    int w, h, buf_size;
+    const uint8_t *fb =
+        temporalbadge_hal_oled_get_framebuffer(&w, &h, &buf_size);
+    if (!fb) {
+        return mp_const_none;
+    }
+    _render_oled_geom(fb, w, h, _ss_decode(mode_arg));
+    return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(temporalbadge_oled_screenshot_obj,
+                                            0, 1,
+                                            temporalbadge_oled_screenshot);
+
 // ── Native UI chrome helpers ────────────────────────────────────────────────
 
 static mp_obj_t temporalbadge_ui_header(size_t n_args,
@@ -466,6 +701,197 @@ static mp_obj_t temporalbadge_led_get_pixel(mp_obj_t x_obj, mp_obj_t y_obj) {
 }
 static MP_DEFINE_CONST_FUN_OBJ_2(temporalbadge_led_get_pixel_obj,
                                   temporalbadge_led_get_pixel);
+
+// ── LED + combined screenshot ────────────────────────────────────────────────
+// _render_led_geom draws the 8×8 LED matrix with a rounded-corner border, using
+// a pre-decoded geometry from _ss_decode/_ss_bump.
+//
+//   pad  = left-padding spaces before each line (used to centre LED under OLED).
+//   g    = geometry (half-block or h chars × v char-rows per LED).
+//   ansi = 1: wrap lit LEDs in ESC[91m…ESC[0m (bright red).  Requires a real
+//             PTY; PlatformIO monitor shows ␛ literally.
+
+static void _render_led_geom(int pad, _ss_geom_t g, int ansi) {
+    int cols = g.quarter ? 4 : (g.half ? 8 : 8 * g.h);
+    char endl[5]; memcpy(endl, _BOX_V, 3); endl[3] = '\n'; endl[4] = '\0';
+
+    // Copy the logical 8×8 image from LEDmatrix::framebuffer_ in one shot.
+    // All persistent draws (matrix-app / led_set_frame / set_pixel / …) go
+    // through setPixel / drawMask, which keep framebuffer_ in sync.
+    // drawMaskHardware (intGp flash overlay only) does not — rare edge case.
+    uint8_t snap[64];
+    int snap_ok = (temporalbadge_hal_led_snapshot(snap) > 0);
+    #define _SS_LED(xx, yy) (snap_ok \
+        ? snap[(yy) * 8 + (xx)] \
+        : temporalbadge_hal_led_get_pixel((xx), (yy)))
+
+    // ── top border ──────────────────────────────────────────────────────────
+    _print_spaces(pad);
+    _print_hborder(_BOX_TL, cols, _BOX_TR);
+
+    // ── content rows ────────────────────────────────────────────────────────
+    if (g.quarter) {
+        // quarter-block: each 2×2 LED block → one glyph.  4×4 char output.
+        for (int cy = 0; cy < 4; cy++) {
+            _print_spaces(pad);
+            mp_print_str(&mp_plat_print, _BOX_V);
+            for (int cx = 0; cx < 4; cx++) {
+                int tl = (_SS_LED(cx*2,   cy*2  ) > 0) ? 1 : 0;
+                int tr = (_SS_LED(cx*2+1, cy*2  ) > 0) ? 1 : 0;
+                int bl = (_SS_LED(cx*2,   cy*2+1) > 0) ? 1 : 0;
+                int br = (_SS_LED(cx*2+1, cy*2+1) > 0) ? 1 : 0;
+                int idx = (tl << 3) | (tr << 2) | (bl << 1) | br;
+                if (ansi && idx) mp_print_str(&mp_plat_print, "\x1b[91m");
+                mp_print_str(&mp_plat_print, _screenshot_quarter[idx]);
+                if (ansi && idx) mp_print_str(&mp_plat_print, "\x1b[0m");
+            }
+            mp_print_str(&mp_plat_print, endl);
+        }
+    } else if (g.half) {
+        // half-block: 8 cols × 4 char-rows — each column of 2 LEDs → ▀/▄/█/space
+        for (int cy = 0; cy < 4; cy++) {
+            _print_spaces(pad);
+            mp_print_str(&mp_plat_print, _BOX_V);
+            for (int cx = 0; cx < 8; cx++) {
+                int top = (_SS_LED(cx, cy*2  ) > 0) ? 1 : 0;
+                int bot = (_SS_LED(cx, cy*2+1) > 0) ? 1 : 0;
+                int idx = (top << 1) | bot;
+                if (ansi && idx) mp_print_str(&mp_plat_print, "\x1b[91m");
+                mp_print_str(&mp_plat_print, _screenshot_half[idx]);
+                if (ansi && idx) mp_print_str(&mp_plat_print, "\x1b[0m");
+            }
+            mp_print_str(&mp_plat_print, endl);
+        }
+    } else {
+        // scale mode: each LED → h chars wide, v char-rows tall
+        int s = g.h;
+        char lit_px[64 * 3 + 1], dark_px[64 + 1];
+        for (int i = 0; i < s; i++) {
+            lit_px[i * 3]     = '\xe2';
+            lit_px[i * 3 + 1] = '\x96';
+            lit_px[i * 3 + 2] = '\x88'; // █
+            dark_px[i] = ' ';
+        }
+        lit_px[s * 3] = '\0'; dark_px[s] = '\0';
+        // Precompute ANSI-wrapped lit string: ESC[91m + s×█ + ESC[0m
+        char lit_ansi[5 + 64 * 3 + 4 + 1];
+        if (ansi) {
+            int la = 0;
+            lit_ansi[la++] = '\x1b'; lit_ansi[la++] = '[';
+            lit_ansi[la++] = '9';    lit_ansi[la++] = '1'; lit_ansi[la++] = 'm';
+            memcpy(lit_ansi + la, lit_px, (size_t)(s * 3)); la += s * 3;
+            lit_ansi[la++] = '\x1b'; lit_ansi[la++] = '[';
+            lit_ansi[la++] = '0';    lit_ansi[la++] = 'm';
+            lit_ansi[la] = '\0';
+        }
+        for (int y = 0; y < 8; y++) {
+            for (int rep = 0; rep < g.v; rep++) {
+                _print_spaces(pad);
+                mp_print_str(&mp_plat_print, _BOX_V);
+                for (int x = 0; x < 8; x++) {
+                    int val = _SS_LED(x, y);
+                    mp_print_str(&mp_plat_print,
+                        (val > 0) ? (ansi ? lit_ansi : lit_px) : dark_px);
+                }
+                mp_print_str(&mp_plat_print, endl);
+            }
+        }
+    }
+
+    // ── bottom border ────────────────────────────────────────────────────────
+    _print_spaces(pad);
+    _print_hborder(_BOX_BL, cols, _BOX_BR);
+
+    #undef _SS_LED
+}
+
+// led_screenshot(mode=1, ansi=True)
+//   See "Mode → geometry decoder" above for mode semantics.
+//   Default mode=1 (smallest aspect-locked square: 2 chars × 1 row per LED).
+static mp_obj_t temporalbadge_led_screenshot(size_t n_args,
+                                              const mp_obj_t *args) {
+    mp_obj_t mode_arg = (n_args > 0) ? args[0] : MP_OBJ_NEW_SMALL_INT(1);
+    int ansi = (n_args > 1) ? mp_obj_is_true(args[1]) : 1;
+    _render_led_geom(0, _ss_decode(mode_arg), ansi);
+    return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(temporalbadge_led_screenshot_obj,
+                                            0, 2,
+                                            temporalbadge_led_screenshot);
+
+// ── Combined screenshot ──────────────────────────────────────────────────────
+// screenshot(mode=0, ansi=True)
+//
+// Renders the OLED at `mode` and the LED one step larger (via _ss_bump) so
+// the LED's visual cell matches a step up from the OLED's pixel cell.  LED is
+// horizontally centred under the OLED block.
+//
+//   mode=0.5     OLED quarter-block (66 wide) + LED tall float 1.5 (10 wide)
+//   mode=0       OLED half-block    (130 wide)+ LED int 1 (18 wide):  pad=56
+//   mode=N int   OLED 2NW×2NW pixels          + LED 2(N+1)W×2(N+1)W cells
+//   mode=N.5 ≥1  OLED tall (h=round(2(N-1)))  + LED tall (same family, +1)
+
+static mp_obj_t temporalbadge_screenshot(size_t n_args,
+                                          const mp_obj_t *args) {
+    mp_obj_t mode_arg = (n_args > 0) ? args[0] : MP_OBJ_NEW_SMALL_INT(0);
+    int ansi = (n_args > 1) ? mp_obj_is_true(args[1]) : 1;
+
+    _ss_geom_t oled_g = _ss_decode(mode_arg);
+    _ss_geom_t led_g  = _ss_bump(mode_arg);
+
+    // OLED
+    int w, h, buf_size;
+    const uint8_t *fb =
+        temporalbadge_hal_oled_get_framebuffer(&w, &h, &buf_size);
+    if (fb) _render_oled_geom(fb, w, h, oled_g);
+
+    mp_print_str(&mp_plat_print, "\n");
+
+    // Centre the LED block under the OLED block (border widths cancel).
+    int oled_chars = oled_g.quarter ? (w / 2)
+                   : oled_g.half    ?  w
+                                    : (w * oled_g.h);
+    int led_chars  = led_g.quarter  ? 4
+                   : led_g.half     ? 8
+                                    : (8 * led_g.h);
+    int pad = (oled_chars - led_chars) / 2;
+    if (pad < 0) pad = 0;
+
+    _render_led_geom(pad, led_g, ansi);
+    return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(temporalbadge_screenshot_obj,
+                                            0, 2,
+                                            temporalbadge_screenshot);
+
+// ── REPL hotkey: bare `o` triggers screenshot() ──────────────────────────────
+// Typing `o<Enter>` at the MicroPython REPL evaluates the global `o`, which
+// resolves to the singleton instance of _ss_repl_type below.  The REPL then
+// renders its repr — which routes through our `print` slot and fires
+// screenshot() with default args.  The print slot writes its output directly
+// to mp_plat_print, so the screenshot appears inline and the REPL adds its
+// usual trailing newline + prompt.
+//
+//   • `o` is a normal global, so `o = 42` rebinds it and disables the hotkey
+//     within the user's session.  Re-import or reset to restore.
+//   • `print(o)` and `repr(o)` also trigger the screenshot (intentional).
+//   • Used the empty-string qstr for the type name so `repr()` doesn't print
+//     a noisy type prefix above the screenshot box.
+
+static void _ss_repl_print(const mp_print_t *print, mp_obj_t self_in,
+                            mp_print_kind_t kind) {
+    (void)print; (void)self_in; (void)kind;
+    temporalbadge_screenshot(0, NULL);
+}
+
+MP_DEFINE_CONST_OBJ_TYPE(
+    _ss_repl_type,
+    MP_QSTRnull,
+    MP_TYPE_FLAG_NONE,
+    print, _ss_repl_print
+);
+
+static const mp_obj_base_t _ss_repl_singleton_obj = { &_ss_repl_type };
 
 static mp_obj_t temporalbadge_led_show_image(mp_obj_t name_obj) {
     matrix_app_note_external_draw();
@@ -947,52 +1373,11 @@ static mp_obj_t temporalbadge_boops(void) {
 static MP_DEFINE_CONST_FUN_OBJ_0(temporalbadge_boops_obj,
                                   temporalbadge_boops);
 
-static const char *const contact_keys[] = {
-    "name", "title", "company", "email", "website",
-};
-
-static mp_obj_t temporalbadge_contact(void) {
-    mp_obj_t dict = mp_obj_new_dict(5);
-    char value[129];
-    for (size_t i = 0; i < MP_ARRAY_SIZE(contact_keys); i++) {
-        int len = temporalbadge_hal_contact_get(contact_keys[i], value,
-                                                sizeof(value));
-        if (len < 0) {
-            value[0] = '\0';
-            len = 0;
-        }
-        mp_obj_dict_store(dict,
-            mp_obj_new_str(contact_keys[i], strlen(contact_keys[i])),
-            mp_obj_new_str(value, (size_t)len));
-    }
-    return dict;
-}
-static MP_DEFINE_CONST_FUN_OBJ_0(temporalbadge_contact_obj,
-                                  temporalbadge_contact);
-
-static mp_obj_t temporalbadge_set_contact(mp_obj_t fields_obj) {
-    if (!mp_obj_is_type(fields_obj, &mp_type_dict)) {
-        mp_raise_TypeError(MP_ERROR_TEXT("set_contact expects dict"));
-    }
-    mp_map_t *map = mp_obj_dict_get_map(fields_obj);
-    for (size_t i = 0; i < map->alloc; i++) {
-        if (!mp_map_slot_is_filled(map, i)) continue;
-        const char *key = mp_obj_str_get_str(map->table[i].key);
-        const char *value = mp_obj_str_get_str(map->table[i].value);
-        if (temporalbadge_hal_contact_set(key, value) < 0) {
-            mp_raise_ValueError(MP_ERROR_TEXT("unknown contact field"));
-        }
-    }
-    return mp_const_none;
-}
-static MP_DEFINE_CONST_FUN_OBJ_1(temporalbadge_set_contact_obj,
-                                  temporalbadge_set_contact);
-
 // ── Background matrix app host ──────────────────────────────────────────────
 
-#define MATRIX_APP_DEFAULT_INTERVAL_MS 150u
+#define MATRIX_APP_DEFAULT_INTERVAL_MS 100u
 #define MATRIX_APP_DEFAULT_BRIGHTNESS  12u
-#define MATRIX_APP_MIN_INTERVAL_MS     5u
+#define MATRIX_APP_MIN_INTERVAL_MS     1u
 
 MP_REGISTER_ROOT_POINTER(mp_obj_t matrix_app_active_cb);
 
@@ -1565,6 +1950,7 @@ static const mp_rom_map_elem_t temporalbadge_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_oled_get_framebuffer),      MP_ROM_PTR(&temporalbadge_oled_get_framebuffer_obj) },
     { MP_ROM_QSTR(MP_QSTR_oled_set_framebuffer),      MP_ROM_PTR(&temporalbadge_oled_set_framebuffer_obj) },
     { MP_ROM_QSTR(MP_QSTR_oled_get_framebuffer_size), MP_ROM_PTR(&temporalbadge_oled_get_framebuffer_size_obj) },
+    { MP_ROM_QSTR(MP_QSTR_oled_screenshot),           MP_ROM_PTR(&temporalbadge_oled_screenshot_obj) },
 
     // Native UI chrome helpers
     { MP_ROM_QSTR(MP_QSTR_ui_header),            MP_ROM_PTR(&temporalbadge_ui_header_obj) },
@@ -1595,6 +1981,10 @@ static const mp_rom_map_elem_t temporalbadge_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_led_fill),             MP_ROM_PTR(&temporalbadge_led_fill_obj) },
     { MP_ROM_QSTR(MP_QSTR_led_set_pixel),        MP_ROM_PTR(&temporalbadge_led_set_pixel_obj) },
     { MP_ROM_QSTR(MP_QSTR_led_get_pixel),        MP_ROM_PTR(&temporalbadge_led_get_pixel_obj) },
+    { MP_ROM_QSTR(MP_QSTR_led_screenshot),       MP_ROM_PTR(&temporalbadge_led_screenshot_obj) },
+    { MP_ROM_QSTR(MP_QSTR_screenshot),           MP_ROM_PTR(&temporalbadge_screenshot_obj) },
+    // REPL hotkey: bare `o<Enter>` runs screenshot().  See _ss_repl_print above.
+    { MP_ROM_QSTR(MP_QSTR_o),                    MP_ROM_PTR(&_ss_repl_singleton_obj) },
     { MP_ROM_QSTR(MP_QSTR_led_show_image),       MP_ROM_PTR(&temporalbadge_led_show_image_obj) },
     { MP_ROM_QSTR(MP_QSTR_led_set_frame),        MP_ROM_PTR(&temporalbadge_led_set_frame_obj) },
     { MP_ROM_QSTR(MP_QSTR_led_start_animation),  MP_ROM_PTR(&temporalbadge_led_start_animation_obj) },
@@ -1651,14 +2041,10 @@ static const mp_rom_map_elem_t temporalbadge_globals_table[] = {
     // Badge identity / boops
     { MP_ROM_QSTR(MP_QSTR_my_uuid), MP_ROM_PTR(&temporalbadge_my_uuid_obj) },
     { MP_ROM_QSTR(MP_QSTR_boops),   MP_ROM_PTR(&temporalbadge_boops_obj) },
-    { MP_ROM_QSTR(MP_QSTR_contact), MP_ROM_PTR(&temporalbadge_contact_obj) },
-    { MP_ROM_QSTR(MP_QSTR_set_contact), MP_ROM_PTR(&temporalbadge_set_contact_obj) },
 
     // Apps registry — refresh the main-menu grid after writing a new
     // /apps/<slug>/main.py from JumperIDE.
     { MP_ROM_QSTR(MP_QSTR_rescan_apps), MP_ROM_PTR(&temporalbadge_rescan_apps_obj) },
-
-    // Time
     { MP_ROM_QSTR(MP_QSTR_set_time), MP_ROM_PTR(&temporalbadge_set_time_obj) },
 
     // NVS-backed key/value store. Survives every kind of flash; use

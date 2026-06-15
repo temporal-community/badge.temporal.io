@@ -175,14 +175,16 @@ void TextInputScreen::cycleEmojiPage() {
 }
 
 char TextInputScreen::applyShift(char c) {
-    // Only letters care about shift. The Upper layer stores literal
-    // uppercase letters, so consume one-shot shift after either case.
+    // Only letters care about shift. Digits / symbols are case-agnostic.
     if (c >= 'a' && c <= 'z' && shift_ != ShiftState::None) {
         c = static_cast<char>(c - 'a' + 'A');
-    }
-    if (((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) &&
-        shift_ == ShiftState::OneShot) {
-        shift_ = ShiftState::None;
+        if (shift_ == ShiftState::OneShot) {
+            shift_ = ShiftState::None;  // consume one-shot
+        }
+    } else if (c >= 'A' && c <= 'Z' && shift_ == ShiftState::None) {
+        // Layer table stores uppercase in the Upper layer; if we're
+        // there without active shift (shouldn't normally happen, but
+        // defensive), leave the char as-is.
     }
     return c;
 }

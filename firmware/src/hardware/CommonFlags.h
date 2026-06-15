@@ -3,7 +3,8 @@
 
 // Shared between the main CPU's BatteryGauge and the ULP-RISC-V program.
 // Pin numbers are pulled in via HardwareConfig.h, which selects the
-// appropriate public hardware definitions so both sides agree.
+// appropriate hardware-specific definitions (for example Echo/Delta/Charlie)
+// based on the configured HARDWARE_* target so both sides agree.
 #include "HardwareConfig.h"
 
 #define BAT_IIR_SHIFT 3

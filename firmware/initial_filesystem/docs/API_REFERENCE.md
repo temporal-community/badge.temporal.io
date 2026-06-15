@@ -41,10 +41,6 @@ without needing the `badge.` prefix.
 * `ui_inline_hint(x, y, hint)` — Draw an inline hint with native button glyphs
 * `ui_inline_hint_right(right_x, y, hint)` — Right-align an inline hint
 * `ui_measure_hint(hint)` — Return an inline hint's pixel width
-* `ui_grid_cell(col, row, label, selected, [icon])` — Draw one native 2x2 menu cell
-* `ui_grid_footer([description])` — Draw a native grid footer
-* `ui_list_row(row, label, selected)` — Draw one native list row
-* `ui_list_rows_visible()` — Return visible native list rows
 
 [App Helper Library](#app-helper-library-badge_apppy):
 
@@ -55,13 +51,6 @@ without needing the `badge.` prefix.
 * `DualScreenSession(frame_ms, [sleep_ms], [gc_ms])` — Shared timing helpers for OLED + LED games
 * `read_axis(value, [low], [high])` / `read_stick_xy()` / `read_stick_4way()` — Shared joystick threshold helpers
 * `load_score(path, defaults)` / `save_score(path, score)` — Local JSON score persistence
-
-[Python Helper Modules](#python-helper-modules):
-
-* `badge_ui.screen()` / `badge_ui.chrome()` / `badge_ui.chrome_tall()` — Standard OLED screen chrome
-* `badge_ui.action_bar()` / `badge_ui.tall_action_bar()` / `badge_ui.hint_row()` — Footer and hint layout helpers
-* `badge_ui.line()` / `badge_ui.center()` / `badge_ui.status_box()` / `badge_ui.spinner()` — Common drawing helpers
-* `badge_kv.kv.get()` / `.put()` / `.delete()` / `.keys()` — Friendly persistent KV wrapper
 
 [Mouse Overlay](#mouse-overlay):
 
@@ -130,7 +119,7 @@ without needing the `badge.` prefix.
 * `ir_stop()` — Stop IR receive, flush queue
 * `ir_available()` — Check if a received frame is waiting
 * `ir_read()` — Read received (addr, cmd) as a tuple
-* `ir_send_words(words)` — Transmit a multi-word NEC frame (1–64 × 32-bit)
+* `ir_send_words(words)` — Transmit a multi-word NEC frame (1–8 × 32-bit)
 * `ir_read_words()` — Read a received multi-word NEC frame as a tuple
 * `ir_flush()` — Drop every pending RX frame
 * `ir_tx_power([percent])` — Get/set IR carrier duty (1–50%)
@@ -140,34 +129,16 @@ without needing the `badge.` prefix.
 * `ir_nec_read()` — Returns `(addr, cmd, is_repeat)` or `None`
 * `ir_raw_capture()` — Returns captured `bytes` of `(mark_us, space_us)` pairs
 * `ir_raw_send(buf, carrier_hz=38000)` — Replay arbitrary IR symbols
-* `ir_activity()` — Return IR subsystem diagnostic activity
-
-[HTTP & Serial](#http--serial):
-
-* `http_get(url)` — Return the response body for an HTTP(S) GET
-* `http_post(url, body)` — POST a string body and return the response body
-* `serial_available()` — Return whether any USB serial byte is queued
-* `serial_read()` — Read one USB serial byte or `None`
 
 [Badge Identity & Boops](#badge-identity--boops):
 
 * `my_uuid()` — Return this badge's 12-char hex UID
 * `boops()` — Return `/boops.json` contents as a string
-* `set_time(epoch)` — Set the badge wall clock from a Unix epoch
 
 [Script Control](#script-control):
 
 * `exit()` — Raise `SystemExit` to cleanly stop the running app
-* `rescan_apps()` — Rescan installed MicroPython apps after files change
-* `set_repl_trace(enable)` — Developer diagnostic toggle for serial REPL tracing
 * `dev(*args)` — Test harness dispatcher *(dev builds only)*
-
-[Persistent KV](#persistent-kv):
-
-* `kv_put(key, value)` — Store a small `str`, `int`, `float`, or `bytes` value in NVS
-* `kv_get(key, [default])` — Return a stored value or default
-* `kv_delete(key)` — Remove a key
-* `kv_keys()` — Return stored key names
 
 [Filesystem Access](#filesystem-access):
 
@@ -188,8 +159,7 @@ Returns `0` on success; raises `OSError` on failure.
 
 ## OLED Display
 
-128x64 SSD1309-compatible monochrome OLED controlled through a U8G2
-SSD1306-compatible page framebuffer.
+128×64 monochrome SSD1306 OLED display controlled via U8G2.
 
 ### `oled_print(text)`
 
@@ -355,17 +325,11 @@ pixel, organized in vertical bytes (Adafruit SSD1306 format).
 
 ### `oled_set_framebuffer(data)`
 
-Replace the display framebuffer and refresh immediately.
+Replace the entire display framebuffer and refresh.
 
-* `data`: `bytes` or `bytearray`. A full 128x64 frame is 1024 bytes. Shorter
-  buffers are accepted when their length is a multiple of the display width;
-  partial page buffers are vertically centered.
-* The firmware rotates the page buffer to match the badge orientation.
-* Returns `True` on success, `False` on zero-length, too-large, or non
-  page-aligned data.
-* For constructing 1-bit buffers, see MicroPython's
-  [`framebuf`](https://docs.micropython.org/en/v1.27.0/library/framebuf.html)
-  documentation.
+* `data`: `bytes` or `bytearray` of the correct size (typically 1024 bytes for
+  128×64).
+* Returns `True` on success, `False` on size mismatch.
 
 ### `oled_get_framebuffer_size()`
 
@@ -397,9 +361,9 @@ Draw the standard small header and divider. `right` is optional top-right text.
 
 ### `ui_action_bar([left_button], [left_label], [right_button], [right_label])`
 
-Draw footer actions with native button glyphs. Button names include `A`, `B`,
-`X`, `Y`, `Confirm`, `Back`, `OK`, and `Cancel`; semantic names respect the
-badge's confirm/back swap setting.
+Draw footer actions with native button glyphs. Button names include `OK`,
+`BACK`, `X`, `Y`, `A`, and `B`; semantic names respect the badge's confirm/back
+swap setting.
 
 ### `ui_chrome(title, [right], [left_button], [left_label], [right_button], [right_label])`
 
@@ -418,74 +382,6 @@ Right-align an inline hint to `right_x`. Returns the drawn width in pixels.
 ### `ui_measure_hint(hint)`
 
 Return the pixel width an inline hint will use.
-
-### `ui_grid_cell(col, row, label, selected, [icon])`
-
-Draw one native 2x2 home-menu-style cell. `col` and `row` are zero-based.
-
-### `ui_grid_footer([description])`
-
-Draw the native grid footer with the selected app description and select hint.
-
-### `ui_list_row(row, label, selected)`
-
-Draw one native list-menu row.
-
-### `ui_list_rows_visible()`
-
-Return how many native list rows fit above the footer.
-
----
-
-## Python Helper Modules
-
-### `badge_ui`
-
-Use this for native-looking MicroPython screens:
-
-```python
-import badge_ui as ui
-from badge import *
-
-ui.chrome("My App", right="1/3", left_button="B", left_label="back",
-          right_button="A", right_label="open")
-ui.line(0, "Hello from MicroPython")
-ui.inline_hint(0, 53, "Left/Right:move")
-oled_show()
-```
-
-Useful functions: `screen`, `chrome`, `chrome_tall`, `header`, `footer`,
-`action_bar`, `tall_action_bar`, `hint`, `hint_row`, `inline_hint`,
-`inline_hint_right`, `line`, `center`, `status_box`, and `spinner`.
-
-### `badge_app`
-
-Reusable app loop helpers:
-
-* `run_app(app_name, callback, [cleanup])` wraps an app and shows/saves a
-  native-looking crash report if it raises.
-* `with_led_override(callback, *args)` starts and releases LED override safely.
-* `ButtonLatch(button_id)` stores a pressed edge until your loop consumes it.
-* `GCTicker()` and `DualScreenSession()` help long-running OLED/LED apps keep
-  timing and garbage collection predictable.
-* `read_stick_xy()` and `read_stick_4way()` convert analog joystick values to
-  directional controls.
-* `load_score()` and `save_score()` handle small JSON score files.
-
-### `badge_kv`
-
-Use NVS for small app settings that should survive firmware updates and FATFS
-reflashes:
-
-```python
-from badge_kv import kv
-
-high_score = kv.get("snake_hi", 0)
-kv.put("snake_hi", high_score + 1)
-```
-
-Keys are short NVS keys. Values should be small strings, integers, floats, or
-bytes.
 
 ---
 
@@ -939,8 +835,8 @@ that should continue while the main Python loop handles OLED and input.
 Register a callable to be invoked every `interval_ms` milliseconds.
 
 * `callback`: Callable that accepts one argument, the current `millis()`
-  timestamp. If the callback raises, the matrix app stops.
-* `interval_ms` (optional): Tick interval in milliseconds. Minimum 5 ms.
+  timestamp.
+* `interval_ms` (optional): Tick interval in milliseconds. Minimum 16 ms.
   Defaults to the firmware ambient interval.
 * `brightness` (optional): LED brightness (0–255). Defaults to the firmware
   ambient brightness.
@@ -965,7 +861,7 @@ matrix_app_start(led_tick, 100, 40)
 
 Change the tick interval for the active callback.
 
-* `interval_ms`: New interval in milliseconds. Minimum 5 ms.
+* `interval_ms`: New interval in milliseconds. Minimum 16 ms.
 * Returns the clamped interval.
 
 ### `matrix_app_set_brightness(brightness)`
@@ -1153,7 +1049,7 @@ Two payload shapes are available:
 * **Classic 1-byte/1-byte frames** via `ir_send(addr, cmd)` / `ir_read()`.
   A single 32-bit NEC word `(~addr, addr, ~cmd, cmd)`, ~110 ms on wire.
 * **Multi-word frames** via `ir_send_words(words)` / `ir_read_words()`.
-  1-64 raw 32-bit words with an appended CRC.
+  1–8 raw 32-bit words (up to 32 bytes of payload) with an appended CRC.
   Each data word adds ~54 ms, so a 3-word frame ≈ 230 ms on wire.
 
 The Boop screen and MicroPython share the same RMT hardware; `ir_start()`
@@ -1167,8 +1063,9 @@ Transmit a single classic NEC frame.
 * `addr`: NEC address byte (0–255).
 * `cmd`: NEC command byte (0–255).
 
-Blocks briefly while the RMT hardware streams the frame. Returns `None`; call
-`ir_start()` before sending so the IR hardware is ready.
+Blocks briefly while the RMT hardware streams the frame. Returns `0` on
+success; raises `OSError` if the IR hardware is down (e.g. called before
+`ir_start()`).
 
 ### `ir_start()`
 
@@ -1219,9 +1116,9 @@ while True:
 Transmit a multi-word NEC frame. The encoder automatically emits a leader,
 then each word LSB-first, then a CRC32 over the payload.
 
-* `words`: A list, tuple or other sequence of 1–64 integers. Each element is
+* `words`: A list, tuple or other sequence of 1–8 integers. Each element is
   converted to an unsigned 32-bit value.
-* Raises `ValueError` if the sequence is empty or longer than 64 words.
+* Raises `ValueError` if the sequence is empty or longer than 8 words.
 * Raises `OSError(1)` if the IR hardware is not up (e.g. before `ir_start()`).
 
 **Example:**
@@ -1303,35 +1200,6 @@ Replay an arbitrary symbol buffer at the given carrier frequency
 (3000–60000 Hz). Use the same shape `ir_raw_capture()` returns, or build
 one from `struct.pack("<HH", mark, space)` pairs.
 
-### `ir_activity()`
-
-Return diagnostic activity information from the IR subsystem. This is mainly
-useful for diagnostics and hardware bring-up apps.
-
----
-
-## HTTP & Serial
-
-### `http_get(url)`
-
-Fetch an HTTP(S) URL and return the response body as a string. Responses are
-capped at 8192 bytes with a 15 second timeout. HTTPS uses the firmware helper
-and does not validate certificates. For lower-level network experiments, use
-MicroPython `network` and `socket`; `ssl` is build-gated in the default public
-firmware.
-
-### `http_post(url, body)`
-
-POST a string body to an HTTP(S) URL and return the response body as a string.
-
-### `serial_available()`
-
-Return `True` if at least one USB serial byte is queued.
-
-### `serial_read()`
-
-Read one queued USB serial byte, or return `None` if no byte is available.
-
 ---
 
 ## Badge Identity & Boops
@@ -1364,66 +1232,6 @@ for p in data.get("pairings", []):
 oled_show()
 ```
 
-### `contact()`
-
-Return this badge's editable contact card as a dict with `name`, `title`,
-`company`, `email`, and `website`.
-
-### `set_contact(fields)`
-
-Persist one or more editable contact card fields. Accepted keys are `name`,
-`title`, `company`, `email`, and `website`. Invalid keys raise `ValueError`;
-non-dict input raises `TypeError`.
-
-**Example:**
-
-```python
-info = contact()
-info["name"] = "Ada"
-set_contact(info)
-```
-
-### `set_time(epoch)`
-
-Set the badge wall clock from a Unix epoch timestamp in seconds. This is used
-by Ignition after flashing so newly flashed badges have a current clock before
-they are handed to users.
-
-* `epoch`: Integer seconds since 1970-01-01 00:00:00 UTC.
-* Returns the applied epoch timestamp.
-
----
-
-## Persistent KV
-
-The native KV API stores small app settings in NVS so they survive firmware
-updates and FATFS reflashes. For app code, prefer the friendlier wrapper:
-
-```python
-from badge_kv import kv
-
-theme = kv.get("theme", "dark")
-kv.put("theme", theme)
-```
-
-### `kv_put(key, value)`
-
-Store a small `str`, `int`, `float`, or `bytes` value. Keys are short NVS keys;
-keep them concise and app-specific.
-
-### `kv_get(key, [default])`
-
-Return the stored value, or `default` if the key is missing.
-
-### `kv_delete(key)`
-
-Remove a key. Returns `True` when a key was deleted and `False` when it was not
-present.
-
-### `kv_keys()`
-
-Return stored key names.
-
 ---
 
 ## Script Control
@@ -1437,23 +1245,12 @@ type the rest of the firmware expects.
 Holding all four face buttons for about 1 second also force-exits the running
 app from outside.
 
-### `rescan_apps()`
-
-Ask the native app registry to rescan installed MicroPython app folders. Use
-this after installing or editing app files over serial before returning to the
-native Apps menu.
-
 ### `dev(*args)` *(dev builds only)*
 
 Variadic string-argument dispatcher for the firmware test harness. This is only
-available in builds with `BADGE_ENABLE_MP_DEV`, such as the `replay2026`
+available in builds with `BADGE_ENABLE_MP_DEV`, such as the `echo-dev`
 PlatformIO environment. Each argument is coerced to a string and forwarded to
 the C++ runtime. Returns a string result.
-
-### `set_repl_trace(enable)` *(developer diagnostics)*
-
-Enable or disable serial REPL tracing for debugging host tooling and raw REPL
-behavior. Normal apps should leave this off.
 
 ---
 
@@ -1616,10 +1413,10 @@ mouse_set_speed(4)
 
 | Constant | Value | Description |
 |----------|-------|-------------|
-| `BTN_RIGHT` | 0 | Right directional control |
-| `BTN_DOWN` | 1 | Down directional control |
-| `BTN_LEFT` | 2 | Left directional control |
-| `BTN_UP` | 3 | Up directional control |
+| `BTN_RIGHT` | 0 | Right button |
+| `BTN_DOWN` | 1 | Down button |
+| `BTN_LEFT` | 2 | Left button |
+| `BTN_UP` | 3 | Up button |
 | `BTN_CIRCLE` | 0 | PlayStation-style alias for right |
 | `BTN_CROSS` | 1 | PlayStation-style alias for down |
 | `BTN_SQUARE` | 2 | PlayStation-style alias for left |

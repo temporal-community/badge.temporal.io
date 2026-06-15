@@ -1,6 +1,7 @@
 #include "BadgeInfo.h"
 
 #include "../infra/Filesystem.h"
+#include "../infra/PsramAllocator.h"
 
 #include <ArduinoJson.h>
 #include <Preferences.h>
@@ -14,13 +15,15 @@ extern char badgeAtType[];
 namespace {
 
 static const char* TAG = "BadgeInfo";
-static constexpr size_t kInfoMaxBytes = 1024;
+static constexpr size_t kInfoMaxBytes = 2048;
+static constexpr const char* kDefaultNote =
+    "Edit this file over USB. See https://badge.temporal.io for update instructions.";
 
 // NVS storage layout: namespace=badge_info, key=json holds a UTF-8
 // JSON blob whose schema matches the historical /badgeInfo.json file.
 // Migrating BadgeInfo into NVS lets the FATFS partition be reformatted
-// (e.g. by a factory-image or Ignition flash) without losing the
-// operator's name/title/contact info — see
+// (e.g. by a fatfs.bin re-flash from flash_loop_gui2 / Ignition)
+// without losing the operator's name/title/contact info — see
 // firmware/docs/STORAGE-MODEL.md for the full survival matrix.
 static constexpr const char* kNvsNamespace = "badge_info";
 static constexpr const char* kNvsKey = "json";
@@ -37,6 +40,10 @@ void safeCopy(char* dst, size_t dstSize, const char* src) {
     if (!src) src = "";
     strncpy(dst, src, dstSize - 1);
     dst[dstSize - 1] = '\0';
+}
+
+void ensureNote(BadgeInfo::Fields& f) {
+    if (f.note[0] == '\0') safeCopy(f.note, sizeof(f.note), kDefaultNote);
 }
 
 bool parseJsonInto(BadgeInfo::Fields& out, const char* buf, size_t len) {
@@ -65,18 +72,27 @@ bool parseJsonInto(BadgeInfo::Fields& out, const char* buf, size_t len) {
              contact["bio"] | doc["bio"] | "");
     safeCopy(out.note, sizeof(out.note),
              doc["note"] | doc["instructions"] | "");
+    ensureNote(out);
     return true;
 }
 
 size_t serializeFields(const BadgeInfo::Fields& f, char* buf, size_t cap) {
+    BadgeInfo::Fields copy = f;
+    ensureNote(copy);
+
     StaticJsonDocument<1024> doc;
-    doc["name"] = f.name;
-    doc["title"] = f.title;
-    doc["company"] = f.company;
+    doc["name"] = copy.name;
+    doc["title"] = copy.title;
+    doc["company"] = copy.company;
+    doc["attendee_type"] = copy.attendeeType;
+    doc["ticket_uuid"] = copy.ticketUuid;
+    doc["note"] = copy.note;
 
     JsonObject contact = doc.createNestedObject("contact");
-    contact["email"] = f.email;
-    contact["website"] = f.website;
+    contact["email"] = copy.email;
+    contact["website"] = copy.website;
+    contact["phone"] = copy.phone;
+    contact["bio"] = copy.bio;
 
     return serializeJsonPretty(doc, buf, cap);
 }
@@ -93,7 +109,7 @@ bool loadFromNvs(BadgeInfo::Fields& out) {
         p.end();
         return false;
     }
-    char* buf = static_cast<char*>(malloc(len + 1));
+    char* buf = static_cast<char*>(BadgeMemory::allocPreferPsram(len + 1));
     if (!buf) {
         p.end();
         return false;
@@ -144,6 +160,7 @@ void populateDefaults(Fields& out, const uint8_t* /*uidBytes*/) {
     safeCopy(out.title, sizeof(out.title), "Chief Tartigrade");
     safeCopy(out.company, sizeof(out.company), "Temporal");
     safeCopy(out.attendeeType, sizeof(out.attendeeType), "Dev");
+    safeCopy(out.note, sizeof(out.note), kDefaultNote);
 
     Serial.printf("[%s] default identity: %s / %s / %s\n",
                   TAG, out.name, out.title, out.company);
@@ -186,7 +203,7 @@ bool loadFromFile(Fields& out) {
 
     const bool matched =
         out.name[0] || out.title[0] || out.company[0] || out.email[0] ||
-        out.website[0];
+        out.website[0] || out.phone[0] || out.bio[0];
     return matched;
 }
 
@@ -203,6 +220,8 @@ bool clear() {
     populateDefaults(f, nullptr);
     safeCopy(f.email, sizeof(f.email), s_email);
     safeCopy(f.website, sizeof(f.website), s_website);
+    safeCopy(f.phone, sizeof(f.phone), s_phone);
+    safeCopy(f.bio, sizeof(f.bio), s_bio);
     return saveToFile(f);
 }
 
@@ -215,8 +234,8 @@ void applyToGlobals(const Fields& f) {
     safeCopy(s_ticketUuid, sizeof(s_ticketUuid), f.ticketUuid);
     safeCopy(s_email, sizeof(s_email), f.email);
     safeCopy(s_website, sizeof(s_website), f.website);
-    s_phone[0] = '\0';
-    s_bio[0] = '\0';
+    safeCopy(s_phone, sizeof(s_phone), f.phone);
+    safeCopy(s_bio, sizeof(s_bio), f.bio);
     safeCopy(s_note, sizeof(s_note), f.note);
 }
 
@@ -229,9 +248,10 @@ void getCurrent(Fields& out) {
     safeCopy(out.attendeeType, sizeof(out.attendeeType), badgeAtType);
     safeCopy(out.email, sizeof(out.email), s_email);
     safeCopy(out.website, sizeof(out.website), s_website);
-    out.phone[0] = '\0';
-    out.bio[0] = '\0';
+    safeCopy(out.phone, sizeof(out.phone), s_phone);
+    safeCopy(out.bio, sizeof(out.bio), s_bio);
     safeCopy(out.note, sizeof(out.note), s_note);
+    ensureNote(out);
 }
 
 }  // namespace BadgeInfo

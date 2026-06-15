@@ -9,42 +9,63 @@ This directory bootstraps an upstream-style MicroPython ESP32 port for the Tempo
 - Allocates a FAT partition on flash for user scripts/data.
 - Adds a `USER_C_MODULES` C extension (`temporalbadge`) so hardware control can be exposed safely to Python.
 
-## 1) MicroPython source
+## 1) MicroPython source (git submodule)
 
-The public repo does not require a checked-in MicroPython submodule. The
-maintained PlatformIO/Arduino embed flow fetches the upstream sources it needs
-from MicroPython `v1.27.0` and vendors generated embed files under
-`firmware/lib/micropython_embed/`.
+The canonical upstream tree for the Arduino embed generator lives at
+`firmware/micropython/micropython_repo` as a **git submodule** (pinned
+commit; currently targets tag `v1.27.0`).
 
-For normal setup, use Ignition:
+From the **Temporal-Badge** repo root (not `firmware/` alone):
 
-```sh
-cd ignition
-./setup.sh
+```bash
+git submodule update --init --recursive firmware/micropython/micropython_repo
 ```
 
-That prepares Python dependencies and fetches the MicroPython files needed by
-the firmware build. To refresh the vendored upstream source files directly:
+Fresh clones:
 
-```sh
-python3 firmware/scripts/fetch_micropython_sources.py --tag v1.27.0
+```bash
+git clone --recurse-submodules https://github.com/<org>/Temporal-Badge.git
+# or after a clone without submodules:
+git submodule update --init --recursive
 ```
 
-If you maintain a standalone MicroPython checkout, pass
-`--mp-dir /path/to/micropython` to `setup_arduino_embed.sh`; otherwise the
-script shallow-clones the pinned upstream tag into the ignored
-`firmware/micropython/micropython_repo/` work directory as needed.
+Then run `./setup_arduino_embed.sh` (see below); it will run `submodule update`
+for you if the directory is still empty.
 
-## 2) Arduino-native embed flow
+If you maintain a standalone MicroPython tree instead, pass
+`--mp-dir /path/to/micropython` to `setup_arduino_embed.sh`.
 
-Replay firmware uses PlatformIO + Arduino. This is the maintained public build
-path and does not require a separate ESP-IDF shell:
+## 2) Install and export ESP-IDF (v5.2+)
 
-```sh
-cd firmware/micropython
+Follow Espressif install steps, then in each shell:
+
+```bash
+source /path/to/esp-idf/export.sh
+```
+
+## 3) Build cross-compiler
+
+```bash
+cd firmware/micropython/micropython_repo   # from Temporal-Badge root
+make -C mpy-cross
+```
+
+## 4) Build this board with user module
+
+```bash
+cd /path/to/micropython/ports/esp32
+make BOARD=TEMPORAL_BADGE_S3 BOARD_DIR=/path/to/Replay-Badge/firmware/micropython/boards/TEMPORAL_BADGE_S3 USER_C_MODULES=/path/to/Replay-Badge/firmware/micropython/usermods/temporalbadge/micropython.cmake
+```
+
+## Arduino-native embed flow (no ESP-IDF required)
+
+Replay firmware uses PlatformIO + Arduino. To embed MicroPython in this path:
+
+```bash
+cd /path/to/Replay-Badge/firmware/micropython
 ./setup_arduino_embed.sh
 cd ..
-pio run -e replay2026
+pio run -e echo
 ```
 
 This generates a local PlatformIO library at `lib/micropython_embed`.
@@ -89,14 +110,36 @@ print(os.statvfs("/apps"))
 print(os.path.exists("/apps/test.txt"))
 ```
 
-## 3) Verify module on REPL
+## ESP-IDF build script (optional)
+
+You can run the helper script from this directory:
+
+```bash
+./build_micropython_esp32.sh build --idf-export /path/to/esp-idf/export.sh
+./build_micropython_esp32.sh deploy --idf-export /path/to/esp-idf/export.sh
+./build_micropython_esp32.sh monitor --idf-export /path/to/esp-idf/export.sh
+```
+
+By default it uses:
+
+- MicroPython repo: `firmware/micropython/micropython_repo` (git submodule)
+- board: `TEMPORAL_BADGE_S3`
+- user module: `usermods/temporalbadge`
+
+## 5) Flash
+
+```bash
+make BOARD=TEMPORAL_BADGE_S3 BOARD_DIR=/path/to/Replay-Badge/firmware/micropython/boards/TEMPORAL_BADGE_S3 USER_C_MODULES=/path/to/Replay-Badge/firmware/micropython/usermods/temporalbadge/micropython.cmake deploy
+```
+
+## 6) Verify module on REPL
 
 ```python
-import badge
-badge.init()
-badge.button(badge.BTN_RIGHT)
-badge.oled_println("Temporal Badge")
-badge.led_brightness(16)
+import temporalbadge as tb
+tb.init()
+tb.button(tb.BTN_RIGHT)
+tb.oled_println("Temporal Badge")
+tb.led_brightness(16)
 ```
 
 ## Arduino main bridge symbols
@@ -109,21 +152,6 @@ badge.led_brightness(16)
 
 Provide these from the ESP32 MicroPython integration layer to enable REPL
 startup and foreground app launching.
-
-## Community Apps
-
-Installable community apps live in `../../community_apps/`. They
-are not part of the factory filesystem, but `scripts/generate_startup_files.py`
-generates the release-hosted `community_apps.json` catalog so badges can
-install them over WiFi.
-
-Current community app submissions:
-
-| App | Contributor | Description |
-|---|---|---|
-| Tardigotchi | aask42 | Hatch and care for a tiny tardigrade. |
-| Durable Snake | Alexandre Roman | Snake game with three retries. |
-| Starfield Nametag | Alexandre Roman | Animated starfield with a personalized nametag. |
 
 ## Notes on FAT and "mountable on computer"
 

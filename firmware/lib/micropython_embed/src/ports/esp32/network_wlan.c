@@ -96,10 +96,16 @@ static void network_wlan_wifi_event_handler(void *event_handler_arg, esp_event_b
             ESP_LOGI("wifi", "STA_START");
             wlan_sta_obj.active = true;
             wifi_sta_reconnects = 0;
+            // Replay: re-resolve the C-layer-owned STA netif on every
+            // (re)start so our cached pointer never dangles.
+            wlan_sta_obj.netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
             break;
 
         case WIFI_EVENT_STA_STOP:
             wlan_sta_obj.active = false;
+            // Replay: the C-layer destroys the netif on WiFi.mode(WIFI_OFF);
+            // drop our cached handle so the next start re-resolves it.
+            wlan_sta_obj.netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
             break;
 
         case WIFI_EVENT_STA_CONNECTED:
@@ -170,6 +176,7 @@ static void network_wlan_wifi_event_handler(void *event_handler_arg, esp_event_b
 
         case WIFI_EVENT_AP_START:
             wlan_ap_obj.active = true;
+            wlan_ap_obj.netif = esp_netif_get_handle_from_ifkey("WIFI_AP_DEF");
             break;
 
         case WIFI_EVENT_AP_STOP:
@@ -211,6 +218,12 @@ static void require_if(mp_obj_t wlan_if, int if_no) {
     }
 }
 
+// Replay: bridges into the Arduino C-layer WiFiService (firmware/src/api).
+// On this badge the C-layer owns esp_wifi init + the default netifs, so
+// network.WLAN delegates association to it rather than driving esp_wifi.
+extern int replay_wifi_sta_connect(const char *ssid, const char *password);
+extern void replay_wifi_sta_disconnect(void);
+
 void esp_initialise_wifi(void) {
     static int wifi_initialized = 0;
     if (!wifi_initialized) {
@@ -219,14 +232,21 @@ void esp_initialise_wifi(void) {
 
         wlan_sta_obj.base.type = &esp_network_wlan_type;
         wlan_sta_obj.if_id = ESP_IF_WIFI_STA;
+        // Replay: never create the default STA netif. The Arduino C-layer
+        // (WiFiGeneric wifiLowLevelInit) unconditionally creates BOTH the
+        // STA and AP default netifs whenever WiFi comes up and tracks them
+        // in its own private table; if MicroPython also creates one, the
+        // C-layer's later create hits the duplicate-if_key assert in
+        // esp_netif and panics the whole badge. Reuse the C-layer's netif
+        // (may be NULL until WiFi is up; the WIFI_EVENT handlers below
+        // refresh it on every start so the cached pointer never dangles).
         wlan_sta_obj.netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
-        if (wlan_sta_obj.netif == NULL) {
-            wlan_sta_obj.netif = esp_netif_create_default_wifi_sta();
-        }
         wlan_sta_obj.active = false;
 
         wlan_ap_obj.base.type = &esp_network_wlan_type;
         wlan_ap_obj.if_id = ESP_IF_WIFI_AP;
+        // Replay: reuse-only (see STA note above); never create the AP
+        // netif — the C-layer creates it and a duplicate key panics.
         wlan_ap_obj.netif = esp_netif_get_handle_from_ifkey("WIFI_AP_DEF");
         wlan_ap_obj.active = false;
 
@@ -249,8 +269,32 @@ void esp_initialise_wifi(void) {
         }
         #endif
         ESP_LOGD("modnetwork", "Initializing WiFi");
-        esp_exceptions(esp_wifi_init(&cfg));
-        esp_exceptions(esp_wifi_set_storage(WIFI_STORAGE_RAM));
+        // Replay: do NOT initialise esp_wifi here. The Arduino C-layer
+        // (WiFiGeneric wifiLowLevelInit / WiFiService) is the sole owner of
+        // esp_wifi_init + the default netifs. If MicroPython calls
+        // esp_wifi_init first, the C-layer's later init returns
+        // ESP_ERR_WIFI_INIT_STATE, WiFi.mode() bails before creating netifs,
+        // and connect() fails. network.WLAN delegates ALL radio control to
+        // WiFiService (see network_wlan_connect / network_wlan_active).
+        (void)cfg;
+
+        // Replay: if a Wi-Fi mode is already set the C-layer is running
+        // (boot auto-connect), so sync the module statics for
+        // active()/status()/isconnected().
+        wifi_mode_t replay_wifi_mode = WIFI_MODE_NULL;
+        if (esp_wifi_get_mode(&replay_wifi_mode) == ESP_OK && replay_wifi_mode != WIFI_MODE_NULL) {
+            wifi_started = true;
+            if (replay_wifi_mode & WIFI_MODE_STA) {
+                wlan_sta_obj.active = true;
+            }
+            if (replay_wifi_mode & WIFI_MODE_AP) {
+                wlan_ap_obj.active = true;
+            }
+            wifi_ap_record_t replay_ap_info;
+            if (esp_wifi_sta_get_ap_info(&replay_ap_info) == ESP_OK) {
+                wifi_sta_connected = true;
+            }
+        }
 
         ESP_LOGD("modnetwork", "Initialized");
         wifi_initialized = 1;
@@ -266,9 +310,6 @@ static mp_obj_t network_wlan_make_new(const mp_obj_type_t *type, size_t n_args, 
     if (idx == ESP_IF_WIFI_STA) {
         return MP_OBJ_FROM_PTR(&wlan_sta_obj);
     } else if (idx == ESP_IF_WIFI_AP) {
-        if (wlan_ap_obj.netif == NULL) {
-            mp_raise_NotImplementedError(MP_ERROR_TEXT("AP_IF is not enabled on Replay Badge"));
-        }
         return MP_OBJ_FROM_PTR(&wlan_ap_obj);
     } else {
         mp_raise_ValueError(MP_ERROR_TEXT("invalid WLAN interface identifier"));
@@ -278,38 +319,25 @@ static mp_obj_t network_wlan_make_new(const mp_obj_type_t *type, size_t n_args, 
 static mp_obj_t network_wlan_active(size_t n_args, const mp_obj_t *args) {
     wlan_if_obj_t *self = MP_OBJ_TO_PTR(args[0]);
 
-    wifi_mode_t mode;
-    if (!wifi_started) {
-        mode = WIFI_MODE_NULL;
-    } else {
-        esp_exceptions(esp_wifi_get_mode(&mode));
-    }
-
-    int bit = (self->if_id == ESP_IF_WIFI_STA) ? WIFI_MODE_STA : WIFI_MODE_AP;
-
     if (n_args > 1) {
         bool active = mp_obj_is_true(args[1]);
-        mode = active ? (mode | bit) : (mode & ~bit);
-        if (mode == WIFI_MODE_NULL) {
-            if (wifi_started) {
-                esp_exceptions(esp_wifi_stop());
-                wifi_started = false;
-            }
-        } else {
-            esp_exceptions(esp_wifi_set_mode(mode));
-            if (!wifi_started) {
-                esp_exceptions(esp_wifi_start());
-                wifi_started = true;
-            }
+        // Replay: never poke esp_wifi here — the Arduino C-layer
+        // (WiFiService) owns radio bring-up. active(True) only records
+        // intent; the association happens in connect(), which routes
+        // through WiFiService. active(False) tears the STA link down.
+        // Not touching esp_wifi means we can't double-init the shared
+        // driver or fight the C-layer's WiFi.mode() cycling.
+        if (!active && self->if_id == ESP_IF_WIFI_STA) {
+            replay_wifi_sta_disconnect();
         }
-
-        // Wait for the interface to be in the correct state.
-        while (self->active != active) {
-            MICROPY_EVENT_POLL_HOOK;
-        }
+        self->active = active;
     }
 
-    return (mode & bit) ? mp_const_true : mp_const_false;
+    // self->active is kept current by the WIFI_EVENT STA/AP start/stop
+    // handlers, so it reflects the C-layer's real radio state without us
+    // querying esp_wifi (which would raise if the C-layer has since
+    // deinitialised the driver).
+    return self->active ? mp_const_true : mp_const_false;
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(network_wlan_active_obj, 1, 2, network_wlan_active);
 
@@ -325,39 +353,34 @@ static mp_obj_t network_wlan_connect(size_t n_args, const mp_obj_t *pos_args, mp
     mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
     mp_arg_parse_all(n_args - 1, pos_args + 1, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
 
-    wifi_config_t wifi_sta_config = {0};
-
-    // configure any parameters that are given
+    // Replay: route association through the Arduino C-layer (WiFiService);
+    // it is the sole owner of esp_wifi init + netifs on this badge, so
+    // esp_wifi_set_config/esp_wifi_connect from here would fight it. We
+    // forward only the SSID/key (BSSID pinning is not supported via the
+    // C-layer path) and deliberately do NOT set wifi_sta_connect_requested,
+    // so MicroPython's STA_DISCONNECTED auto-reconnect stays off and does
+    // not race the C-layer.
+    char replay_ssid[33] = {0};
+    char replay_key[64] = {0};
     if (n_args > 1) {
         size_t len;
         const char *p;
         if (args[ARG_ssid].u_obj != mp_const_none) {
             p = mp_obj_str_get_data(args[ARG_ssid].u_obj, &len);
-            memcpy(wifi_sta_config.sta.ssid, p, MIN(len, sizeof(wifi_sta_config.sta.ssid)));
+            memcpy(replay_ssid, p, MIN(len, sizeof(replay_ssid) - 1));
         }
         if (args[ARG_key].u_obj != mp_const_none) {
             p = mp_obj_str_get_data(args[ARG_key].u_obj, &len);
-            memcpy(wifi_sta_config.sta.password, p, MIN(len, sizeof(wifi_sta_config.sta.password)));
+            memcpy(replay_key, p, MIN(len, sizeof(replay_key) - 1));
         }
-        if (args[ARG_bssid].u_obj != mp_const_none) {
-            p = mp_obj_str_get_data(args[ARG_bssid].u_obj, &len);
-            if (len != sizeof(wifi_sta_config.sta.bssid)) {
-                mp_raise_ValueError(NULL);
-            }
-            wifi_sta_config.sta.bssid_set = 1;
-            memcpy(wifi_sta_config.sta.bssid, p, sizeof(wifi_sta_config.sta.bssid));
-        }
-        esp_exceptions(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_sta_config));
+    }
+    if (replay_ssid[0] == 0) {
+        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("connect requires an SSID"));
     }
 
-    esp_exceptions(esp_netif_set_hostname(wlan_sta_obj.netif, mod_network_hostname_data));
-
-    wifi_sta_reconnects = 0;
-    // connect to the WiFi AP
     MP_THREAD_GIL_EXIT();
-    esp_exceptions(esp_wifi_connect());
+    replay_wifi_sta_connect(replay_ssid, replay_key);
     MP_THREAD_GIL_ENTER();
-    wifi_sta_connect_requested = true;
 
     return mp_const_none;
 }
@@ -365,7 +388,8 @@ static MP_DEFINE_CONST_FUN_OBJ_KW(network_wlan_connect_obj, 1, network_wlan_conn
 
 static mp_obj_t network_wlan_disconnect(mp_obj_t self_in) {
     wifi_sta_connect_requested = false;
-    esp_exceptions(esp_wifi_disconnect());
+    // Replay: tear down via the C-layer (WiFiService) which owns the radio.
+    replay_wifi_sta_disconnect();
     return mp_const_none;
 }
 static MP_DEFINE_CONST_FUN_OBJ_1(network_wlan_disconnect_obj, network_wlan_disconnect);

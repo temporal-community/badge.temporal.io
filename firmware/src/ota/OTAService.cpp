@@ -2,10 +2,13 @@
 
 #include <Arduino.h>
 
+#include "../api/TlsGate.h"
 #include "../api/WiFiService.h"
 #include "../infra/DebugLog.h"
+#include "../infra/HeapDiag.h"
 #include "AssetRegistry.h"
 #include "BadgeOTA.h"
+#include "OTAHttp.h"
 
 #include <esp_heap_caps.h>
 
@@ -19,37 +22,23 @@ constexpr uint32_t kHealthyBootMs = 30000;         // 30 s post-setup before
                                                    // we mark the running app
                                                    // valid (rollback gate)
 
-// Fresh-connect HTTPS cadence. Firing api.github.com + the community
-// registry fetch in the same scheduler tick was tripping
-// mbedtls/ESP-IDF TLS with "esp-aes: Failed to allocate memory" on
-// badges where the WiFi bring-up + GUI left little contiguous internal
-// heap — the two handshakes overlapped and peak allocation spiked.
-// We defer after L2 association, run OTA first, then wait for the TLS
-// stack to tear down before kicking the async registry worker.
+// Defer the post-WiFi-up OTA check by a couple of seconds so DHCP /
+// SNTP / clock-sync settle and the GUI has finished its first paint
+// before we kick a blocking HTTPS handshake. Used to be a fragile
+// workaround for back-to-back TLS contention; now it is purely a
+// QoS smoothing window — the actual TLS serialization is enforced by
+// `badge::TlsSession` inside `OTAHttp::getJson` / `Stream::open`.
 constexpr uint32_t kWifiOtaDeferMs = 2500;
-constexpr uint32_t kAfterOtaBeforeRegistryMs = 1200;
-// mbedTLS + WiFiClientSecure allocate large *contiguous* internal blocks.
-// ESP.getFreeHeap() mixes internal + PSRAM on typical Arduino builds, so a
-// badge can show "plenty" of total free heap while internal RAM is too low
-// or fragmented for TLS — use internal-only caps + largest block.
-constexpr size_t kMinInternalFreeForTls = 40 * 1024;
-constexpr size_t kMinLargestInternalBlockForTls = 26 * 1024;
-
-bool tlsHeapHeadroomOk() {
-  const size_t internalFree =
-      heap_caps_get_free_size(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
-  const size_t largest =
-      heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
-  return internalFree >= kMinInternalFreeForTls &&
-         largest >= kMinLargestInternalBlockForTls;
-}
 
 uint32_t sBootMs = 0;
 bool sRollbackHandled = false;
 bool sWifiWasConnected = false;
-// 0 = disconnected / idle; 1 = waiting kWifiOtaDeferMs; 2 = run OTA
-// check (once); 3 = waiting gap before registry; 4 = kicked registry;
-// 5 = done until disconnect.
+// Post-connect sequencing.
+//   0 = wifi down / idle
+//   1 = wifi up; waiting `kWifiOtaDeferMs` before kicking the check
+//   2 = check worker spawned; waiting for it to drain
+//   3 = registry refresh spawned; latched done
+//   4 = done until wifi disconnects
 uint8_t sPostConnectPhase = 0;
 uint32_t sPostConnectMarkMs = 0;
 
@@ -79,39 +68,56 @@ void OTAService::service() {
     sWifiWasConnected = true;
     sPostConnectPhase = 1;
     sPostConnectMarkMs = now;
+    HeapDiag::printSnapshot("wifi-first-up");
   }
-  if (sPostConnectPhase >= 5) return;
+  if (sPostConnectPhase >= 4) return;
 
+  // Both phases dispatch ASYNCHRONOUSLY to Core-0 workers. The Arduino
+  // main loop (Core 1) MUST NOT call `ota::checkNow` directly any more
+  // — that would block the main loop on the `badge::TlsSession` gate
+  // whenever the registry worker (also on Core 0) is mid-handshake,
+  // and a stuck handshake on a fragmented heap can outrun the
+  // IDLE-task watchdog. Spawn-and-poll keeps Core 1 free for the GUI.
   switch (sPostConnectPhase) {
     case 1: {
       if ((uint32_t)(now - sPostConnectMarkMs) < kWifiOtaDeferMs) return;
-      if (!tlsHeapHeadroomOk()) return;
-      DBG("[ota-svc] WiFi up — OTA check (deferred)\n");
-      ota::checkNow(true);
+
+      // Community Apps kicks `registry_refresh` on Core 0; while that fetch
+      // is in-flight, defer Boot OTA-check spawn so TLS + writeToStream
+      // bursts do not overlap on the TWDT'ed worker core under one gate.
+      if (registry::isRefreshing()) return;
+
+      DBG("[ota-svc] WiFi up — OTA check (async)\n");
+      // Returns false if a check is already in flight — that's fine,
+      // we'll observe `isCheckingAsync() == false` at phase 2 once it
+      // drains, regardless of which path spawned it.
+      (void)ota::beginCheckAsync(true);
       sPostConnectPhase = 2;
       sPostConnectMarkMs = now;
       break;
     }
     case 2: {
-      if ((uint32_t)(now - sPostConnectMarkMs) < kAfterOtaBeforeRegistryMs) {
-        return;
-      }
-      if (!tlsHeapHeadroomOk()) return;
-      DBG("[ota-svc] registry refresh (after OTA)\n");
-      if (!registry::beginRefreshAsync(true)) {
-        sPostConnectMarkMs = now;
-        return;
-      }
+      // Wait for the OTA-check worker to drain before kicking the
+      // registry refresh. They would serialise through the gate
+      // anyway, but sequencing them at the scheduler level keeps the
+      // Serial output linear and avoids two TLS sessions queueing on
+      // the gate at boot when there's no benefit to parallelism.
+      if (ota::isCheckingAsync()) return;
+
+      DBG("[ota-svc] registry refresh (async, after OTA)\n");
+      // false here means a refresh is already in flight (e.g.
+      // AssetLibraryScreen.onEnter beat us to it). Latch done either
+      // way — we don't respawn checks while WiFi stays up.
+      (void)registry::beginRefreshAsync(true);
       sPostConnectPhase = 3;
       sPostConnectMarkMs = now;
       break;
     }
     case 3: {
-      // Registry worker clears isRefreshing() when done; latch "done"
-      // so we do not respawn if the user stays on WiFi for hours.
-      if (!registry::isRefreshing()) {
-        sPostConnectPhase = 5;
-      }
+      // Final latch: wait for the registry refresh to drain so we
+      // emit one `scheduler_done` probe at a clean point.
+      if (registry::isRefreshing()) return;
+      sPostConnectPhase = 4;
       break;
     }
     default:

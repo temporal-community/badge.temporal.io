@@ -55,8 +55,8 @@
 #include "lwip/igmp.h"
 #include "esp_log.h"
 
-// Replay embed keeps socket independently gateable even when network.WLAN is on.
-#if MICROPY_PY_NETWORK && MICROPY_PY_SOCKET
+// See note at bottom of file about why this isn't MICROPY_PY_SOCKET
+#if MICROPY_PY_NETWORK
 
 #define SOCKET_POLL_US (100000)
 #define MDNS_QUERY_TIMEOUT_MS (5000)
@@ -1032,4 +1032,4 @@ const mp_obj_module_t mp_module_socket = {
 // extmod/mod{lwip,socket}.c.
 MP_REGISTER_EXTENSIBLE_MODULE(MP_QSTR_socket, mp_module_socket);
 
-#endif // MICROPY_PY_NETWORK && MICROPY_PY_SOCKET
+#endif // MICROPY_PY_NETWORK

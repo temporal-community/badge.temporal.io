@@ -27,10 +27,11 @@ class ContactsScreen : public ListMenuScreen {
 
  private:
   static constexpr uint8_t kMaxContacts = BadgeBoops::kMaxContacts;
-  BadgeBoops::PeerEntry entries_[kMaxContacts] = {};
+  BadgeBoops::PeerEntry* entries_ = nullptr;
   uint8_t entryCount_ = 0;
   uint8_t lastSelected_ = 0;
 
+  void ensureEntries();
   void reload();
 };
 

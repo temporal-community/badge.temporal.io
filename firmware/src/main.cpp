@@ -37,6 +37,7 @@
 #endif
 #include "led/LEDAppRuntime.h"
 #include "micropython/MicroPythonMatrixService.h"
+#include "infra/HeapDiag.h"
 #include "ota/AssetRegistry.h"
 #include "ota/BadgeOTA.h"
 #include "ota/OTAService.h"
@@ -222,6 +223,7 @@ void setup( ) {
     } else {
         Serial.println( "MicroPython not linked" );
     }
+    HeapDiag::printSnapshot("post-mpy-init");
 
     provisionStartupFiles(); // set to true to force filesystem rebuild
     BadgeBoops::begin();
@@ -383,6 +385,7 @@ void setup( ) {
 
     wifiService.begin();
     scheduler.registerService( &wifiService, ServicePriority::kLow );
+    HeapDiag::printSnapshot("post-wifi-begin");
 
     // OTA + asset registry. begin() loads NVS caches and detects
     // ESP_OTA_IMG_PENDING_VERIFY (first boot after a fresh install).
@@ -391,6 +394,7 @@ void setup( ) {
     ota::begin();
     ota::registry::begin();
     scheduler.registerService( &ota::otaService, ServicePriority::kLow );
+    HeapDiag::printSnapshot("post-ota-begin");
 
     // IR task creation deferred — initDeferredPeripherals() spawns it
     // after the home screen is reached, so the IR transmitter pulses
@@ -407,6 +411,8 @@ void setup( ) {
 #ifdef BADGE_ENABLE_BLE_PROXIMITY
     BadgeBeaconAdv::begin();
 #endif
+    HeapDiag::printSnapshot("setup-complete");
+    HeapDiag::printRegionMap("setup-complete");
 }
 
 // Brings up the brownout-sensitive peripherals deferred from setup():

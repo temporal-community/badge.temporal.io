@@ -84,6 +84,10 @@ int temporalbadge_hal_led_clear(void);
 int temporalbadge_hal_led_fill(int brightness);
 int temporalbadge_hal_led_set_pixel(int x, int y, int brightness);
 int temporalbadge_hal_led_get_pixel(int x, int y);
+// Snapshot the full 8×8 logical LED state from the matrix framebuffer.
+// out must hold 64 bytes; filled row-major (out[y*8+x]).  Returns 1 on
+// success, 0 if the matrix is not initialized.
+int temporalbadge_hal_led_snapshot(uint8_t out[64]);
 int temporalbadge_hal_led_show_image(const char *name);
 int temporalbadge_hal_led_set_frame(const uint8_t *rows, int brightness);
 int temporalbadge_hal_led_start_animation(const char *name, int interval_ms);
@@ -148,11 +152,6 @@ uint32_t temporalbadge_hal_ir_ms_since_rx(void);
 // Badge identity / boops
 const char *temporalbadge_hal_my_uuid(void);
 const char *temporalbadge_hal_boops(void);
-int temporalbadge_hal_contact_get(const char *key,
-                                   char *buf,
-                                   size_t buf_cap);
-int temporalbadge_hal_contact_set(const char *key,
-                                   const char *value);
 
 #if defined(BADGE_ENABLE_MP_DEV)
 // Dev/test harness

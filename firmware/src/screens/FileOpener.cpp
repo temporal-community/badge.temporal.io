@@ -72,9 +72,9 @@ void open(const char* path, GUIManager& gui) {
     gui.pushScreen(kScreenAnimTest);
     return;
   }
-  // Prebinned bitmaps (`width LE16` + `height LE16` + MSB-first packed
-  // rows). Unrelated `.bin` blobs fail validation and fall through to the
-  // hex viewer.
+  // Credit prebinned bitmaps (`width LE16` + `height LE16` + MSB-first
+  // packed rows — same layout as scripts/gen_credit_xbms.py). Unrelated
+  // `.bin` blobs fail validation and fall through to the hex viewer.
   if (extEq(path, ".bin")) {
     if (sAnimTest.loadCreditBin(path)) {
       Serial.printf("[FileOpener] %s -> AnimTest (bin)\n", path);

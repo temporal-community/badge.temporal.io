@@ -1,6 +1,7 @@
 #include "AppRegistry.h"
 
 #include <Arduino.h>
+#include <cstring>
 #include <ctype.h>
 #include <limits.h>
 #include <stdio.h>
@@ -19,8 +20,15 @@ namespace AppRegistry {
 
 namespace {
 
-DynamicApp s_apps[kMaxDynamicApps];
+DynamicApp* s_apps = nullptr;
 size_t s_count = 0;
+
+void ensureAppsPool() {
+  if (s_apps) return;
+  s_apps = static_cast<DynamicApp*>(
+      BadgeMemory::allocPreferPsram(kMaxDynamicApps * sizeof(DynamicApp)));
+  if (s_apps) std::memset(s_apps, 0, kMaxDynamicApps * sizeof(DynamicApp));
+}
 
 // Single scratch for FAT reads (max 2048 B). Lives in PSRAM when available
 // so AppRegistry::scan does not burn ~5 KiB of the Arduino loop stack.
@@ -350,7 +358,9 @@ void detectMatrixApp(const char* slug, DynamicApp& app) {
 }  // namespace
 
 size_t scan() {
+  ensureAppsPool();
   s_count = 0;
+  if (!s_apps) return 0;
 
   Filesystem::IOLock fsLock;
   FATFS* fs = replay_get_fatfs();
@@ -394,7 +404,7 @@ size_t rescan() { return scan(); }
 size_t count() { return s_count; }
 
 const DynamicApp* at(size_t index) {
-  if (index >= s_count) return nullptr;
+  if (!s_apps || index >= s_count) return nullptr;
   return &s_apps[index];
 }
 

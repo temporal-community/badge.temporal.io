@@ -126,8 +126,8 @@ void logChargerTelemetryIfDue(uint32_t intervalMs) {
     if (gLastBatteryFullSerialMs == 0 ||
         (uint32_t)(now - gLastBatteryFullSerialMs) >= kBatteryFullLogIntervalMs) {
       gLastBatteryFullSerialMs = now;
-      Serial.println("[POWER] BATTERY_FULL");
-      ESP_LOGI("POWER", "Charge complete — battery full");
+      // Serial.println("[POWER] BATTERY_FULL");
+      // ESP_LOGI("POWER", "Charge complete — battery full");
     }
   }
   gWasCharging = telemetry.charging;

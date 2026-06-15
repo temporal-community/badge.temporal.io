@@ -24,7 +24,7 @@ void DiagnosticsScreen::render(oled& d, GUIManager& /*gui*/) {
   char buf[32];
 
   d.setCursor(0, 0);
-  d.print("DIAG  fw:" FIRMWARE_VERSION);
+  d.print("DIAG  fw:" FIRMWARE_VERSION_DISPLAY);
   OLEDLayout::drawHeaderRule(d, 9);
 
   d.setCursor(0, 11);

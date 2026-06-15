@@ -12,8 +12,8 @@ all the files the badge firmware expects at first boot, without making
 data/ a stale copy of initial_filesystem/.
 
 Usage:
-  1. Keep doom1.wad in firmware/initial_filesystem/
-  2. Run: pio run -e replay2026 -t uploadfs
+  1. Place doom1.wad in firmware/data/
+  2. Run: pio run -e echo -t uploadfs
 """
 
 import os

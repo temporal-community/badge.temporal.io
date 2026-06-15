@@ -132,7 +132,7 @@ const mp_obj_type_t esp_espnow_type;
 // Return a pointer to the ESPNow module singleton
 // If state == INITIALISED check the device has been initialised.
 // Raises OSError if not initialised and state == INITIALISED.
-static esp_espnow_obj_t *_get_singleton() {
+static esp_espnow_obj_t *_get_singleton(void) {
     return MP_STATE_PORT(espnow_singleton);
 }
 

@@ -33,10 +33,11 @@ class AnimTestScreen : public Screen {
   // come from the sibling `info.json` when present, else inferred from
   // file size. Multi-frame .fb files become animation frames.
   void loadFB(const char* path);
-  // Prebinned `.bin`: `width(LE16) height(LE16)` then row-major packed
-  // bits with bit 7 = leftmost per byte. Bytes are reversed for `drawXBM`
-  // (LSB-left). Returns false if the file does not match that layout
-  // (caller may open hex view instead).
+  // Credit prebinned `.bin`: `width(LE16) height(LE16)` then row-major
+  // packed bits with bit 7 = leftmost per byte (same as
+  // assets/credits/prebinned/ + scripts/gen_credit_xbms.py). Bytes are
+  // reversed for `drawXBM` (LSB-left). Returns false if the file does
+  // not match that layout (caller may open hex view instead).
   bool loadCreditBin(const char* path);
 
  private:
@@ -48,9 +49,10 @@ class AnimTestScreen : public Screen {
   uint32_t lastJoyNavMs_ = 0;
 
   static constexpr uint16_t kJoyDeadband = 400;
-  static constexpr uint16_t kMinDelay = 30;
+  static constexpr uint16_t kMinDelay = 5;
   static constexpr uint16_t kMaxDelay = 2000;
-  static constexpr uint16_t kDelayStep = 30;
+  static constexpr uint16_t kDelayStep = 10;
+  static constexpr uint16_t kDefaultDelay = 200;
 
   uint8_t scaleDims_[8];
   uint8_t scaleCount_ = 0;

@@ -21,6 +21,7 @@ class AssetLibraryScreen : public ListMenuScreen {
   bool navigableItems() const override { return true; }
   void onItemSelect(uint8_t index, GUIManager& gui) override;
   void onEnter(GUIManager& gui) override;
+  void onResume(GUIManager& gui) override;
   void onUpdate(GUIManager& gui) override;
   void handleInput(const Inputs& inputs, int16_t cursorX, int16_t cursorY,
                    GUIManager& gui) override;
@@ -45,8 +46,20 @@ class AssetLibraryScreen : public ListMenuScreen {
   // Number of registry assets whose status is not kInstalled. Drives
   // the synthetic "Install all updates" row at index 0.
   uint8_t pendingCount_ = 0;
+  // Coalesce gate for doRefresh(). Rapid X-presses or an onEnter+X
+  // sequence used to fire H5 events ~300 ms apart, each one a no-op
+  // through the registry's atomic compare-exchange but still spending
+  // Serial cycles + a frame's worth of GUI work. Stamped on every
+  // accepted kick; subsequent kicks within `kRefreshKickMinIntervalMs`
+  // are dropped (and logged as `kick_coalesced` so the diagnostic
+  // probe still records the attempt).
+  uint32_t lastRefreshKickMs_ = 0;
+  static constexpr uint32_t kRefreshKickMinIntervalMs = 5000;
   void doRefresh(bool ignoreCooldown);
   void refreshStatusCache();
+  // Re-read registry count + per-row install status, then redraw.
+  // Called after install/remove and when returning from AssetDetail.
+  void reloadFromRegistry(GUIManager& gui);
 };
 
 class AssetDetailScreen : public Screen {

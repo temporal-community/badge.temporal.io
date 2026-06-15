@@ -133,8 +133,12 @@ const FieldDef kFieldDefs[] = {
     BIFIELD("Name",    name),
     BIFIELD("Title",   title),
     BIFIELD("Company", company),
+    BIFIELD("Type",    attendeeType),
     BIFIELD("Email",   email),
     BIFIELD("Web",     website),
+    BIFIELD("Phone",   phone),
+    BIFIELD("Bio",     bio),
+    BIFIELD("UUID",    ticketUuid),
 };
 #undef BIFIELD
 constexpr uint8_t kFieldDefCount = sizeof(kFieldDefs) / sizeof(kFieldDefs[0]);
@@ -205,6 +209,22 @@ constexpr float kPxPerZAtFullTilt = 2.0f;
 constexpr float kTiltSmoothing = 0.15f;
 float sParallaxXSmoothed = 0.f;
 float sParallaxYSmoothed = 0.f;
+
+// Composer canvas: parallax is clamped to ±8 px per axis (per layer), keeping
+// tilt visible without huge drifts. Live nametag uses the same z scale but a
+// looser clamp so the flipped overlay can move more while staying on-screen.
+constexpr int16_t kEditorParallaxClampPx = 8;
+constexpr int16_t kNametagParallaxClampPx = 128;
+
+inline void nametagCompositionParallax(int8_t z, int16_t* dx, int16_t* dy) {
+  const float kPar = kPxPerZAtFullTilt * (float)z / 1000.f;
+  int32_t rdx = static_cast<int32_t>(sParallaxXSmoothed * kPar);
+  int32_t rdy = static_cast<int32_t>(sParallaxYSmoothed * kPar);
+  rdx = std::clamp<int32_t>(rdx, -kNametagParallaxClampPx, kNametagParallaxClampPx);
+  rdy = std::clamp<int32_t>(rdy, -kNametagParallaxClampPx, kNametagParallaxClampPx);
+  *dx = static_cast<int16_t>(rdx);
+  *dy = static_cast<int16_t>(rdy);
+}
 
 float clampMg(float v) {
     if (v < -1000.f) return -1000.f;
@@ -1180,8 +1200,12 @@ void DrawScreen::parallaxOffset(int8_t z, int16_t* dx, int16_t* dy) const {
         return;
     }
     const float k = kPxPerZAtFullTilt * (float)z / 1000.f;
-    *dx = (int16_t)(sParallaxXSmoothed * k);
-    *dy = (int16_t)(sParallaxYSmoothed * k);
+    int32_t tx = static_cast<int32_t>(sParallaxXSmoothed * k);
+    int32_t ty = static_cast<int32_t>(sParallaxYSmoothed * k);
+    tx = std::clamp<int32_t>(tx, -kEditorParallaxClampPx, kEditorParallaxClampPx);
+    ty = std::clamp<int32_t>(ty, -kEditorParallaxClampPx, kEditorParallaxClampPx);
+    *dx = static_cast<int16_t>(tx);
+    *dy = static_cast<int16_t>(ty);
 }
 
 void DrawScreen::expandActiveDrawnToCanvas() {
@@ -1675,6 +1699,9 @@ bool DrawScreen::placementHitTest(const draw::ObjectPlacement& p,
 // ── Render ─────────────────────────────────────────────────────────────────
 
 void DrawScreen::renderDocComposition(oled& d, draw::AnimDoc& doc, uint8_t frameIdx) {
+    // Same IMU smoothing as the composer; `nametagCompositionParallax` uses the
+    // same z scale as `parallaxOffset` but a looser per-axis clamp (nametag only).
+
     pumpParallax(/*forEditorUi=*/false);
 
     d.setDrawColor(0);
@@ -1698,9 +1725,9 @@ void DrawScreen::renderDocComposition(oled& d, draw::AnimDoc& doc, uint8_t frame
         for (uint8_t idx : order) {
             auto p = placements[idx];
             int16_t dx = 0, dy = 0;
-            parallaxOffset(p.z, &dx, &dy);
-            p.x = (int16_t)(p.x + dx);
-            p.y = (int16_t)(p.y + dy);
+            nametagCompositionParallax(p.z, &dx, &dy);
+            p.x = static_cast<int16_t>(p.x + dx);
+            p.y = static_cast<int16_t>(p.y + dy);
             const draw::ObjectDef* def = nullptr;
             for (const auto& o : doc.objects) {
                 if (std::strcmp(o.id, p.objId) == 0) { def = &o; break; }

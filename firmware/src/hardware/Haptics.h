@@ -4,7 +4,7 @@
 #include "HardwareConfig.h"
 
 #ifdef BADGE_HAS_HAPTICS
-// ── Full haptics driver ───────────────────────────────────────────────────────
+// ── Full haptics driver (Charlie board only) ─────────────────────────────────
 #include <Arduino.h>
 #include <stdint.h>
 #include "../infra/Scheduler.h"

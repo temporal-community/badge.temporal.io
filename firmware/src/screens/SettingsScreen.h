@@ -8,7 +8,7 @@ class Config;
 // ─── Settings screen ────────────────────────────────────────────────────────
 //
 // Settings are grouped into collapsible categories (Display, Haptics, LED,
-// Input, etc.). Joystick Y scrolls; the down control toggles the
+// Input, etc.). Joystick Y scrolls; the physical Down button toggles the
 // dropdown on the currently-focused group. Only one group is open at a
 // time — moving the cursor outside the open group's rows auto-collapses it.
 //

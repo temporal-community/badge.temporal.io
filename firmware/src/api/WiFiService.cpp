@@ -3,6 +3,7 @@
 #include "../identity/BadgeUID.h"
 #include "../infra/BadgeConfig.h"
 #include "../infra/DebugLog.h"
+#include "../infra/HeapDiag.h"
 #include "../hardware/Power.h"
 
 #include <WiFi.h>
@@ -279,6 +280,7 @@ bool WiFiService::connect() {
     noteConnectionOk();
     DBG("[WiFi] connected ip=%s\n",
                   WiFi.localIP().toString().c_str());
+    HeapDiag::printSnapshot("wifi-connected");
   } else {
     shutDownRadio();
     noteConnectionFailed();
@@ -727,4 +729,65 @@ bool WiFiService::currentTime(time_t* out) const {
         lastClockEpoch_ + ((millis() - lastClockSampleMs_) / 1000UL));
   }
   return true;
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// MicroPython network.WLAN bridge
+//
+// `network.WLAN.connect()/disconnect()` route here (see the reuse-only patch in
+// lib/micropython_embed/.../ports/esp32/network_wlan.c). On this badge the
+// Arduino C-layer is the *sole* owner of esp_wifi init + the default netifs;
+// MicroPython only reads link state and opens sockets. Driving esp_wifi_connect
+// from the REPL would double-init the shared driver and recreate netifs the
+// C-layer already owns (the duplicate-if_key panic), so association has to flow
+// through WiFiService instead.
+//
+// This runs synchronously on the MicroPython exec task: connect() blocks until
+// the badge associates or the attempt times out, which keeps a pasted REPL
+// snippet (connect → scan → ifconfig) coherent. The badge UI lives on a
+// separate task, so it stays responsive meanwhile.
+extern "C" int replay_wifi_sta_connect(const char* ssid, const char* password) {
+  if (!ssid || !ssid[0]) return -1;
+  if (!Power::wifiAllowed()) return -2;
+  const char* pass = password ? password : "";
+
+  const uint32_t prevMhz = getCpuFrequencyMhz();
+  if (s_wifiPmLock) {
+    esp_pm_lock_acquire(s_wifiPmLock);
+  } else if (prevMhz < 160) {
+    setCpuFrequencyMhz(160);
+  }
+
+  primeRadioForConnectCycle();
+
+  char hostname[32];
+  snprintf(hostname, sizeof(hostname), "badge-%s", uid_hex);
+  WiFi.setHostname(hostname);
+
+  DBG("[WiFi] micropython connect ssid='%s' (pwd_len=%u)\n", ssid,
+      static_cast<unsigned>(strlen(pass)));
+  const bool ok = tryConnectOnce(ssid, pass, WIFI_TIMEOUT_MS);
+
+  if (ok) {
+    WiFi.setSleep(true);
+    configureClockOnce();
+    wifiService.noteConnectionOk();
+    DBG("[WiFi] micropython connect ok ip=%s\n",
+        WiFi.localIP().toString().c_str());
+  } else {
+    shutDownRadio();
+    wifiService.noteConnectionFailed();
+    DBG("[WiFi] micropython connect failed — radio off\n");
+  }
+
+  if (s_wifiPmLock) {
+    esp_pm_lock_release(s_wifiPmLock);
+  } else if (prevMhz < 160) {
+    setCpuFrequencyMhz(prevMhz);
+  }
+  return ok ? 0 : -3;
+}
+
+extern "C" void replay_wifi_sta_disconnect(void) {
+  wifiService.disconnect();
 }

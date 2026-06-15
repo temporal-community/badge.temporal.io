@@ -13,6 +13,7 @@
 #include "ScheduleData.h"
 #include "../api/DataCache.h"
 #include "../api/MsgPackReader.h"
+#include "../infra/PsramAllocator.h"
 #ifdef BADGE_ENABLE_BLE_PROXIMITY
 #include "../ble/BleBeaconScanner.h"
 #endif
@@ -497,16 +498,19 @@ struct FloorSectionEntry {
   char   desc[80];
 };
 constexpr uint8_t kSectionCacheCap = 40;
-FloorSectionEntry s_sectionCache[kSectionCacheCap];
+FloorSectionEntry* s_sectionCache = nullptr;
 uint8_t           s_sectionCount = 0;
 bool              s_sectionCacheBuilt = false;
 
 void buildSectionCache() {
-  // Mark built up-front so a parse failure (or empty bundle) doesn't
-  // re-trigger the walk on every frame. Restarting the badge after a
-  // bundle refresh re-runs this from scratch.
   s_sectionCacheBuilt = true;
   s_sectionCount = 0;
+  if (!s_sectionCache) {
+    s_sectionCache = static_cast<FloorSectionEntry*>(
+        BadgeMemory::allocPreferPsram(kSectionCacheCap * sizeof(FloorSectionEntry)));
+    if (!s_sectionCache) return;
+    memset(s_sectionCache, 0, kSectionCacheCap * sizeof(FloorSectionEntry));
+  }
 
   DataCache::ReadLock lock;
   DataCache::Span span = DataCache::floors();
@@ -571,6 +575,7 @@ void buildSectionCache() {
 
 const FloorSectionEntry* lookupSection(int floor_idx, int section_idx) {
   if (!s_sectionCacheBuilt) buildSectionCache();
+  if (!s_sectionCache) return nullptr;
   for (uint8_t i = 0; i < s_sectionCount; i++) {
     if (s_sectionCache[i].floor_idx   == floor_idx &&
         s_sectionCache[i].section_idx == section_idx) {

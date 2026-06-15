@@ -116,6 +116,26 @@ ModalChrome drawModalChrome(oled& d, int boxX, int boxY, int boxW, int boxH,
                             int actionStripH = 0,
                             bool frame = true);
 
+// ── Text-body modal ─────────────────────────────────────────────────
+// Convenience wrapper around drawModalChrome that renders an array of
+// plain-text body lines. The box expands vertically to fit the content
+// (centered between the status header and the footer rule), capped at
+// kTextModalViewport visible lines. When lineCount exceeds the viewport,
+// pass a scrollOffset to page through the content; the caller owns the
+// scroll state and should update it on up/down input.
+//
+// danger=true draws a double outer frame (emphasis) and a small warning
+// triangle at the top-left of the body, with body text indented
+// accordingly.
+//
+// titleScrollMs should be the timestamp when the modal was opened (or
+// the cursor last moved) so the title scroll starts fresh.
+constexpr int kTextModalViewport = 4;
+void drawTextModal(oled& d, const char* title,
+                   const char* const* lines, int lineCount,
+                   int scrollOffset = 0, bool danger = false,
+                   uint32_t titleScrollMs = 0);
+
 void drawSelectedRow(oled& d, int y, int h, int x = 0, int w = kScreenW);
 void drawBusySpinner(oled& d, int cx, int cy, uint8_t phase);
 void drawStatusBox(oled& d, int x, int y, int w, int h, const char* title,

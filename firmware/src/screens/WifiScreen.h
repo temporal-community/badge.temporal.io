@@ -9,16 +9,15 @@
 // actually got online.
 //
 // Cursor model:
-//   • Search Networks, then discovered access points from the last scan.
-//   • Non-interactive status lines: link, SSID, IP, RSSI.
-//   • Auto-connect toggle, then saved slot list (expanded actions under one slot).
-//   • One "Manual Setup" button when at least one slot is free.
+//   • Non-interactive status lines at the top: link, SSID, IP, RSSI.
+//   • Auto-connect toggle, then slot list (expanded actions under one slot).
+//   • One trailing "Add Network" row when at least one slot is free.
 //   • One "Connect" action row at the bottom that re-runs the
 //     iterating `WiFiService::connect()`.
 //
 // Pressing confirm on a saved network opens a sub-menu (rendered as
 // an overlay-style action list) with Connect / Edit Password /
-// Forget / Move Up / Move Down. Pressing confirm on "Manual Setup"
+// Forget / Move Up / Move Down. Pressing confirm on "Add Network"
 // pushes the on-screen keyboard for the SSID, then the password.
 //
 // The screen owns its own scratch buffer (`inputBuf_`) for the text-
@@ -70,14 +69,11 @@ class WifiScreen : public Screen {
   };
 
   void rebuildRows();
-  void runScan(GUIManager& gui);
   bool tryConnect(GUIManager& gui);
   bool tryConnectToSlot(GUIManager& gui, uint8_t slot);
   void pushSsidEditor(GUIManager& gui);
-  void pushPasswordForPendingSsid(GUIManager& gui);
   void pushPasswordEditor(GUIManager& gui, const char* title);
   void clampCursor();
-  void focusSavedSlot(uint8_t slot);
 
   // Overlay painted on top of the WiFi list while a connect is in
   // flight (or within a few seconds of completion/failure). Drawn by
@@ -107,8 +103,6 @@ class WifiScreen : public Screen {
 
   enum class RowKind : uint8_t {
     kDiagnostics,
-    kSearchNetworks,
-    kScanResult,
     kEnableToggle,
     kSlot,
     kSlotAction,
@@ -118,35 +112,22 @@ class WifiScreen : public Screen {
 
   struct Row {
     RowKind kind;
-    uint8_t slot;      // diagnostics: DiagnosticLine; scan: scan index; else wifi slot index
+    uint8_t slot;      // diagnostics: DiagnosticLine; else wifi slot index
     Action  action;    // valid for kSlotAction
   };
 
-  static constexpr uint8_t kMaxScanResults = 8;
-  struct ScanResult {
-    char ssid[33];
-    int8_t rssi;
-    bool open;
-  };
-
   // Worst-case: all diagnostic rows + toggle + max slot headers +
-  // scan trigger/results + one fully expanded actions group +
-  // trailing utility rows (+ slack).
+  // one fully expanded actions group + trailing utility rows (+ slack).
   // Must stay in sync with `Config::kMaxWifiNetworks` (four slots today).
   static constexpr uint8_t kMaxWifiSlotLimit = 4;
   static constexpr uint8_t kMaxRows =
-      kDiagnosticRowCount + 1 + kMaxScanResults + 1 +
-      kMaxWifiSlotLimit + kActionsPerSlot + 2 + 2;
+      kDiagnosticRowCount + 1 + kMaxWifiSlotLimit + kActionsPerSlot + 2 + 2;
 
   Row rows_[kMaxRows];
   uint8_t rowCount_ = 0;
   uint8_t cursor_ = 0;
   uint8_t scroll_ = 0;
   int8_t  expandedSlot_ = -1;  // -1 when no slot expanded
-  ScanResult scanResults_[kMaxScanResults] = {};
-  uint8_t scanCount_ = 0;
-  bool scanRan_ = false;
-  char scanMessage_[32] = {};
 
   // Slot index whose password input we just pushed; remembered so
   // the keyboard's onSubmit knows which slot to update on return.

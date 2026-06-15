@@ -312,8 +312,8 @@ static bool dedupePairingIdLocked(JsonArray pairings, int pairingId,
         mergePairingRows(keeper, p);
         pairings.remove((size_t)i);
         dirty = true;
-        Serial.printf("[%s] deduped pairing %d during %s\n",
-                      TAG, pairingId, reason ? reason : "sync");
+        DBG("[%s] deduped pairing %d during %s\n",
+            TAG, pairingId, reason ? reason : "sync");
     }
     return dirty;
 }
@@ -393,15 +393,15 @@ void begin() {
             FF_DIR dir;
             FILINFO info;
             if (f_opendir(fs, &dir, "/") == FR_OK) {
-                Serial.printf("[%s] ffat contents:\n", TAG);
+                // DBG("[%s] ffat contents:\n", TAG);
                 unsigned long total_used = 0;
                 while (f_readdir(&dir, &info) == FR_OK && info.fname[0] != '\0') {
-                    Serial.printf("[%s]   %-20s %10lu B\n", TAG,
-                                  info.fname, (unsigned long)info.fsize);
+                    // DBG("[%s]   %-20s %10lu B\n", TAG,
+                        // info.fname, (unsigned long)info.fsize);
                     total_used += (unsigned long)info.fsize;
                 }
                 f_closedir(&dir);
-                Serial.printf("[%s] ffat total used (files): %lu B\n", TAG, total_used);
+                // DBG("[%s] ffat total used (files): %lu B\n", TAG, total_used);
             }
 
             DWORD free_clusters = 0;
@@ -411,7 +411,7 @@ void begin() {
                 // form underreported free space by 8x.
                 const unsigned long free_bytes =
                     (unsigned long)free_clusters * fs->csize * fs->ssize;
-                Serial.printf("[%s] ffat free: %lu B\n", TAG, free_bytes);
+                // DBG("[%s] ffat free: %lu B\n", TAG, free_bytes);
 
                 // If the partition is critically low, the journal can't
                 // be saved.  Delete /boops.json so the next save has
@@ -420,8 +420,8 @@ void begin() {
                 // the max serialized size we write today.
                 if (free_bytes < 8192) {
                     FRESULT ur = f_unlink(fs, kBoopsPath);
-                    Serial.printf("[%s] ffat low — unlinked /boops.json (fr=%d)\n",
-                                  TAG, (int)ur);
+                    // Serial.printf("[%s] ffat low — unlinked /boops.json (fr=%d)\n",
+                                  // TAG, (int)ur);
                 }
             }
         }
@@ -467,9 +467,9 @@ void begin() {
                 stripped = true;
             }
             if (stripped) {
-                Serial.printf("[%s] stripped %d garbage top-level key(s)%s\n",
-                              TAG, junkCount,
-                              junkOver ? " (+more, ran out of slots)" : "");
+                DBG("[%s] stripped %d garbage top-level key(s)%s\n",
+                    TAG, junkCount,
+                    junkOver ? " (+more, ran out of slots)" : "");
                 // If there were more than the scratch array fit, loop the
                 // removal a couple more times. Each pass unblocks another
                 // batch of up to kMaxJunkKeys. Capped so a pathological
@@ -488,8 +488,8 @@ void begin() {
                         }
                     }
                     for (int i = 0; i < junkCount; i++) root.remove(junkKeys[i]);
-                    Serial.printf("[%s]   pass %d: stripped %d more\n",
-                                  TAG, pass + 2, junkCount);
+                    DBG("[%s]   pass %d: stripped %d more\n",
+                        TAG, pass + 2, junkCount);
                 }
             }
             // Guarantee the pairings array exists even if the loaded file
@@ -533,11 +533,11 @@ void begin() {
 
         const bool deduped = dedupeConfirmedPairingsLocked(pairings, "load");
 
-        Serial.printf("[%s] loaded %d records from disk%s%s%s\n", TAG,
-                      (int)pairings.size(),
-                      migrated ? " (migrated connected_at → last_seen)" : "",
-                      stripped ? " (stripped garbage roots)" : "",
-                      deduped ? " (deduped pairing_id)" : "");
+        DBG("[%s] loaded %d records from disk%s%s%s\n", TAG,
+            (int)pairings.size(),
+            migrated ? " (migrated connected_at → last_seen)" : "",
+            stripped ? " (stripped garbage roots)" : "",
+            deduped ? " (deduped pairing_id)" : "");
 
         if (migrated || stripped || deduped) {
             BoopsLock lock;
@@ -545,7 +545,7 @@ void begin() {
         }
     } else {
         (*s_doc)["pairings"] = s_doc->createNestedArray("pairings");
-        Serial.printf("[%s] starting with empty boops.json\n", TAG);
+        // DBG("[%s] starting with empty boops.json\n", TAG);
     }
 }
 
@@ -556,7 +556,7 @@ void recordBoop(const char* peer_badge_uid,
     // Defense in depth — a self-loopback boop has no meaning and pollutes
     // the journal. Reject silently here so callers don't have to check.
     if (strcmp(uid_hex, peer_badge_uid) == 0) {
-        Serial.printf("[%s] refusing self-boop (UID=%s)\n", TAG, peer_badge_uid);
+        // DBG("[%s] refusing self-boop (UID=%s)\n", TAG, peer_badge_uid);
         return;
     }
 
@@ -577,7 +577,7 @@ void recordBoop(const char* peer_badge_uid,
 
     if (existing.isNull()) {
         if (pairings.size() >= kMaxBoopRecords) {
-            Serial.printf("[%s] max records reached, dropping boop\n", TAG);
+            DBG("[%s] max records reached, dropping boop\n", TAG);
             return;
         }
         existing = pairings.createNestedObject();
@@ -673,7 +673,7 @@ void clearJournal() {
     (*s_doc)["pairings"] = s_doc->createNestedArray("pairings");
     Filesystem::removeFile("/boops.json.tmp");
     saveToDisk();
-    Serial.println("[BadgeBoops] cleared local boop journal");
+    DBG("[BadgeBoops] cleared local boop journal\n");
 }
 
 // ─── Peer lookup (spec-010) ─────────────────────────────────────────────────
@@ -724,12 +724,11 @@ void listActivePeers(const char* myTicketUuid,
     BoopsLock lock;
     JsonArray pairings = (*s_doc)["pairings"];
     if (pairings.isNull()) {
-        Serial.println("[BadgeBoops] listActivePeers: no pairings array");
+        DBG("[BadgeBoops] listActivePeers: no pairings array\n");
         return;
     }
-    Serial.printf("[BadgeBoops] listActivePeers: rows=%u myTicket=%s uid=%s badge=%s\n",
-                  (unsigned)pairings.size(), myTicketUuid, uid_hex,
-                  badge_uuid);
+    DBG("[BadgeBoops] listActivePeers: rows=%u myTicket=%s uid=%s badge=%s\n",
+        (unsigned)pairings.size(), myTicketUuid, uid_hex, badge_uuid);
 
     for (JsonObject p : pairings) {
         const char* status = p["status"] | "";
@@ -740,9 +739,9 @@ void listActivePeers(const char* myTicketUuid,
         const char* t1 = (!tids.isNull() && tids.size() > 1) ? (tids[1] | "") : "";
         const char* b0 = (!buids.isNull() && buids.size() > 0) ? (buids[0] | "") : "";
         const char* b1 = (!buids.isNull() && buids.size() > 1) ? (buids[1] | "") : "";
-        Serial.printf("[BadgeBoops] row status=%s revoked=%d pid=%d t0=%s t1=%s b0=%s b1=%s name=%s\n",
-                      status, revoked ? 1 : 0, p["pairing_id"] | 0,
-                      t0, t1, b0, b1, p["partner_name"] | "");
+        DBG("[BadgeBoops] row status=%s revoked=%d pid=%d t0=%s t1=%s b0=%s b1=%s name=%s\n",
+            status, revoked ? 1 : 0, p["pairing_id"] | 0,
+            t0, t1, b0, b1, p["partner_name"] | "");
         if (revoked) continue;
 
         // Identify the peer slot. Prefer ticket UUIDs because server rows
@@ -776,7 +775,7 @@ void listActivePeers(const char* myTicketUuid,
             }
         }
         if (peerSlot < 0) {
-            Serial.println("[BadgeBoops] row skipped: could not identify peer slot");
+            DBG("[BadgeBoops] row skipped: could not identify peer slot\n");
             continue;
         }
 
@@ -845,6 +844,8 @@ bool lookupContactByUid(const char* peerUid, ContactDetail& out) {
         copyStr(out.attendeeType, sizeof(out.attendeeType), p["partner_attendee_type"] | "");
         copyStr(out.email,        sizeof(out.email),        p["partner_email"]         | "");
         copyStr(out.website,      sizeof(out.website),      p["partner_website"]       | "");
+        copyStr(out.phone,        sizeof(out.phone),        p["partner_phone"]         | "");
+        copyStr(out.bio,          sizeof(out.bio),          p["partner_bio"]           | "");
         copyStr(out.lastTs,       sizeof(out.lastTs),       p["last_seen"]             | "");
         out.boopCount = p["boop_count"] | 0;
         return true;
@@ -906,6 +907,8 @@ void recordBoopEx(BoopType type, const char* peerIdOrInstallation,
         updateIfPresent("partner_attendee_type", partner->attendeeType);
         updateIfPresent("partner_email",         partner->email);
         updateIfPresent("partner_website",       partner->website);
+        updateIfPresent("partner_phone",         partner->phone);
+        updateIfPresent("partner_bio",           partner->bio);
     }
 
     if (type != BOOP_PEER) {

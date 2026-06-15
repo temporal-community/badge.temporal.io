@@ -120,7 +120,7 @@ void Scheduler::printTasks() const {
         case ServicePriority::kNormal: priorityStr = "NORMAL"; break;
         case ServicePriority::kLow: priorityStr = "LOW   "; break;
       }
-      DBG("[%d] %-15s | Priority: %s | State: %s\n",
+      DBG("[%d] %-15s | Priority: %s | State: %s\n", 
                     i, services_[i].service->name(), priorityStr, state);
     }
   }

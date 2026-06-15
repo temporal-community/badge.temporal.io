@@ -25,6 +25,10 @@ class HTTPClient;
 class NetworkClient;
 class NetworkClientSecure;
 
+namespace badge {
+class TlsSession;
+}  // namespace badge
+
 namespace ota {
 
 // User-Agent sent on every request. GitHub's API requires a UA header.
@@ -129,6 +133,12 @@ class Stream {
   NetworkClient* plain_ = nullptr;
   NetworkClientSecure* secure_ = nullptr;
   ::Stream* body_ = nullptr;
+  // Held while the stream is open over HTTPS. Heap-allocated (rather
+  // than a value member) to avoid pulling the full TlsGate.h dependency
+  // into this header — `badge::TlsSession` is forward-declared above.
+  // close() releases it after `http_->end()`, so the gate is freed for
+  // the next caller as soon as the stream is fully torn down.
+  badge::TlsSession* tls_ = nullptr;
   size_t contentLength_ = 0;
   int httpCode_ = 0;
   char lastError_[80] = {};

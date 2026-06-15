@@ -15,8 +15,8 @@ namespace {
 struct DetailRow {
     const char* label;
     enum Source : uint8_t {
-        kName, kTitle, kCompany, kEmail, kWeb,
-        kLast, kCount,
+        kName, kTitle, kCompany, kType, kEmail, kWeb, kPhone, kBio,
+        kUid, kLast, kCount,
     } source;
 };
 
@@ -24,8 +24,12 @@ constexpr DetailRow kRows[] = {
     {"Name    ",    DetailRow::kName},
     {"Title   ",   DetailRow::kTitle},
     {"Company ", DetailRow::kCompany},
+    {"Type    ",    DetailRow::kType},
     {"Email   ",   DetailRow::kEmail},
     {"Web     ",     DetailRow::kWeb},
+    {"Phone   ",   DetailRow::kPhone},
+    {"Bio     ",     DetailRow::kBio},
+    {"UID     ",     DetailRow::kUid},
     {"Seen    ",    DetailRow::kLast},
     {"Boops  ",   DetailRow::kCount},
 };
@@ -38,8 +42,12 @@ const char* readSource(const BadgeBoops::ContactDetail& d, DetailRow::Source s,
         case DetailRow::kName:    return d.name;
         case DetailRow::kTitle:   return d.title;
         case DetailRow::kCompany: return d.company;
+        case DetailRow::kType:    return d.attendeeType;
         case DetailRow::kEmail:   return d.email;
         case DetailRow::kWeb:     return d.website;
+        case DetailRow::kPhone:   return d.phone;
+        case DetailRow::kBio:     return d.bio;
+        case DetailRow::kUid:     return d.peerUid;
         case DetailRow::kLast:    return d.lastTs;
         case DetailRow::kCount:
             std::snprintf(numScratch, scratchCap, "%d", d.boopCount);

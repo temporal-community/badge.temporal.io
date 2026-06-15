@@ -1,4 +1,5 @@
 #include "GUI.h"
+#include "screens/AboutCreditsScreen.h"
 #include "screens/AboutSponsorsScreen.h"
 #include "screens/MenuOrderScreen.h"
 #include "screens/AnimTestScreen.h"
@@ -39,6 +40,8 @@
 #include <cstring>
 
 #include "../BadgeGlobals.h"
+#include "../infra/DebugLog.h"
+#include "../infra/PsramAllocator.h"
 #include "../apps/AppRegistry.h"
 #include "../apps/MenuOrderStore.h"
 #include <algorithm>
@@ -48,6 +51,7 @@
 #include "../ble/BleBeaconScanner.h"
 #endif
 #include "../infra/BadgeConfig.h"
+#include "../infra/Filesystem.h"
 #include "../ir/BadgeIR.h"
 #include "../ota/AssetRegistry.h"
 #include "../ota/BadgeOTA.h"
@@ -92,8 +96,56 @@ extern char badgeCompany[];
 extern uint8_t*       badgeBits;
 extern int            badgeByteCount;
 
+// Attempt to find a matching registry entry for a missing app path and
+// redirect to the Asset Detail/Library download screen. Returns true if
+// the redirect was handled (caller should return early); false if not.
+static bool redirectToRegistryForMissingApp(GUIManager& gui, const char* path) {
+  // Extract the slug from a path like "/apps/<slug>/main.py"
+  if (strncmp(path, "/apps/", 6) != 0) return false;
+  const char* slugStart = path + 6;
+  const char* slugEnd = strchr(slugStart, '/');
+  if (!slugEnd) return false;
+
+  char slug[32] = {};
+  size_t slugLen = slugEnd - slugStart;
+  if (slugLen >= sizeof(slug)) slugLen = sizeof(slug) - 1;
+  memcpy(slug, slugStart, slugLen);
+  slug[slugLen] = '\0';
+
+  // Try to find a registry entry matching this slug
+  const ota::AssetEntry* entry = ota::registry::findById(slug);
+  if (entry) {
+    AssetDetailScreen::setActiveAsset(entry);
+    gui.pushScreen(kScreenAssetDetail);
+    return true;
+  }
+
+  // No exact match — jump to the library so the user can browse/refresh
+  AssetLibraryScreen::selectAssetById(slug);
+  gui.pushScreen(kScreenAssetLibrary);
+  return true;
+}
+
 static void launchPythonApp(GUIManager& gui, const char* path,
                             const char* displayName) {
+  // If the script doesn't exist on the filesystem, redirect to the
+  // community apps registry download flow instead of failing silently.
+  if (!Filesystem::fileExists(path)) {
+    Serial.printf("[GUI] app not on filesystem: %s — redirecting to registry\n", path);
+    if (!redirectToRegistryForMissingApp(gui, path)) {
+      // Couldn't find a registry entry either. Show a brief message.
+      oled& d = gui.oledDisplay();
+      d.clearBuffer();
+      d.setDrawColor(1);
+      OLEDLayout::drawStatusHeader(d, displayName);
+      OLEDLayout::drawStatusBox(d, 12, 22, 104, 24, "Not installed", "Use COMMUNITY APPS", true);
+      d.sendBuffer();
+      delay(2000);
+      gui.requestRender();
+    }
+    return;
+  }
+
 #ifdef BADGE_ENABLE_BLE_PROXIMITY
   BadgeBeaconAdv::setPausedForForeground(true);
   BadgeBeaconAdv::setPausedForIr(false);
@@ -108,7 +160,7 @@ static void launchPythonApp(GUIManager& gui, const char* path,
   pythonIrListening = false;
   irDrainPythonRx();
   if (mpy_collect != nullptr) mpy_collect();
-  Serial.printf("[appmem] enter %s largest=%u free=%u psram=%u\n",
+  DBG("[appmem] enter %s largest=%u free=%u psram=%u\n",
                 displayName,
                 (unsigned)heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL),
                 (unsigned)heap_caps_get_free_size(MALLOC_CAP_INTERNAL),
@@ -123,14 +175,14 @@ static void launchPythonApp(GUIManager& gui, const char* path,
   OLEDLayout::drawFooterActions(d, nullptr, nullptr, "exit", nullptr);
   d.sendBuffer();
 
-  Serial.printf("GUI: Running app %s\n", path);
+  DBG("GUI: Running app %s\n", path);
   mpy_gui_exec_file(path);
 
 #ifdef BADGE_ENABLE_BLE_PROXIMITY
   BleBeaconScanner::clearScanCache();
 #endif
   if (mpy_collect != nullptr) mpy_collect();
-  Serial.printf("[appmem] exit %s largest=%u free=%u psram=%u\n",
+  DBG("[appmem] exit %s largest=%u free=%u psram=%u\n",
                 displayName,
                 (unsigned)heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL),
                 (unsigned)heap_caps_get_free_size(MALLOC_CAP_INTERNAL),
@@ -155,7 +207,7 @@ static void launchPythonApp(GUIManager& gui, const char* path,
   }
   inputs.clearEdges();
 
-  Serial.println("GUI: App finished, returning to menu");
+  DBG("GUI: App finished, returning to menu\n");
   gui.requestRender();
 }
 
@@ -177,6 +229,39 @@ static void launchIRPlayground(GUIManager& gui) {
 
 static void launchBreakSnake(GUIManager& gui) {
   launchPythonApp(gui, "/apps/breaksnake/main.py", "BreakSnake");
+}
+
+static void launchTardigotchi(GUIManager& gui) {
+  launchPythonApp(gui, "/apps/tardigotchi/main.py", "Tardigotchi");
+}
+
+// `main.py` paths for Python apps that already have curated grid tiles
+// (`launchSynth`, `launchIRBlockBattle`, ...). Must match those strings —
+// AppRegistry discovers the same slugs under /apps/ and would add a second
+// icon without the dedupe in rebuildMainMenuFromRegistry().
+static const char* const kCuratedPythonDuplicateEntryPaths[] = {
+    "/apps/synth/main.py",
+    "/apps/flappy_asteroids/main.py",
+    "/apps/ir_block_battle/main.py",
+    "/apps/ir_remote/main.py",
+    "/apps/breaksnake/main.py",
+    "/apps/tardigotchi/main.py",
+};
+
+// CREDITS dispatcher. Two backends exist:
+//   * native AboutCreditsScreen (drawXBM out of AboutCredits.h)
+//   * MicroPython /apps/credits.py (set_pixel walk on the editable FS)
+// Both consume the same byte blob — re-running scripts/gen_credit_xbms.py
+// rewrites both sides — so the only user-visible difference is start
+// latency (Python warm-up) and per-frame cost. The kCreditsUsePython
+// setting picks at click time so flipping it in settings.txt swaps the
+// renderer immediately, no reboot required.
+static void launchCredits(GUIManager& gui) {
+  if (badgeConfig.get(kCreditsUsePython)) {
+    launchPythonApp(gui, "/apps/credits.py", "Credits");
+  } else {
+    gui.pushScreen(kScreenAboutCredits);
+  }
 }
 
 // Firmware-update tile label flips between "Check Updates" and
@@ -203,103 +288,127 @@ static bool assetLibraryVisible() {
   return true;
 }
 
-static bool isCuratedDynamicSlug(const char* slug) {
-  if (!slug) return false;
-  static constexpr const char* kCuratedSlugs[] = {
-      "breaksnake",
-      "flappy_asteroids",
-      "ir_block_battle",
-      "ir_remote",
-      "synth",
-  };
-  for (const char* curated : kCuratedSlugs) {
-    if (strcmp(slug, curated) == 0) return true;
-  }
-  return false;
-}
+// ── Compile-time hide-missing-apps visibility gates ───────────────────────
+// When BADGE_HIDE_MISSING_APPS is defined, curated Python-app tiles whose
+// scripts aren't on the filesystem are hidden from the grid. The apps are
+// still launchable via `run:<slug>` and will redirect to the download flow
+// if launched when missing; this just declutters the menu for badges that
+// haven't installed certain apps yet.
+#ifdef BADGE_HIDE_MISSING_APPS
+static bool synthVisible()           { return Filesystem::fileExists("/apps/synth/main.py"); }
+static bool flappyVisible()          { return Filesystem::fileExists("/apps/flappy_asteroids/main.py"); }
+static bool irBlockBattleVisible()   { return Filesystem::fileExists("/apps/ir_block_battle/main.py"); }
+static bool irPlaygroundVisible()    { return Filesystem::fileExists("/apps/ir_remote/main.py"); }
+static bool breakSnakeVisible()      { return Filesystem::fileExists("/apps/breaksnake/main.py"); }
+static bool tardigotchiVisible()     { return Filesystem::fileExists("/apps/tardigotchi/main.py"); }
+#endif
 
 // ── Curated C++ menu items ────────────────────────────────────────────────
 // These are the always-on items the firmware ships with. Dynamic Python
 // apps discovered by AppRegistry are appended after this list when the
 // menu is rebuilt.
 static const GridMenuItem kCuratedMenuItems[] = {
-    {"BOOP", "Exchange contact info over IR",
+    {"BOOP",     "Exchange contact info over IR",
      AppIcons::booper,    kScreenBoop,     nullptr, nullptr, nullptr},
     {"CONTACTS", "Browse people you've booped",
-     AppIcons::contacts,  kScreenContacts, nullptr, nullptr, nullptr},
-    {"REPLAY", "Schedule and venue map",
-     AppIcons::replay,    kScreenReplay,   nullptr, nullptr, nullptr},
+     AppIcons::profile,   kScreenContacts, nullptr, nullptr, nullptr},
+    {"BADGE INFO", "Edit your name, title, company, and contact info",
+     AppIcons::profile,   kScreenBadgeInfo, nullptr, nullptr, nullptr},
+    {"MAP",      "Find your way around the venue",
+     AppIcons::map,       kScreenMap,      nullptr, nullptr, nullptr},
+    {"SCHEDULE", "See conference sessions, workshops, and what's next",
+     AppIcons::schedule, kScreenSchedule, nullptr, nullptr, nullptr},
 
     {"DRAW", "Draw frames and animations with stickers and pixels",
      DrawIcons::menuDraw, kScreenDrawPicker, nullptr, nullptr, nullptr},
-    {"MATRIX", "Pick a persistent LED matrix animation or app",
-     AppIcons::matrixApps, kScreenMatrixApps, nullptr, nullptr, nullptr},
-
-    {"APPS", "Run MicroPython apps stored on the badge",
-     AppIcons::apps,      kScreenApps,        nullptr, nullptr, nullptr},
-    {"FILES", "Browse files on the badge filesystem",
-     AppIcons::directory, kScreenFiles,       nullptr, nullptr, nullptr},
-    {"COMMUNITY APPS",
-     "Browse and install community-built apps + assets like the DOOM WAD",
-     AppIcons::assetLibrary, kScreenAssetLibrary, nullptr,
-     &assetLibraryVisible, nullptr, nullptr},
 
     {"IR BLOCK", "Clear lines and send garbage over IR",
-     AppIcons::irBlockBattle, kScreenNone, launchIRBlockBattle, nullptr, nullptr},
+     AppIcons::irBlockBattle, kScreenNone, launchIRBlockBattle,
+#ifdef BADGE_HIDE_MISSING_APPS
+     irBlockBattleVisible,
+#else
+     nullptr,
+#endif
+     nullptr},
     {"IR PLAY", "Universal remote, sniffer, TV-B-Gone, and IR mini-games",
-     AppIcons::irPlayground, kScreenNone, launchIRPlayground, nullptr, nullptr},
+     AppIcons::irPlayground, kScreenNone, launchIRPlayground,
+#ifdef BADGE_HIDE_MISSING_APPS
+     irPlaygroundVisible,
+#else
+     nullptr,
+#endif
+     nullptr},
     {"BREAKSNAKE",  "Play Breakout and Snake together",
-     AppIcons::breaksnake, kScreenNone,       launchBreakSnake, nullptr, nullptr},
+     AppIcons::breaksnake, kScreenNone, launchBreakSnake,
+#ifdef BADGE_HIDE_MISSING_APPS
+     breakSnakeVisible,
+#else
+     nullptr,
+#endif
+     nullptr},
     {"FLAPPY", "Play Asteroids and Flappy Bird together",
-     AppIcons::flappyAsteroids, kScreenNone,  launchFlappyAsteroids, nullptr, nullptr},
+     AppIcons::flappyAsteroids, kScreenNone, launchFlappyAsteroids,
+#ifdef BADGE_HIDE_MISSING_APPS
+     flappyVisible,
+#else
+     nullptr,
+#endif
+     nullptr},
 
     {"SYNTH", "Play joystick tones, loops, and loadable sounds",
-     AppIcons::synth,     kScreenNone,       launchSynth, nullptr, nullptr},
+     AppIcons::synth, kScreenNone, launchSynth,
+#ifdef BADGE_HIDE_MISSING_APPS
+     synthVisible,
+#else
+     nullptr,
+#endif
+     nullptr},
+    {"TARDIGOTCHI", "Hatch and care for a tiny tardigrade",
+     AppIcons::tardigotchi, kScreenNone, launchTardigotchi,
+#ifdef BADGE_HIDE_MISSING_APPS
+     tardigotchiVisible,
+#else
+     nullptr,
+#endif
+     nullptr},
 
     {"DOOM",        "Play DOOM on the badge",
      AppIcons::doom,      kScreenDoom,        nullptr, nullptr, nullptr},
 
+    {"APPS",        "Run MicroPython apps stored on the badge",
+     AppIcons::apps,      kScreenApps,        nullptr, nullptr, nullptr},
+     {"COMMUNITY APPS",
+      "Browse and install community-built apps + assets like the DOOM WAD",
+      AppIcons::assetLibrary, kScreenAssetLibrary, nullptr,
+      &assetLibraryVisible, nullptr, nullptr},
+    {"MATRIX", "Pick a persistent LED matrix animation or app",
+     AppIcons::matrixApps, kScreenMatrixApps, nullptr, nullptr, nullptr},
+    // {"HAPTICS",     "Preview vibration strength, frequency, and duration",
+    //  AppIcons::workflow,  kScreenHaptics,     nullptr, nullptr, nullptr},
+    {"FILES",       "Browse files on the badge filesystem",
+     AppIcons::directory, kScreenFiles,       nullptr, nullptr, nullptr},
     {"ANIMATIONS",   "Preview OLED and LED matrix animations",
      AppIcons::animations, kScreenAnimTest,   nullptr, nullptr, nullptr},
+    {"WIFI", "Manage saved networks and connect to the internet",
+     AppIcons::wifi,      kScreenWifi,     nullptr, nullptr, nullptr},
+    {"FW UPDATE", "Check for and install firmware updates over WiFi",
+     AppIcons::firmwareUpdate, kScreenUpdateFirmware, nullptr, nullptr,
+     &firmwareUpdateLabel, &firmwareUpdateBadge},
+
+    {"SETTINGS", "Adjust display, input, power, and haptics",
+     AppIcons::settings,  kScreenSettings, nullptr, nullptr, nullptr},
      {"HELP", "Tips, button shortcuts, and links to the developer docs",
-     AppIcons::docs,      kScreenHelp,         nullptr, nullptr, nullptr},
-     {"BADGE CONFIG", "Badge info, WiFi, settings, updates, diagnostics, and menu order",
-      AppIcons::badgeConfig, kScreenBadgeConfig, nullptr, nullptr, nullptr},
+      AppIcons::docs,      kScreenHelp,         nullptr, nullptr, nullptr},
+     {"SPONSORS", "Thank you to our sponsors!",
+      AppIcons::about,     kScreenAboutSponsors, nullptr, nullptr, nullptr},
+     {"CREDITS", "Meet the crew that built this badge",
+      AppIcons::profile,   kScreenNone,          launchCredits, nullptr, nullptr},
+      {"DIAGNOSTICS", "Inspect runtime state, tasks, battery, and memory",
+        AppIcons::about,     kScreenDiagnostics, nullptr, nullptr, nullptr},
 };
 
 static constexpr size_t kCuratedMenuItemCount =
     sizeof(kCuratedMenuItems) / sizeof(kCuratedMenuItems[0]);
-
-static const GridMenuItem kReplayMenuItems[] = {
-    {"SCHEDULE", "See conference sessions, workshops, and what's next",
-     AppIcons::schedule, kScreenSchedule, nullptr, nullptr, nullptr},
-    {"MAP", "Find your way around the venue",
-     AppIcons::map,      kScreenMap,      nullptr, nullptr, nullptr},
-    {"SPONSORS", "Thank you to our sponsors!",
-     AppIcons::about,    kScreenAboutSponsors, nullptr, nullptr, nullptr},
-};
-
-static constexpr size_t kReplayMenuItemCount =
-    sizeof(kReplayMenuItems) / sizeof(kReplayMenuItems[0]);
-
-static const GridMenuItem kBadgeConfigMenuItems[] = {
-    {"BADGE INFO", "Edit your name, title, company, and contact info",
-     AppIcons::badgeInfo, kScreenBadgeInfo, nullptr, nullptr, nullptr},
-    {"WIFI", "Manage saved networks and connect to the internet",
-     AppIcons::wifi,      kScreenWifi,     nullptr, nullptr, nullptr},
-    {"SETTINGS", "Adjust display, input, power, and haptics",
-     AppIcons::settings,  kScreenSettings, nullptr, nullptr, nullptr},
-    {"FW UPDATE", "Check for and install firmware updates over WiFi",
-     AppIcons::firmwareUpdate, kScreenUpdateFirmware, nullptr, nullptr,
-     &firmwareUpdateLabel, &firmwareUpdateBadge},
-    {"DIAGNOSTICS", "Inspect runtime state, tasks, battery, and memory",
-     AppIcons::workflow,  kScreenDiagnostics, nullptr, nullptr, nullptr},
-    {"MENU ORDER", "Reorder the home menu",
-     AppIcons::directory, kScreenMenuOrder, nullptr, nullptr, nullptr},
-};
-
-static constexpr size_t kBadgeConfigMenuItemCount =
-    sizeof(kBadgeConfigMenuItems) / sizeof(kBadgeConfigMenuItems[0]);
 
 // ── Dynamic-app menu storage + trampolines ────────────────────────────────
 // AppRegistry discovers self-describing /apps/<slug>/main.py files and we
@@ -310,17 +419,32 @@ static constexpr size_t kBadgeConfigMenuItemCount =
 static constexpr size_t kMaxMenuItems =
     kCuratedMenuItemCount + AppRegistry::kMaxDynamicApps;
 
-static GridMenuItem sMenuItems[kMaxMenuItems];
+static GridMenuItem* sMenuItems = nullptr;
 static uint8_t sMenuItemCount = 0;
 
-static char sDynamicLabel[AppRegistry::kMaxDynamicApps]
-                         [AppRegistry::kTitleCap];
-static char sDynamicDescription[AppRegistry::kMaxDynamicApps]
-                               [AppRegistry::kDescriptionCap];
-static uint8_t sDynamicIcon[AppRegistry::kMaxDynamicApps]
-                           [AppRegistry::kIconBytes];
-static char sDynamicEntry[AppRegistry::kMaxDynamicApps]
-                         [AppRegistry::kEntryPathCap];
+static char (*sDynamicLabel)[AppRegistry::kTitleCap] = nullptr;
+static char (*sDynamicDescription)[AppRegistry::kDescriptionCap] = nullptr;
+static uint8_t (*sDynamicIcon)[AppRegistry::kIconBytes] = nullptr;
+static char (*sDynamicEntry)[AppRegistry::kEntryPathCap] = nullptr;
+
+static void ensureMenuPools() {
+  if (sMenuItems) return;
+  sMenuItems = static_cast<GridMenuItem*>(
+      BadgeMemory::allocPreferPsram(kMaxMenuItems * sizeof(GridMenuItem)));
+  sDynamicLabel = static_cast<char (*)[AppRegistry::kTitleCap]>(
+      BadgeMemory::allocPreferPsram(AppRegistry::kMaxDynamicApps * AppRegistry::kTitleCap));
+  sDynamicDescription = static_cast<char (*)[AppRegistry::kDescriptionCap]>(
+      BadgeMemory::allocPreferPsram(AppRegistry::kMaxDynamicApps * AppRegistry::kDescriptionCap));
+  sDynamicIcon = static_cast<uint8_t (*)[AppRegistry::kIconBytes]>(
+      BadgeMemory::allocPreferPsram(AppRegistry::kMaxDynamicApps * AppRegistry::kIconBytes));
+  sDynamicEntry = static_cast<char (*)[AppRegistry::kEntryPathCap]>(
+      BadgeMemory::allocPreferPsram(AppRegistry::kMaxDynamicApps * AppRegistry::kEntryPathCap));
+  if (sMenuItems) std::memset(sMenuItems, 0, kMaxMenuItems * sizeof(GridMenuItem));
+  if (sDynamicLabel) std::memset(sDynamicLabel, 0, AppRegistry::kMaxDynamicApps * AppRegistry::kTitleCap);
+  if (sDynamicDescription) std::memset(sDynamicDescription, 0, AppRegistry::kMaxDynamicApps * AppRegistry::kDescriptionCap);
+  if (sDynamicIcon) std::memset(sDynamicIcon, 0, AppRegistry::kMaxDynamicApps * AppRegistry::kIconBytes);
+  if (sDynamicEntry) std::memset(sDynamicEntry, 0, AppRegistry::kMaxDynamicApps * AppRegistry::kEntryPathCap);
+}
 
 // Dispatch a dynamic-app launch via AppRegistry index. Looked up at call
 // time — AppRegistry::count() may shrink between menu rebuild and click.
@@ -415,12 +539,6 @@ static BootScreen sBoot;
 // merges in dynamic apps before the menu first renders.
 static GridMenuScreen sMainMenu(kScreenMainMenu, "MENU",
                                 sMenuItems, 0);
-static GridMenuScreen sReplayMenu(
-    kScreenReplay, "REPLAY", kReplayMenuItems,
-    static_cast<uint8_t>(kReplayMenuItemCount));
-static GridMenuScreen sBadgeConfigMenu(
-    kScreenBadgeConfig, "BADGE CONFIG", kBadgeConfigMenuItems,
-    static_cast<uint8_t>(kBadgeConfigMenuItemCount));
 static ScheduleScreen sSchedule;
 static MapScreen sMap;
 static MapSectionScreen sMapSection;
@@ -432,8 +550,8 @@ static SettingsScreen sSettings(kScreenSettings, &badgeConfig);
 static HapticsTestScreen sHaptics(kScreenHaptics);
 static FilesScreen sFiles(kScreenFiles);
 static AppsScreen sApps(kScreenApps, "/apps", "APPS",
-                        kScreenTests, "micropython_tests/");
-static AppsScreen sTests(kScreenTests, "/micropython_tests", "MPY TESTS");
+                        kScreenTests, "tests/");
+static AppsScreen sTests(kScreenTests, "/tests", "TESTS");
 #endif
 static LEDScreen sMatrixApps;
 #ifdef BADGE_DEV_MENU
@@ -447,6 +565,7 @@ static InputTestScreen sInputTest;
 TextInputScreen sTextInput;
 static BadgeInfoViewScreen sBadgeInfoView;
 static AboutSponsorsScreen sAboutSponsors;
+static AboutCreditsScreen sAboutCredits;
 static HelpScreen sHelp;
 static MenuOrderScreen sMenuOrder;
 static WifiScreen sWifi;
@@ -463,17 +582,29 @@ static DoomScreen sDoom;
 //   Dynamic apps:  10000 + appIdx by default. __order__ from the app
 //                  manifest, when present, replaces this. NVS user
 //                  overrides further override either default.
-// Lower-traffic informational/config tiles pin to the tail in a fixed
-// order. NVS reorder via MenuOrderScreen still overrides any of these
-// if the user wants them somewhere else.
-//   HELP           → 30000
-//   SPONSORS       → 30200
-//   BADGE CONFIG   → 30300
+// "System" tiles (settings, networking, OTA, help) all pin to the
+// tail of the menu in a fixed order so they're predictable to find
+// after scrolling past the rest of the apps. NVS reorder via
+// MenuOrderScreen still overrides any of these if the user wants
+// them somewhere else.
+//   SETTINGS  → 30000
+//   WIFI      → 30100
+//   FW UPDATE → 30200
+//   HELP      → 30300
+//   REGISTRY  → 30400  (very last — user-installable assets, browsed
+//                       infrequently, naturally lives at the bottom)
 static constexpr int16_t kCuratedOrderStride = 10;
 static constexpr int16_t kDynamicDefaultOrderBase = 10000;
-static constexpr int16_t kHelpAlwaysLastOrder           = 30000;
-static constexpr int16_t kSponsorsAlwaysLastOrder       = 30200;
-static constexpr int16_t kBadgeConfigAlwaysLastOrder    = 30300;
+// "Always-last" tail order, applied unless the user has explicitly
+// reordered an item via MenuOrderScreen. Strict ordering matches the
+// sequence below: utility / config first, then the credit roll.
+static constexpr int16_t kSettingsAlwaysLastOrder       = 30000;
+static constexpr int16_t kWifiAlwaysLastOrder           = 30100;
+static constexpr int16_t kFwUpdateAlwaysLastOrder       = 30200;
+static constexpr int16_t kHelpAlwaysLastOrder           = 30300;
+static constexpr int16_t kCommunityAppsAlwaysLastOrder  = 30400;
+static constexpr int16_t kSponsorsAlwaysLastOrder       = 30500;
+static constexpr int16_t kCreditsAlwaysLastOrder        = 30600;
 
 // Effective order = NVS override → manifest hint → fallback.
 static int16_t resolveItemOrder(const char* label, int16_t fallback) {
@@ -486,20 +617,40 @@ static int16_t resolveItemOrder(const char* label, int16_t fallback) {
 // boot and from badge.rescan_apps() at runtime. Re-points sMainMenu at
 // the freshly-populated buffer so the next render walks the new items.
 extern "C" void rebuildMainMenuFromRegistry(void) {
+  ensureMenuPools();
+  if (!sMenuItems) return;
+
+  char menuAnchorLabel[48] = {};
+  ScreenId menuAnchorTarget = kScreenNone;
+  sMainMenu.captureRebuildAnchor(menuAnchorLabel, sizeof(menuAnchorLabel),
+                                 &menuAnchorTarget);
+
   size_t cursor = 0;
   for (size_t i = 0; i < kCuratedMenuItemCount && cursor < kMaxMenuItems;
        i++) {
     GridMenuItem& slot = sMenuItems[cursor];
     slot = kCuratedMenuItems[i];
-    // Lower-traffic informational/config tiles pin to the tail unless the
-    // user has explicitly reordered them.
+    // System tiles all pin to the tail in a fixed order
+    // (SETTINGS → WIFI → FW UPDATE → HELP → COMMUNITY APPS →
+    // SPONSORS → CREDITS), unless the user has explicitly reordered
+    // any of them via MenuOrderScreen. Sponsors + Credits land at the
+    // very end so the "thank-you" tail of the menu reads as a credit
+    // roll rather than getting buried mid-grid.
     int16_t fallback;
-    if (slot.label && strcmp(slot.label, "BADGE CONFIG") == 0) {
-      fallback = kBadgeConfigAlwaysLastOrder;
+    if (slot.label && strcmp(slot.label, "CREDITS") == 0) {
+      fallback = kCreditsAlwaysLastOrder;
     } else if (slot.label && strcmp(slot.label, "SPONSORS") == 0) {
       fallback = kSponsorsAlwaysLastOrder;
+    } else if (slot.label && strcmp(slot.label, "COMMUNITY APPS") == 0) {
+      fallback = kCommunityAppsAlwaysLastOrder;
     } else if (slot.label && strcmp(slot.label, "HELP") == 0) {
       fallback = kHelpAlwaysLastOrder;
+    } else if (slot.label && strcmp(slot.label, "FW UPDATE") == 0) {
+      fallback = kFwUpdateAlwaysLastOrder;
+    } else if (slot.label && strcmp(slot.label, "WIFI") == 0) {
+      fallback = kWifiAlwaysLastOrder;
+    } else if (slot.label && strcmp(slot.label, "SETTINGS") == 0) {
+      fallback = kSettingsAlwaysLastOrder;
     } else {
       fallback = static_cast<int16_t>(kCuratedOrderStride * i);
     }
@@ -525,7 +676,28 @@ extern "C" void rebuildMainMenuFromRegistry(void) {
     // browser when that happens.
     if (app->slug && strcmp(app->slug, "crash_log") == 0) continue;
 
-    if (isCuratedDynamicSlug(app->slug)) continue;
+    // Dedupe against curated tiles. If a curated entry already
+    // launches the same /apps/<slug>/main.py (SYNTH, IR BLOCK, …),
+    // skip the AppRegistry duplicate so users don't see two icons.
+    bool isCuratedDuplicate = false;
+    for (const char* path : kCuratedPythonDuplicateEntryPaths) {
+      if (path && strcasecmp(app->entryPath, path) == 0) {
+        isCuratedDuplicate = true;
+        break;
+      }
+    }
+    if (!isCuratedDuplicate) {
+      for (size_t c = 0; c < kCuratedMenuItemCount; c++) {
+        const char* curLabel = kCuratedMenuItems[c].label;
+        if (!curLabel) continue;
+        // Title from __title__ sometimes matches grid label verbatim.
+        if (strcasecmp(curLabel, app->title) == 0) {
+          isCuratedDuplicate = true;
+          break;
+        }
+      }
+    }
+    if (isCuratedDuplicate) continue;
 
     strncpy(sDynamicLabel[i], app->title, AppRegistry::kTitleCap - 1);
     sDynamicLabel[i][AppRegistry::kTitleCap - 1] = '\0';
@@ -568,6 +740,7 @@ extern "C" void rebuildMainMenuFromRegistry(void) {
       });
 
   sMainMenu.setItems(sMenuItems, sMenuItemCount);
+  sMainMenu.applyRebuildAnchor(menuAnchorLabel, menuAnchorTarget);
   Serial.printf(
       "[apps] main menu rebuilt: %u curated + %u dynamic = %u total\n",
       static_cast<unsigned>(kCuratedMenuItemCount),
@@ -609,8 +782,6 @@ void GUIManager::begin(oled* display, Inputs* inputs) {
 #endif
   registerScreen(&sBoot);
   registerScreen(&sMainMenu);
-  registerScreen(&sReplayMenu);
-  registerScreen(&sBadgeConfigMenu);
   registerScreen(&sSchedule);
   registerScreen(&sMap);
   registerScreen(&sMapSection);
@@ -641,6 +812,7 @@ void GUIManager::begin(oled* display, Inputs* inputs) {
   registerScreen(&sStickerPicker);
   registerScreen(&sScalePicker);
   registerScreen(&sAboutSponsors);
+  registerScreen(&sAboutCredits);
   registerScreen(&sHelp);
   registerScreen(&sMenuOrder);
   registerScreen(&sWifi);
@@ -662,11 +834,25 @@ void GUIManager::begin(oled* display, Inputs* inputs) {
   // starfield (run from main.cpp setup() before GUI init) is the only
   // boot visual. Go straight to the home screen for the current state.
   pushScreen(homeScreenForBadgeState());
+
+  // Post-migration boot: surface the success panel proactively. The
+  // FW UPDATE screen's onEnter() reads the same RTC-magic signal,
+  // routes to kLayoutWelcome with the success copy, and acks both
+  // flags. We stack it on top of the home screen so the user can
+  // dismiss with any button and land back on the menu. The softer
+  // NVS-comparison path (`layoutJustChanged()` alone) still waits
+  // for the user to navigate to FW UPDATE on their own — that
+  // fires on USB reflash too and auto-popping it would be
+  // obnoxious in that case.
+  if (ota::justRebootedFromLayoutMigration()) {
+    pushScreen(kScreenUpdateFirmware);
+  }
+
   active_ = true;
   gGuiActive = true;
 
   scheduler.setServiceState("OLED", false);
-  Serial.printf("GUI: initialized (screens=%u cap=%u)\n",
+  DBG("GUI: initialized (screens=%u cap=%u)\n",
                 (unsigned)screenCount_, (unsigned)kMaxScreens);
 }
 
@@ -829,7 +1015,7 @@ void GUIManager::pushScreen(ScreenId sid) {
   if (!scr) {
     // Keep this warning — it's the only way to catch future silent-drop
     // regressions if the registration list outgrows kMaxScreens again.
-    Serial.printf("[GUI] pushScreen(id=%u) FAILED: screen not registered "
+    DBG("[GUI] pushScreen(id=%u) FAILED: screen not registered "
                   "(screenCount=%u)\n",
                   (unsigned)sid, (unsigned)screenCount_);
     return;
@@ -845,7 +1031,7 @@ void GUIManager::resetStackTo(ScreenId sid) {
   sid = resolveScreenForBadgeState(sid);
   Screen* scr = findScreen(sid);
   if (!scr) {
-    Serial.printf("[GUI] resetStackTo(id=%u) FAILED: screen not registered "
+    DBG("[GUI] resetStackTo(id=%u) FAILED: screen not registered "
                   "(screenCount=%u)\n",
                   (unsigned)sid, (unsigned)screenCount_);
     return;
@@ -879,7 +1065,7 @@ void GUIManager::popScreen() {
 }
 
 void GUIManager::popScreens(uint8_t n) {
-  Serial.printf("[GUI] popScreens(%u) entry  depth=%u  top=%u\n",
+  DBG("[GUI] popScreens(%u) entry  depth=%u  top=%u\n",
                 (unsigned)n, (unsigned)stackDepth_,
                 stackDepth_ > 0 ? (unsigned)stack_[stackDepth_ - 1] : 0u);
   if (n == 0) return;
@@ -892,7 +1078,7 @@ void GUIManager::popScreens(uint8_t n) {
     Screen* old = findScreen(popping);
     if (old) old->onExit(*this);
     stackDepth_--;
-    Serial.printf("[GUI] popScreens  popped id=%u  newDepth=%u\n",
+    DBG("[GUI] popScreens  popped id=%u  newDepth=%u\n",
                   (unsigned)popping, (unsigned)stackDepth_);
   }
   enterTransitionIn();
@@ -903,7 +1089,7 @@ void GUIManager::replaceScreen(ScreenId sid) {
   sid = resolveScreenForBadgeState(sid);
   Screen* scr = findScreen(sid);
   if (!scr) {
-    Serial.printf("[GUI] replaceScreen(id=%u) FAILED: screen not registered "
+    DBG("[GUI] replaceScreen(id=%u) FAILED: screen not registered "
                   "(screenCount=%u)\n",
                   (unsigned)sid, (unsigned)screenCount_);
     return;
@@ -968,7 +1154,7 @@ void GUIManager::registerScreen(Screen* screen) {
   // Loud warning on overflow — the historical silent-drop behavior is how
   // the Contacts menu broke when the registration list outgrew kMaxScreens.
   // If this ever fires again, bump kMaxScreens in GUI.h.
-  Serial.printf("[GUI] registerScreen: dropped screen id=%u (cap=%u)\n",
+  DBG("[GUI] registerScreen: dropped screen id=%u (cap=%u)\n",
                 screen ? (unsigned)screen->id() : 0u,
                 (unsigned)kMaxScreens);
 }
@@ -1004,7 +1190,7 @@ ScreenId GUIManager::resolveScreenForBadgeState(ScreenId sid) {
 
   const ScreenId home = homeScreenForBadgeState();
   if (sid != home) {
-    Serial.printf("[GUI] screen id=%u blocked while %s; routing to id=%u\n",
+    DBG("[GUI] screen id=%u blocked while %s; routing to id=%u\n",
                   (unsigned)sid,
                   badgeStateName(badgeState),
                   (unsigned)home);
@@ -1061,7 +1247,7 @@ void GUIManager::activate() {
   cursorY_ = 32.0f;
   sleepService.caffeine = true;
   requestRender();
-  Serial.println("GUI: activated");
+  DBG("GUI: activated\n");
 }
 
 void GUIManager::activateKeepStack() {
@@ -1069,7 +1255,7 @@ void GUIManager::activateKeepStack() {
   gGuiActive = true;
   scheduler.setServiceState("OLED", false);
   requestRender();
-  Serial.println("GUI: activated (keep stack)");
+  DBG("GUI: activated (keep stack)\n");
 }
 
 void GUIManager::deactivate() {
@@ -1080,7 +1266,7 @@ void GUIManager::deactivate() {
                                  Power::Policy::schedulerNormalDivisor,
                                  Power::Policy::schedulerLowDivisor);
   applyDisplayPolicy(DisplayPolicy::kNormal);
-  Serial.println("GUI: deactivated");
+  DBG("GUI: deactivated\n");
 }
 
 void GUIManager::checkActivation(uint32_t nowMs) {

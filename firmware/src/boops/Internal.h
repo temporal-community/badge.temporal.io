@@ -105,9 +105,7 @@ bool parseDataHeader(const uint32_t* words, size_t count,
 // Local-field accessor + receive-side stores. Used by handlers when
 // serving NEED requests and when assembling DATA frames from peer.
 const char* getLocalField(uint8_t tag);
-size_t buildLocalContactCardMsgPack(uint8_t* out, size_t cap);
 void storeReceivedField(uint8_t tag, const char* val, uint8_t len);
-void storeReceivedContactCardMsgPack(const uint8_t* data, size_t len);
 void storeBioChunk(uint8_t chunkIdx, const char* val, uint8_t len);
 
 // Early-frame stash — race workaround in beacon→exchange transition.

@@ -1,6 +1,6 @@
 // BadgeConfig.h — Compatibility shim for modular conference-badge code.
 // Maps compile-time constants from the original BadgeConfig.h to runtime
-// Config getters (NVS / settings.txt) and public hardware pin numbers.
+// Config getters (NVS / settings.txt) and CharlieDefines.h pin numbers.
 
 #pragma once
 #include <Arduino.h>
@@ -8,6 +8,7 @@
 
 #include "hardware/HardwareConfig.h"
 #include "Scheduler.h"
+#include "RepoUrls.h"
 
 // Optional WiFi credentials. The badge keeps a small list of saved
 // networks; `wifiSsid()` / `wifiPass()` always reflect slot 0 (the
@@ -26,7 +27,7 @@ static const int WIFI_TIMEOUT_MS    = 30000;
 static const int PAIRING_TIMEOUT_MS = 15000;
 static const int POLL_INTERVAL_MS   = 2000;
 
-// Pin aliases — map modular XIAO names to public badge GPIOs.
+// Pin aliases — map modular XIAO names to Charlie board GPIOs
 #define BTN_UP     BUTTON_UP
 #define BTN_DOWN   BUTTON_DOWN
 #define BTN_LEFT   BUTTON_LEFT
@@ -129,6 +130,13 @@ enum SettingIndex : uint8_t {
   // when no SSID/password is configured.
   kWifiEnabled,
 
+  // CREDITS launcher backend. 0 = run the native AboutCreditsScreen
+  // (drawXBM directly out of AboutCredits.h, no Python interpreter
+  // overhead). 1 = launch the MicroPython /apps/credits.py companion
+  // (slower per-frame but lives on the editable filesystem so the
+  // bitmap-walk code can be tweaked without reflashing). Both views
+  // render the same headshot blob — see scripts/gen_credit_xbms.py.
+  kCreditsUsePython,
 };
 
 extern const uint8_t kFontFamilyCount;
@@ -224,9 +232,9 @@ class Config {
      const char* wifiPassAt(uint8_t index) const;
      uint8_t wifiNetworkCount() const;  // # of slots with non-empty ssid
      bool wifiSlotConfigured(uint8_t index) const;
-     bool wifiConfigured() const;       // any slot has an SSID; pass may be empty for open networks
+     bool wifiConfigured() const;       // any slot has ssid+pass
      // Master WiFi enable toggle (kWifiEnabled). Returns false when the
-     // setting is off OR when no saved SSID is configured.
+     // setting is off OR when no SSID/password are configured.
      bool wifiEnabled() const;
      // UI-entered WiFi credentials, slot 0. Convenience wrapper over
      // `setWifiCredentialsAt(0, ssid, pass)`. Passing nullptr for
@@ -297,12 +305,18 @@ class Config {
      char timezone_[64] = "PST8PDT,M3.2.0,M11.1.0";
      char nametagSetting_[64] = "default";
      char otaManifestUrl_[160] = "";
-     // The release workflow generates community_apps.json and uploads it
-     // as a GitHub Release asset. Using the latest-release download URL
-     // keeps generated registry output out of git while giving badges a
-     // stable HTTPS endpoint.
-     char communityAppsUrl_[160] =
-         "https://github.com/temporal-community/badge.temporal.io/releases/latest/download/community_apps.json";
+     // The repo-root /registry/community_apps.json file is the v2
+     // Community Apps registry. The previous /registry/registry.json
+     // (v1) is kept in-tree for backwards compatibility; older firmware
+     // out in the field still hits it via its own baked default URL.
+     //
+     // Why raw.githubusercontent.com and not jsDelivr? The repo (with
+     // its MicroPython submodule + DOOM WAD + zigmoji frames) is over
+     // jsDelivr's free 50 MB per-package limit, so jsdelivr replies
+     // with a 403 "Package size exceeded" page. GitHub raw has a
+     // 60 req/hr unauthenticated rate limit but the badge only fetches
+     // once a day so this is fine.
+     char communityAppsUrl_[160] = REPO_COMMUNITY_APPS_URL;
 
      uint32_t lastFileSize_ = 0;
      uint16_t lastFileDate_ = 0;

@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../../api/TlsGate.h"
 #include "../../api/WiFiService.h"
 #include "../../infra/PsramBodySink.h"
 
@@ -58,12 +59,26 @@ const char* request(const char* method, const char* url, const char* body) {
         return setError("wifi not configured or unavailable");
     }
 
+    const bool tls = isHttps(url);
+
+    // Hold the process-wide TLS gate for the whole request when the URL
+    // is HTTPS. Python apps share the gate with C-layer callers
+    // (BadgeOTA, AssetRegistry, mp_api_http itself), so a `badge.http_get`
+    // mid-OTA-check can no longer race mbedTLS's internal heap. Plain
+    // http:// skips the gate.
+    badge::TlsSession tlsSlot("mp_api_http::request",
+                              tls ? kHttpTimeoutMs : 0);
+    if (tls && !tlsSlot.acquired()) {
+        wifiService.noteRequestFailed();
+        return setError("tls slot busy");
+    }
+
     HTTPClient http;
     WiFiClient plainClient;
     WiFiClientSecure secureClient;
-    const bool tls = isHttps(url);
     if (tls) {
         secureClient.setInsecure();
+        secureClient.setHandshakeTimeout(4);
         if (!http.begin(secureClient, url)) {
             wifiService.noteRequestFailed();
             return setError("http begin failed");
@@ -79,6 +94,9 @@ const char* request(const char* method, const char* url, const char* body) {
     http.addHeader("Accept-Encoding", "identity");
 
     int code = -1;
+    if (tls) {
+        badge::kickIdleTaskWatchdog();
+    }
     if (strcmp(method, "POST") == 0) {
         http.addHeader("Content-Type", "application/json");
         const char* payload = body ? body : "";
@@ -96,7 +114,7 @@ const char* request(const char* method, const char* url, const char* body) {
         return setError(err);
     }
 
-    BadgeMemory::PsramBodySink sink(kHttpResponseMax);
+    BadgeMemory::PsramBodySink sink(kHttpResponseMax, tls ? 4096u : 0u);
     if (!sink.ok()) {
         http.end();
         wifiService.noteRequestFailed();
@@ -110,6 +128,9 @@ const char* request(const char* method, const char* url, const char* body) {
         snprintf(err, sizeof(err), "http read failed %d (%s)", wr,
                  HTTPClient::errorToString(wr).c_str());
         return setError(err);
+    }
+    if (tls) {
+        badge::kickIdleTaskWatchdog();
     }
     http.end();
     wifiService.noteRequestOk();

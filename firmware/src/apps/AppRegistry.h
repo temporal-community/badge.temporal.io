@@ -12,8 +12,8 @@
 //   - Icon resolution: if __icon__ is a path string ending in .py, we
 //     also scan that file for `DATA = (...)` matching the layout used
 //     by AppIcons::* (12x12 packed XBM, 24 bytes total). If __icon__
-//     is missing or unparsable, GUI.cpp assigns a distinct unknown-app
-//     launcher icon.
+//     is missing or unparsable, we fall back to AppIcons::apps so the
+//     app still shows up.
 //   - All discovered apps live in PSRAM where possible — the icon byte
 //     copies are small (24 bytes each), but the registry can hold up
 //     to kMaxDynamicApps entries.

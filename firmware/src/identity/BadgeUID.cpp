@@ -16,8 +16,9 @@ uint8_t uid[UID_SIZE];
 char    uid_hex[UID_HEX_LEN + 1];
 char    badge_uuid[BADGE_UUID_LEN + 1];
 
-// RFC 4122 DNS namespace UUID. Keep stable so on-device derivation produces
-// the same UUID for a given badge MAC across firmware builds.
+// RFC 4122 DNS namespace UUID — must match _BADGE_NS in
+// registrationScanner/workflows/_shared.py so on-device derivation
+// matches the server's normalize_badge_id() output for the same input.
 static const uint8_t DNS_NS[16] = {
   0x6b, 0xa7, 0xb8, 0x10,  0x9d, 0xad,  0x11, 0xd1,
   0x80, 0xb4,  0x00, 0xc0, 0x4f, 0xd4, 0x30, 0xc8,

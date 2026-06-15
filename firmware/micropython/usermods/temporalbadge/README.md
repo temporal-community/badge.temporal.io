@@ -57,26 +57,35 @@ Prefer adding reusable UI behavior in C++ first:
 
 This keeps production C++ screens and MicroPython apps visually consistent.
 
-## Public API Documentation
+## Standard MicroPython Modules
 
-App authors should treat these as public:
+Beyond the `badge` module, the embed port provides the upstream MicroPython
+surface — users who connect via mpremote / ViperIDE / JumperIDE get a real
+REPL with:
 
-- `badge` native MicroPython module functions registered in
-  `modtemporalbadge.c`.
-- `badge_ui.py` for headers, footers, button glyph hints, rows, status boxes,
-  and other native-looking OLED helpers.
-- `badge_app.py` for app loop cleanup, crash reporting, LED override cleanup,
-  joystick threshold helpers, and score helpers.
-- `badge_kv.py` for the friendly persistent NVS wrapper.
+| Module | Notes |
+|--------|-------|
+| `machine.Pin`, `.ADC`, `.PWM`, `.Timer`, `.WDT`, `.SPI`, `.SoftI2C`, `.SoftSPI`, `.I2S`, `.UART`, `.RTC`, `.TouchPad` | Full `ports/esp32` implementation |
+| `network.WLAN`, `socket`, `ssl` | Shares WiFi with Arduino `BadgeAPI` — never re-inits `esp_wifi` |
+| `espnow.ESPNow` | Requires WiFi active (badge boots WiFi for `BadgeAPI`) |
+| `_thread` | FreeRTOS-backed; spawned threads pin to core 1 (`MP_TASK_COREID`) |
+| `select` | `poll()` / `ipoll()` for asyncio stream IO |
+| `os`, `time`, `json`, `binascii`, `math`, `cmath`, `random`, `heapq`, `uctypes`, `asyncio` | Standard library |
 
-Firmware contributors should document Python-visible changes in both:
+### Gated modules (off by default)
 
-- `firmware/initial_filesystem/docs/API_REFERENCE.md`
-- `docs/api-reference.html`
+| Flag | Module | Why gated |
+|------|--------|-----------|
+| `REPLAY_ENABLE_BLUETOOTH=1` | `bluetooth` (NimBLE) | Arduino ships pre-compiled NimBLE without private headers. Requires vendoring full NimBLE source tree. |
 
-The C/C++ files in this directory are bridge internals, not an app ABI. Keep
-new public behavior surfaced through the Python module or helper libraries
-unless there is a specific firmware-only reason to keep it native.
+### WiFi coexistence rules
+
+Arduino's `WiFiService` calls `esp_wifi_init` + `esp_wifi_start` at boot for
+`BadgeAPI` HMAC calls. MicroPython's `network.WLAN` piggybacks on the existing
+WiFi driver — the `esp_initialise_wifi()` in `network_common.c` checks whether
+WiFi is already running before attempting init. Python code can call
+`network.WLAN(network.STA_IF).status()` to read RSSI without disrupting the
+badge's connection.
 
 ## Build Checks
 
@@ -84,8 +93,9 @@ From `firmware/`:
 
 ```sh
 python3 scripts/generate_startup_files.py
-pio run -e replay2026
+pio run -e echo
+pio run -e echo-dev
 ```
 
-Run `replay2026` when validating the generic Apps menu, diagnostics, and
-MicroPython tools.
+Run `echo-dev` when validating the generic Apps menu or dev-only MicroPython
+tools. Run normal `echo` when validating attendee-facing menu placement.

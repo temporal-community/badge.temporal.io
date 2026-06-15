@@ -22,7 +22,6 @@
 #include "Internal.h"
 
 #include <Arduino.h>
-#include <ArduinoJson.h>
 #include <cstring>
 
 #include "esp_random.h"
@@ -92,7 +91,6 @@ const char* fieldShortName(uint8_t tag) {
         case FIELD_WEBSITE:       return "website";
         case FIELD_PHONE:         return "phone";
         case FIELD_BIO:           return "bio";
-        case FIELD_CONTACT_CARD:  return "card";
         default:                  return "?";
     }
 }
@@ -356,27 +354,6 @@ const char* getLocalField(uint8_t tag) {
     return reinterpret_cast<const char*>(&s_xchg.localCache) + row->offset;
 }
 
-size_t buildLocalContactCardMsgPack(uint8_t* out, size_t cap) {
-    if (!out || cap == 0) return 0;
-    if (!s_xchg.fieldsCached) {
-        BadgeInfo::getCurrent(s_xchg.localCache);
-        s_xchg.fieldsCached = true;
-    }
-
-    const BadgeInfo::Fields& f = s_xchg.localCache;
-    StaticJsonDocument<256> doc;
-    if (f.name[0])    doc["n"] = f.name;
-    if (f.title[0])   doc["t"] = f.title;
-    if (f.company[0]) doc["c"] = f.company;
-    if (f.email[0])   doc["e"] = f.email;
-    if (f.website[0]) doc["w"] = f.website;
-    const size_t len = measureMsgPack(doc);
-    if (len > 0 && len <= cap) {
-        return serializeMsgPack(doc, out, cap);
-    }
-    return 0;
-}
-
 // Decide whether a tag's value is eligible for TX based on:
 //   - non-empty local value
 //   - tag != FIELD_ATTENDEE_TYPE (permanently masked — server-set only)
@@ -429,29 +406,6 @@ void storeReceivedField(uint8_t tag, const char* val, uint8_t len) {
         case FIELD_BIO:           /* handled separately by bio-chunk path */                                     break;
         default: break;
     }
-}
-
-void storeReceivedContactCardMsgPack(const uint8_t* data, size_t len) {
-    if (!data || len == 0) return;
-    StaticJsonDocument<512> doc;
-    DeserializationError err = deserializeMsgPack(doc, data, len);
-    if (err) {
-        Serial.printf("[%s] contact card MessagePack parse failed: %s\n",
-                      TAG, err.c_str());
-        return;
-    }
-
-    auto copy = [](char* dst, size_t cap, const char* src) {
-        if (!dst || cap == 0) return;
-        if (!src) src = "";
-        strncpy(dst, src, cap - 1);
-        dst[cap - 1] = '\0';
-    };
-    copy(boopStatus.peerName,    sizeof(boopStatus.peerName),    doc["n"] | "");
-    copy(boopStatus.peerTitle,   sizeof(boopStatus.peerTitle),   doc["t"] | "");
-    copy(boopStatus.peerCompany, sizeof(boopStatus.peerCompany), doc["c"] | "");
-    copy(boopStatus.peerEmail,   sizeof(boopStatus.peerEmail),   doc["e"] | "");
-    copy(boopStatus.peerWebsite, sizeof(boopStatus.peerWebsite), doc["w"] | "");
 }
 
 // Store one bio chunk at offset chunkIdx * kBoopBioChunkBytes.  Caller
@@ -551,6 +505,8 @@ static void finishPaired() {
             pi.ticketUuid   = boopStatus.peerTicketUuid;
             pi.email        = boopStatus.peerEmail;
             pi.website      = boopStatus.peerWebsite;
+            pi.phone        = boopStatus.peerPhone;
+            pi.bio          = boopStatus.peerBio;
             recordBoopEx(boopStatus.boopType, boopStatus.peerUID, &pi);
         }
         snprintf(boopStatus.statusMsg, sizeof(boopStatus.statusMsg), "Booped!");

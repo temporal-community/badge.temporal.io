@@ -7,22 +7,19 @@ Doom runs on the Temporal Badge (ESP32-S3, 128x64 1-bit OLED, 8x8 LED matrix, 4 
 ## Build
 
 ```bash
-~/.platformio/penv/bin/pio run -e replay2026             # build
-~/.platformio/penv/bin/pio run -e replay2026 -t upload   # flash
-~/.platformio/penv/bin/pio run -e replay2026 -t compiledb # clangd
+~/.platformio/penv/bin/pio run -e echo          # build
+~/.platformio/penv/bin/pio run -e echo -t upload # flash
+~/.platformio/penv/bin/pio run -e echo -t compiledb  # clangd
 ```
 
-Environment `replay2026` includes Doom and the developer-friendly diagnostics
-that were used during final badge bring-up. Key build flags:
+Environment `echo` includes Doom. `echo-doom` is kept as a compatibility alias that extends
+`echo-dev` and enables the internal debug menu. Key build flags:
 - `-DBADGE_HAS_DOOM` — gates all doom code with `#ifdef`
 - `-DFEATURE_SOUND` — enables the I2S PDM sound module (`DG_sound_module` / `DG_music_module`)
 - `-DDOOMGENERIC_RESX=160 -DDOOMGENERIC_RESY=100` — internal render resolution (must be in `platformio.ini` build_flags, NOT just `library.json`, because sources are included via `build_src_filter` not LDF)
 - `-Ilib/doomgeneric/src` — include path for doom headers
 
-WAD file: `doom1.wad` lives on the badge's FAT filesystem at `/doom1.wad`.
-It is committed at `firmware/initial_filesystem/doom1.wad` and is included
-in the FAT filesystem image by default. Upload via
-`pio run -e replay2026 -t uploadfs`.
+WAD file: `doom1.wad` lives on the badge's FAT filesystem at `/doom1.wad`. Upload via `pio run -e echo -t uploadfs` (place a local copy in `firmware/data/`).
 
 ---
 

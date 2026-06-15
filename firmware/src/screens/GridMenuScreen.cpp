@@ -102,9 +102,52 @@ void GridMenuScreen::setItems(const GridMenuItem* items, uint8_t count) {
   items_ = items;
   count_ = count;
   visibleCacheValid_ = false;
+}
+
+void GridMenuScreen::captureRebuildAnchor(char* labelOut, size_t labelCap,
+                                          ScreenId* targetOut) const {
+  if (labelOut && labelCap > 0) labelOut[0] = '\0';
+  if (targetOut) *targetOut = kScreenNone;
+  ensureVisibleCache();
+  const GridMenuItem* item = itemAtVisibleIndex(cursor_);
+  if (!item) return;
+  if (targetOut) *targetOut = item->target;
+  if (labelOut && labelCap > 0) {
+    formatLabel(*item, labelOut, labelCap);
+  }
+}
+
+void GridMenuScreen::applyRebuildAnchor(const char* labelIn,
+                                        ScreenId targetIn) {
+  ensureVisibleCache();
+  const uint8_t n = visibleCount();
+
+  if (labelIn && labelIn[0]) {
+    for (uint8_t i = 0; i < n; i++) {
+      const GridMenuItem* item = itemAtVisibleIndex(i);
+      if (!item) continue;
+      char buf[48];
+      formatLabel(*item, buf, sizeof(buf));
+      if (std::strcmp(buf, labelIn) == 0) {
+        cursor_ = i;
+        syncScrollToSelection(false);
+        return;
+      }
+    }
+  }
+  if (targetIn != kScreenNone) {
+    for (uint8_t i = 0; i < n; i++) {
+      const GridMenuItem* item = itemAtVisibleIndex(i);
+      if (item && item->target == targetIn) {
+        cursor_ = i;
+        syncScrollToSelection(false);
+        return;
+      }
+    }
+  }
+
   cursor_ = 0;
-  topRow_ = 0;
-  scrollAnimating_ = false;
+  syncScrollToSelection(false);
 }
 
 void GridMenuScreen::onEnter(GUIManager& gui) {

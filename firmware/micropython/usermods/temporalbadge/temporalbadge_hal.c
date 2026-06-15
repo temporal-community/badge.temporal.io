@@ -205,6 +205,10 @@ int temporalbadge_hal_led_get_pixel(int x, int y) {
     return temporalbadge_runtime_led_get_pixel(x, y);
 }
 
+int temporalbadge_hal_led_snapshot(uint8_t out[64]) {
+    return temporalbadge_runtime_led_snapshot(out);
+}
+
 int temporalbadge_hal_led_show_image(const char *name) {
     return temporalbadge_runtime_led_show_image(name);
 }
@@ -396,17 +400,6 @@ const char *temporalbadge_hal_my_uuid(void) {
 
 const char *temporalbadge_hal_boops(void) {
     return temporalbadge_runtime_boops();
-}
-
-int temporalbadge_hal_contact_get(const char *key,
-                                  char *buf,
-                                  size_t buf_cap) {
-    return temporalbadge_runtime_contact_get(key, buf, buf_cap);
-}
-
-int temporalbadge_hal_contact_set(const char *key,
-                                  const char *value) {
-    return temporalbadge_runtime_contact_set(key, value);
 }
 
 #if defined(BADGE_ENABLE_MP_DEV)

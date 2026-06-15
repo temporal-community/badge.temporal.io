@@ -809,7 +809,7 @@ void SettingsScreen::handleInput(const Inputs& inputs,
     return;
   }
 
-  // Down control toggles dropdown for current group header.
+  // Down button toggles dropdown for current group header.
   if (e.downPressed) {
     const RowRef row = resolveRow(cursor_);
     if (row.groupIdx >= 0 && row.settingIdx < 0) {

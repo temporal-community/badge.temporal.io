@@ -49,6 +49,14 @@ extern "C" int temporalbadge_runtime_led_get_pixel(int x, int y)
     return badgeMatrix.getPixel((uint8_t)x, (uint8_t)y);
 }
 
+extern "C" int temporalbadge_runtime_led_snapshot(uint8_t out[64])
+{
+    if (!out)
+        return -1;
+    uint8_t (*as2d)[8] = reinterpret_cast<uint8_t (*)[8]>(out);
+    return badgeMatrix.snapshotFramebufferDisplay(as2d) ? 1 : 0;
+}
+
 extern "C" int temporalbadge_runtime_led_show_image(const char *name)
 {
     if (!name)
@@ -65,8 +73,10 @@ extern "C" int temporalbadge_runtime_led_set_frame(const uint8_t *rows, int brig
     uint8_t b = (brightness < 0)
                     ? badgeMatrix.getBrightness()
                     : (uint8_t)brightness;
-    badgeMatrix.drawMaskHardware(rows, b, 0);
-    return 1;
+    // drawMask routes through setPixel() so framebuffer_ matches what the
+    // matrix-app / led_set_frame host pushes each tick — required for
+    // screenshot() and led_get_pixel().
+    return badgeMatrix.drawMask(rows, b, 0) ? 1 : 0;
 }
 
 extern "C" int temporalbadge_runtime_led_start_animation(const char *name, int interval_ms)

@@ -1,8 +1,7 @@
-// BadgeOTA.h - Firmware OTA driven by GitHub Releases.
+// BadgeOTA.h — Firmware OTA driven by GitHub Releases.
 //
-// Polls `https://api.github.com/repos/<owner>/<repo>/releases/latest` on a
-// once-per-day cadence (state persisted in NVS namespace `badge_ota`),
-// caches the latest tag + matching asset URL, and exposes:
+// Polls REPO_RELEASES_API_URL once per day (state persisted in NVS namespace
+// `badge_ota`), caches the latest tag + matching asset URL, and exposes:
 //
 //   - `updateAvailable()` for the status-bar glyph and home-tile label.
 //   - `checkNow()` to refresh on demand from the Update screen.
@@ -14,9 +13,10 @@
 // boots on both the default `_doom` partition table and the opt-in
 // `_ver2` layout because the app is mapped into its slot at runtime
 // via the bootloader's MMU setup and uses `esp_partition_find_*` for
-// every data partition. Keep the build under the smaller `_doom`
-// app slot or compatibility breaks. The repo to query is `OTA_GITHUB_REPO`
-// (default `temporal-community/badge.temporal.io`).
+// every data partition — there are no hardcoded flash offsets. Keep
+// the build under the smaller (`_doom`, 3.84 MB) slot or the
+// compatibility breaks. Repo identity comes from `RepoUrls.h`
+// (REPO_OWNER_SLUG, overridable via platformio.ini per-fork flag).
 //
 // First-boot rollback: `markCurrentAppValidIfPending()` should be
 // called once the GUI has ticked healthily for ~30 s after a fresh
@@ -29,9 +29,7 @@
 #include <stdint.h>
 #include <time.h>
 
-#ifndef OTA_GITHUB_REPO
-#define OTA_GITHUB_REPO "temporal-community/badge.temporal.io"
-#endif
+#include "infra/RepoUrls.h"
 
 #ifndef OTA_ASSET_NAME
 #define OTA_ASSET_NAME "firmware.bin"
@@ -57,6 +55,39 @@ enum class InstallResult : uint8_t {
   kUpdateBeginFailed, // Update.begin() rejected (slot too small, etc.)
   kWriteFailed,
   kEndFailed,
+};
+
+// ── Partition table migration ─────────────────────────────────────────────
+//
+// In-place layout swap from `_doom` (6.0 MB ffat) to `_ver2`
+// (6.875 MB ffat). The firmware binary itself is layout-agnostic
+// (uses `esp_partition_find_*` for every data partition) and both
+// layouts keep `app0` at offset 0x10000, so the running app at
+// `app0` continues to boot under either partition table.
+//
+// `migrateToExpandedLayout()` rewrites the partition table sector at
+// flash offset 0x8000 with the embedded `_ver2` blob, verifies it,
+// then `ESP.restart()`s. The new boot will see an unformatted ffat
+// at the new offset; the FATFS mount path already reformats on
+// failed mount, so the badge comes up clean with the larger volume.
+//
+// Recovery: a power cut during the ~200 ms erase+write window can
+// brick the partition table. The fallback is the same as a fresh
+// USB flash — run `firmware/scripts/erase_and_flash_expanded.sh`
+// (or `erase_and_flash.sh` for the default layout). The UI shows a
+// recovery QR before asking for confirmation so the user can keep
+// the recovery URL on their phone before kicking off the migration.
+enum class MigrationResult : uint8_t {
+  kOk,                  // Partition table written + verified; reboot pending
+  kAlreadyExpanded,     // Layout is already `_ver2`; nothing to do
+  kBatteryTooLow,       // < 50 % and not on charger
+  kNotRunningFromApp0,  // Active app is in the `app1` slot — refuse
+                        // (app1 offset differs between the two layouts)
+  kEmbedMissing,        // partitions_ver2.bin not embedded in this build
+  kFlashReadFailed,     // Couldn't snapshot the old table
+  kFlashEraseFailed,    // Erase of sector @ 0x8000 failed before write
+  kFlashWriteFailed,    // Write failed; rollback attempted
+  kVerifyFailed,        // Readback didn't match; rollback attempted
 };
 
 struct InstallProgress {
@@ -90,13 +121,34 @@ void tick();
 
 // Synchronous check. Returns the parsed result; on success the
 // internal cache is updated.
+//
+// IMPORTANT: this call holds the global `badge::TlsSession` for the
+// whole GitHub-Releases HTTPS handshake + body read. Callers on the
+// Arduino main loop (Core 1) MUST use `beginCheckAsync()` instead —
+// otherwise a concurrent HTTPS owner (e.g. the registry refresh
+// worker on Core 0) will block the main loop on the gate, freezing
+// the GUI / input / IR pump. `checkNow` itself is appropriate for
+// task-context use (the async worker below, the Update screen's
+// modal blocking check, etc.).
 CheckResult checkNow(bool ignoreCooldown);
+
+// Spawn a Core-0 worker that runs `checkNow(ignoreCooldown)` off the
+// main loop. Returns false if a check is already running; true if
+// the task launched (or the spawn failed and we surfaced that as a
+// not-running state). Safe to call repeatedly — coalesces while in
+// flight. The worker pulls TLS through `badge::TlsSession`, so if
+// another HTTPS owner is mid-handshake the worker blocks on the
+// gate without holding up Core 1.
+bool beginCheckAsync(bool ignoreCooldown);
+
+// True while the background OTA check task is running.
+bool isCheckingAsync();
 
 // True iff the cached `latest_tag` is newer than `FIRMWARE_VERSION`
 // AND we have a matching asset URL on file.
 bool updateAvailable();
 
-// Cached info - empty strings when nothing is cached.
+// Cached info — empty strings when nothing is cached.
 const char* latestKnownTag();
 const char* latestKnownAssetUrl();
 size_t latestKnownAssetSize();
@@ -143,23 +195,59 @@ size_t ffatVolumeBytes();
 // Used to decide whether to surface the "Expand storage" affordance.
 bool ffatExpansionAvailable();
 
-// True when the flash uses the opt-in `_ver2` partition map. Used for
-// UI nudges only; OTA itself is layout-agnostic.
+// True when the flash uses the opt-in `_ver2` partition map (ffat @
+// 0x910000). Used for UI nudges only — OTA itself is layout-agnostic.
 bool ffatUsesExpandedPartitionLayout();
 
-// True on the default `_doom` map. The FW UPDATE screen can offer a
-// one-time USB migration path to the bigger layout.
+// True on the default `_doom` map — the FW UPDATE screen can offer a
+// one-time USB migration path to the bigger layout (see OTA-MAINTAINER).
 bool canOfferLayoutMigration();
 
 // True once after a boot whose partition layout differs from the last
 // boot recorded in NVS. Lets the FW UPDATE screen show a one-shot
-// "layout changed" panel.
+// "welcome to the expanded layout" panel. Cleared by
+// `acknowledgeLayoutChange()`.
 bool layoutJustChanged();
 void acknowledgeLayoutChange();
+
+// True once after a boot reached via `ESP.restart()` from
+// `migrateToExpandedLayout()`. Distinguishes "we just completed the
+// in-place partition swap the user confirmed" from the broader
+// `layoutJustChanged()` signal (which also fires after USB
+// reflashing a different layout). Backed by an `RTC_NOINIT_ATTR`
+// magic that survives soft-reset but clears on power-cycle: a
+// brownout mid-migration will NOT trigger this on the recovery boot.
+// Cross-checked against `esp_reset_reason() == ESP_RST_SW` so an
+// unrelated RTC artefact can't produce a false positive. Cleared
+// by `acknowledgeMigrationBoot()`. Use this to auto-navigate to a
+// success panel at boot; use `layoutJustChanged()` for the
+// passive "huh, layout changed" path when the user happens to open
+// FW UPDATE.
+bool justRebootedFromLayoutMigration();
+void acknowledgeMigrationBoot();
 
 // Reformats `ffat` and reboots. Synchronous; does NOT return on
 // success. Wipes ALL user data on `/`. Caller must have already
 // confirmed the destructive action with the user.
 void reformatFfatAndReboot();
+
+// Atomically (modulo a brief power-loss window) rewrites the
+// partition table sector at 0x8000 with the embedded `_ver2` blob,
+// then `ESP.restart()`s. Does NOT return on success. See
+// `MigrationResult` above for failure modes and recovery notes.
+// Caller MUST have confirmed the destructive action with the user
+// (this also wipes ffat because the partition moves).
+MigrationResult migrateToExpandedLayout();
+
+// True iff the firmware was built with the `_ver2` partition blob
+// embedded — i.e. `migrateToExpandedLayout()` has bytes to write.
+// Used by the UI to refuse migration on builds that didn't include
+// the embed (defensive — every production build does).
+bool migrationAssetPresent();
+
+// Cap for the embedded partition table. Mirrors the 4 KB sector
+// size at 0x8000; exposed so unit-test style code can sanity check
+// the embed without re-deriving the value.
+constexpr size_t kPartitionTableSectorBytes = 0x1000;
 
 }  // namespace ota

@@ -35,7 +35,8 @@ class DrawScreen : public Screen {
   void onResume(GUIManager& gui) override;
   void render(oled& d, GUIManager& gui) override;
   // Render the composition of any AnimDoc frame — no chrome, no cursor,
-  // no editor state. Clears the screen first. Used by the live nametag.
+  // no editor state. IMU parallax matches the draw screen's z scale but
+  // allows a larger ±px cap so the inverted nametag moves more. Clears first.
   void renderDocComposition(oled& d, draw::AnimDoc& doc, uint8_t frameIdx);
   void handleInput(const Inputs& inputs, int16_t cursorX, int16_t cursorY,
                    GUIManager& gui) override;

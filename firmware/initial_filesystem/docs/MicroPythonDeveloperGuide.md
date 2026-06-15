@@ -21,7 +21,7 @@ Python apps that control all the hardware directly.
 | Component | Spec |
 |-----------|------|
 | MCU | ESP32-S3-WROOM-1 16N8 (dual-core, 240 MHz, 8 MB PSRAM, 16 MB flash) |
-| Display | 128x64 SSD1309-compatible monochrome OLED |
+| Display | 128×64 monochrome OLED (SSD1306) |
 | LED Matrix | 8×8 red LEDs (IS31FL3731, PWM per pixel) |
 | Input | 4 d-pad buttons + analog joystick |
 | Motion | LIS2DH12 3-axis accelerometer |
@@ -121,7 +121,7 @@ raw REPL workflows (including `mpremote`) also works with the badge.
 
 JumperIDE shows the badge filesystem in a tree view. You can:
 
-- Browse `/apps/`, `/docs/`, `/lib/`, `/micropython_tests/`
+- Browse `/apps/`, `/docs/`, `/lib/`, `/tests/`
 - Open and edit files directly on the badge
 - Create new files and directories
 - Save changes with `Ctrl+S`
@@ -314,11 +314,10 @@ Reach for:
 - `read_axis()`, `read_stick_xy()`, and `read_stick_4way()` for common joystick
   threshold behavior.
 - `load_score()` and `save_score()` for best-effort local JSON score files.
-  Use `badge_kv` for scores or settings that must survive reflashing.
 
 ### Showing Up on the Main Menu
 
-In `replay2026` builds, any folder under `/apps/` with a `main.py` is
+In dev builds (`echo-dev`), any folder under `/apps/` with a `main.py` is
 automatically listed in the Apps menu. In production firmware, apps are
 registered in the native menu grid with an icon in `AppIcons.h` and a
 launcher entry in `GUI.cpp`.
@@ -329,19 +328,8 @@ firmware changes.
 
 ### Saving Data
 
-For durable app settings and scores, use the NVS-backed `badge_kv` helper.
-Values stored there survive firmware updates and filesystem reflashes:
-
-```python
-from badge_kv import kv
-
-score = kv.get("my_hi", 0)
-kv.put("my_hi", max(score, 100))
-```
-
-Apps also have full filesystem access through the standard `os` module and
-`open()`. Use files for caches, exports, or replaceable local data; factory
-flashes and `uploadfs` can wipe FATFS files:
+Apps have full filesystem access through the standard `os` module and
+`open()`:
 
 ```python
 import json
@@ -384,17 +372,8 @@ def load_state():
 | `gc` | `collect()`, `mem_free()`, `mem_alloc()` |
 | `io` | `StringIO`, `BytesIO` |
 | `micropython` | `mem_info()`, `stack_use()` |
-| `select` | `poll()` / `ipoll()` for stream-style polling |
-| `network` | `WLAN` for 2.4 GHz WiFi status and scans |
-| `socket` | ESP32/lwIP TCP and UDP sockets |
-| `asyncio` | Cooperative async tasks; keep callbacks yielding regularly |
-| `_espnow` | Low-level ESP-NOW API; public `espnow.py` wrapper is not packaged yet |
-| `machine` | Pins, ADC, PWM, timers, RTC, UART, SPI, SoftI2C, WDT, `time_pulse_us()`; hardware I2C is disabled because firmware owns the badge bus |
 | `uctypes` | C-compatible struct access |
 | `badge` | All badge hardware (auto-imported) |
-
-TLS/WebREPL, Bluetooth, and `_thread` remain gated behind firmware build flags
-while we validate them on badge hardware.
 
 ### Key Differences from CPython
 

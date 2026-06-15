@@ -19,7 +19,7 @@ struct FieldSpec {
     const char* label;
     size_t      offset;   // offset into BadgeInfo::Fields
     size_t      cap;      // sizeof(member)
-    bool        editable;
+    bool        editable; // ticket_uuid + note are read-only
 };
 
 #define FS_ROW(LABEL, MEMBER, EDIT)                                         \
@@ -32,8 +32,13 @@ constexpr FieldSpec kRows[] = {
     FS_ROW("Name",    name,         true),
     FS_ROW("Title",   title,        true),
     FS_ROW("Company", company,      true),
+    FS_ROW("Type",    attendeeType, true),
     FS_ROW("Email",   email,        true),
     FS_ROW("Web",     website,      true),
+    FS_ROW("Phone",   phone,        true),
+    FS_ROW("Bio",     bio,          true),
+    FS_ROW("UUID",    ticketUuid,   false),
+    FS_ROW("",        note,         false),
 };
 #undef FS_ROW
 
@@ -122,7 +127,8 @@ void BadgeInfoViewScreen::onItemSelect(uint8_t index, GUIManager& gui) {
     const char* current = readField(f, index);
 
     editIndex_ = index;
-    // Cap copy at the smaller of the field cap and our scratch buffer.
+    // Cap copy at the smaller of the field cap and our scratch buffer
+    // — bio is 128 bytes, all others are smaller.
     const size_t cap = kRows[index].cap < sizeof(editBuf_)
                            ? kRows[index].cap
                            : sizeof(editBuf_);

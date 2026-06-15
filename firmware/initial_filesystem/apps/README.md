@@ -141,29 +141,10 @@ ship a MicroPython app in the main menu:
    the LED matrix, and add the main-menu bitmap to `firmware/src/ui/AppIcons.h`.
 3. Add a launcher action in `firmware/src/ui/GUI.cpp` that calls
    `mpy_gui_exec_file("/apps/<app>/main.py")`.
-4. Add a `GridMenuItem` for the app in `kCuratedMenuItems`.
+4. Add a `GridMenuItem` for the app in `kBadgeMenuItems`.
 
-Most MicroPython apps do not need native curated registration: AppRegistry
-discovers `/apps/<slug>/main.py` dynamically when the app is installed. Add a
-native curated item only when the app should ship in the factory home menu or
-needs custom native launch behavior. Keep one-off diagnostics and API demos in
-the dev Apps menu instead of adding them to the normal firmware menu.
-
-## Community Apps
-
-Community-contributed apps that should be installable but not preloaded into
-the factory filesystem live under
-`community_apps/<app>/`. The release workflow generates
-`community_apps.json` from those folders, uploads it as a GitHub Release asset,
-and the badge installs apps into `/apps/<app>/` from the Community Apps screen.
-
-Current community app submissions:
-
-| App | Contributor | Description |
-|---|---|---|
-| Tardigotchi | aask42 | Hatch and care for a tiny tardigrade. |
-| Durable Snake | Alexandre Roman | Snake game with three retries. |
-| Starfield Nametag | Alexandre Roman | Animated starfield with a personalized nametag. |
+Keep one-off diagnostics and API demos in the dev Apps menu instead of adding
+them to the normal firmware menu.
 
 ## Building and Validating App Changes
 
@@ -172,13 +153,15 @@ Run these from `firmware/` before committing an app change:
 ```sh
 black initial_filesystem/apps/<app> initial_filesystem/lib/badge_app.py initial_filesystem/lib/badge_ui.py
 python3 -m py_compile initial_filesystem/apps/<app>/*.py initial_filesystem/lib/badge_app.py initial_filesystem/lib/badge_ui.py
-pio run -e replay2026
+python3 scripts/generate_startup_files.py
+pio run -e echo
 ```
 
-The PlatformIO build runs `scripts/generate_startup_files.py` and writes local
-generated files needed for builds. Do not commit `StartupFilesData.h`,
-`startup_hash_history.json`, or `firmware/build/community_apps.json`; they are
-generated output.
+The PlatformIO build also runs `scripts/generate_startup_files.py`, but running
+it manually makes the generated diff visible before the build. Commit both
+`src/micropython/StartupFilesData.h` and
+`scripts/startup_hash_history.json` when app files change. Do not edit
+`StartupFilesData.h` by hand.
 
 ### Forcing a refresh while iterating on a Python app
 
@@ -212,7 +195,7 @@ it on boot. Two coordinated knobs:
      of every matching file with the freshly-baked content, even if
      the user has edited it through JumperIDE.
 
-   Net effect: `pio run -e replay2026 -t upload` (firmware-only, ~10 s) is
+   Net effect: `pio run -e echo -t upload` (firmware-only, ~10 s) is
    enough to push new app code. **No `uploadfs` needed during iteration.**
 
 2. **Runtime marker `/dev_force_refresh.txt`** — drop the file on the badge's
@@ -237,29 +220,26 @@ Boot log:
 **REMOVE the build flag for production builds** — leaving it set bloats
 app0 and forces overwrites users have made through JumperIDE.
 
-Use `replay2026` for public release testing and app development. It includes
-the generic Apps menu, editable badge info, MicroPython development helpers,
-and diagnostic tools that are useful when building community apps:
+Use `echo-dev` when you need the generic Apps menu or internal diagnostics:
 
 ```sh
-pio run -e replay2026
-pio run -e replay2026 -t upload --upload-port /dev/cu.usbmodemXXXX
+pio run -e echo-dev
+pio run -e echo-dev -t upload --upload-port /dev/cu.usbmodemXXXX
 ```
 
-The public developer-friendly build also exposes `badge.dev("fb")` for
-framebuffer captures. To render a MicroPython app screen from the badge into a
-PNG, use:
+Dev firmware also exposes `badge.dev("fb")` for framebuffer captures. To render
+a MicroPython app screen from the badge into a PNG, use:
 
 ```sh
 python3 scripts/capture_oled_fb.py --port /dev/cu.usbmodemXXXX --screen synth-live --out /tmp/synth-live.png
 python3 scripts/capture_oled_fb.py --port /dev/cu.usbmodemXXXX --screen synth-sounds --out /tmp/synth-sounds.png
 ```
 
-Use `replay2026` builds for attendee-facing smoke tests:
+Use normal `echo` builds for attendee-facing smoke tests:
 
 ```sh
-pio run -e replay2026
-pio run -e replay2026 -t upload --upload-port /dev/cu.usbmodemXXXX
+pio run -e echo
+pio run -e echo -t upload --upload-port /dev/cu.usbmodemXXXX
 ```
 
 `black` and `py_compile` are quick host-side checks. They do not replace an
@@ -269,24 +249,22 @@ MicroPython heap behavior.
 ## Deploying
 
 ```sh
-# Flash firmware.
-pio run -e replay2026 -t upload --upload-port /dev/cu.usbmodemXXXX
+# Flash firmware + embedded startup files together
+pio run -e echo -t upload --upload-port /dev/cu.usbmodemXXXX
 
 # Upload the raw FatFS image from firmware/data/ when you need data files
-# such as apps, docs, and doom1.wad.
-pio run -e replay2026 -t uploadfs --upload-port /dev/cu.usbmodemXXXX
+# such as doom1.wad. This does not replace generated startup files.
+pio run -e echo -t uploadfs --upload-port /dev/cu.usbmodemXXXX
 ```
 
-App source is committed under `firmware/initial_filesystem/apps/`. The
-generator mirrors those files into the gitignored `firmware/data/` build
-directory, and factory images or `uploadfs` ship them on the FATFS partition.
-By default only survival files under `lib/` and `matrixApps/` are baked into
-`StartupFilesData.h`; extra app files are baked only for explicit
-`BADGE_DEV_FORCE_REFRESH` iterations. Do not commit generated startup files.
+App source is compiled into `src/micropython/StartupFilesData.h` and written to
+the FatFS partition by the firmware's startup provisioning pass. App changes are
+not saved in GitHub until the source files and generated startup files are both
+committed.
 
 ## API Quick Reference
 
-### Display (128×64 SSD1309-compatible OLED)
+### Display (128×64 SSD1306 OLED)
 
 ```python
 oled_clear()                      # clear buffer (optional: oled_clear(True) to refresh)
@@ -441,54 +419,24 @@ handle this in your app.
 - Keep display update loops at ~30-80ms intervals to balance responsiveness
   with CPU usage.
 
-## Bundled Apps
+## Example Apps
 
-These files and folders are intended to be useful examples for app authors,
-not just demos for the badge menu.
-
-| Path | Demonstrates |
+| File | Demonstrates |
 |------|-------------|
-| `hello.py` | Minimal OLED output, button polling, and timed exit |
-| `font_demo.py` | Cycling through available OLED fonts |
-| `tilt_ball.py` | IMU tilt mapped to LED matrix position |
-| `zigmoji.py` and `zigmoji/` | LED matrix animation assets |
+| `hello.py` | Display, button polling, timed exit |
+| `api_test.py` | Interactive test menu for all badge API functions |
+| `input_test.py` | All inputs: buttons, joystick, IMU |
+| `mouse_demo.py` | Mouse overlay cursor with absolute/relative modes |
 | `synth/` | Joystick synthesizer with loop recorder and loadable sounds |
-| `breaksnake/` | Folder app structure for a simple game |
-| `flappy_asteroids/` | Folder app structure for a sprite-style game |
-| `ir_block_battle/` | IR multiplayer game patterns |
-| `ir_remote/` | IR remote, scanner, and reusable IR helper code |
-
-## Diagnostics Examples
-
-Diagnostics live in `diagnostics/` so the main app menu stays focused while
-developers can still open and learn from the scripts in JumperIDE.
-
-| Path | Demonstrates |
-|------|-------------|
-| `diagnostics/api_test.py` | Interactive test menu for badge API functions |
-| `diagnostics/input_test.py` | Buttons, joystick, and IMU input inspection |
-| `diagnostics/ir_loopback_test.py` | IR send/receive loopback checks |
-| `diagnostics/ir_poll_test.py` | IR polling cadence and receive constraints |
-| `diagnostics/http_test.py` | MicroPython HTTP GET smoke test |
-| `diagnostics/gc_bench.py` | GC pause measurement benchmark |
-| `diagnostics/viperide_reinit.py` | Serial/editor reconnection helper |
-
-## MicroPython Tests
-
-The formal smoke tests live in `/micropython_tests`. They are dev-only and are
-kept out of the public app registry, but firmware developers can run them from
-the badge filesystem when validating runtime changes.
-
-| Path | Demonstrates |
-|------|-------------|
-| `/micropython_tests/testImports.py` | Module import verification |
-| `/micropython_tests/test_timers.py` | Timer scheduling behavior |
-| `/micropython_tests/test_buttons.py` | Button API behavior |
-| `/micropython_tests/test_haptics.py` | Haptics API behavior |
-| `/micropython_tests/test_imu.py` | IMU API behavior |
-| `/micropython_tests/test_ir.py` | IR API behavior |
-| `/micropython_tests/test_led.py` | LED matrix API behavior |
-| `/micropython_tests/test_oled.py` | OLED API behavior |
-| `/micropython_tests/import_block_test.py` | Blocked module import behavior |
-| `/micropython_tests/oom_test.py` | Out-of-memory behavior |
-| `/micropython_tests/syntax_error_test.py` | Syntax error reporting |
+| `tilt_ball.py` | IMU tilt → LED matrix dot position |
+| `font_demo.py` | Cycle through available OLED fonts |
+| `ir_test.py` | IR receive — display incoming NEC frames |
+| `ir_poll_test.py` | IR receive polling at 50ms for 2 minutes |
+| `gc_bench.py` | GC pause measurement benchmark |
+| `loop_test.py` | Infinite loop (test escape chord: all four face buttons) |
+| `crash_test.py` | Unhandled exception (test error display) |
+| `oom_test.py` | Out-of-memory behavior |
+| `import_block_test.py` | Verify blocked module imports |
+| `syntax_error_test.py` | Syntax error handling |
+| `testImports.py` | Module import verification |
+| `http_test.py` | Explicit MicroPython HTTP GET smoke test against a public API |

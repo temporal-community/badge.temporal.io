@@ -9,8 +9,12 @@
 #include "../hardware/Inputs.h"
 #include "../hardware/oled.h"
 #include "../ota/AssetRegistry.h"
+#include "../ota/BadgeOTA.h"
+#include "../ota/OTAHttp.h"
 #include "../ui/GUI.h"
 #include "../ui/OLEDLayout.h"
+
+extern "C" void rebuildMainMenuFromRegistry(void);
 
 namespace {
 
@@ -60,11 +64,27 @@ void AssetLibraryScreen::refreshStatusCache() {
 }
 
 void AssetLibraryScreen::doRefresh(bool ignoreCooldown) {
+  if (!wifiService.isConnected()) return;
+
+  if (ota::registry::isInstalling()) return;
+
+  if (ota::isCheckingAsync()) return;
+
+  // Coalesce: rapid back-to-back kicks (per-frame onUpdate handlers
+  // on a slow GUI tick, double-tap X, onEnter + immediate X) fire
+  // through the registry's compare-exchange as no-ops, but each one
+  // still costs a Serial probe + a render frame. 5 s is well above
+  // one full HTTPS handshake + parse on a healthy link (~3 s
+  // observed) so a manual X-press retry stays responsive.
+  const uint32_t now = millis();
+  if (lastRefreshKickMs_ != 0 &&
+      static_cast<uint32_t>(now - lastRefreshKickMs_) <
+          kRefreshKickMinIntervalMs) {
+    return;
+  }
+
   // Kick off the registry fetch on a Core 0 task so the GUI loop
-  // keeps ticking. The registry/HTTP layer will connect through saved
-  // WiFi slots if the radio is currently down, so late-arriving
-  // hotspots do not require a manual trip through the WiFi screen.
-  // needsRender() returns true while isRefreshing()
+  // keeps ticking. needsRender() returns true while isRefreshing()
   // so the placeholder row animates / re-renders on every frame; the
   // refreshing_ flag mirrors the registry state for formatItem.
   if (!ota::registry::beginRefreshAsync(ignoreCooldown)) {
@@ -73,6 +93,7 @@ void AssetLibraryScreen::doRefresh(bool ignoreCooldown) {
     return;
   }
   refreshing_ = true;
+  lastRefreshKickMs_ = now;
 }
 
 void AssetLibraryScreen::onUpdate(GUIManager& /*gui*/) {
@@ -89,16 +110,25 @@ void AssetLibraryScreen::onUpdate(GUIManager& /*gui*/) {
   }
 }
 
-void AssetLibraryScreen::onEnter(GUIManager& gui) {
-  ListMenuScreen::onEnter(gui);
+void AssetLibraryScreen::reloadFromRegistry(GUIManager& gui) {
   cachedCount_ = static_cast<uint8_t>(ota::registry::count());
   refreshStatusCache();
+  gui.requestRender();
+}
+
+void AssetLibraryScreen::onResume(GUIManager& gui) {
+  reloadFromRegistry(gui);
+}
+
+void AssetLibraryScreen::onEnter(GUIManager& gui) {
+  ListMenuScreen::onEnter(gui);
+  reloadFromRegistry(gui);
 
   // If the registry is empty whenever we land here, force-fetch (ignore
   // cooldown). Without ignoreCooldown a stale `last_epoch` from a prior
   // failed parse would leave the list permanently empty for 24h. Once
   // we have any assets cached, normal cooldown resumes via tick().
-  if (cachedCount_ == 0) {
+  if (cachedCount_ == 0 && wifiService.isConnected()) {
     doRefresh(/*ignoreCooldown=*/true);
   }
 
@@ -151,13 +181,13 @@ void AssetLibraryScreen::formatItem(uint8_t index, char* buf,
     if (refreshing_) {
       std::snprintf(buf, bufSize, "Refreshing...");
     } else if (!wifiService.isConnected()) {
-      std::snprintf(buf, bufSize, "Refresh to connect");
+      std::snprintf(buf, bufSize, "No WiFi - press X");
     } else {
       const char* err = ota::registry::lastErrorMessage();
       if (err && err[0]) {
         std::snprintf(buf, bufSize, "Empty: %s", err);
       } else {
-        std::snprintf(buf, bufSize, "Empty - refresh");
+        std::snprintf(buf, bufSize, "Empty - press X");
       }
     }
     return;
@@ -287,6 +317,22 @@ void AssetLibraryScreen::onItemSelect(uint8_t index, GUIManager& gui) {
       doRefresh(/*ignoreCooldown=*/true);
       return;
     }
+    // Pull a fresh registry before batch install so Download all sees
+    // the full asset list (not a truncated boot-time parse) and every
+    // app bundle has its complete file table.
+    if (wifiService.isConnected()) {
+      while (ota::registry::isRefreshing()) {
+        delay(20);
+        yield();
+      }
+      (void)ota::registry::refresh(true);
+      reloadFromRegistry(gui);
+    }
+    if (pendingCount_ == 0) {
+      gui.requestRender();
+      return;
+    }
+
     BatchUiCtx ctx{};
     ctx.d = &gui.oledDisplay();
     ctx.gui = &gui;
@@ -295,7 +341,8 @@ void AssetLibraryScreen::onItemSelect(uint8_t index, GUIManager& gui) {
     ctx.totalInBatch = pendingCount_;
     renderBatchProgress(ctx);
     ota::registry::installAll(&batchHeadlineCb, &batchProgressCb, &ctx);
-    refreshStatusCache();
+    rebuildMainMenuFromRegistry();
+    reloadFromRegistry(gui);
     return;
   }
   --index;  // shift past synthetic row
@@ -503,14 +550,20 @@ void AssetDetailScreen::runInstall(GUIManager& gui) {
       ota::registry::install(*sActiveAsset, &AssetDetailScreen::progressCb,
                              this);
   if (ok) {
-    phase_ = Phase::kDone;
+    rebuildMainMenuFromRegistry();
+    // Return to the library list with a fresh [*] row; main-menu icons
+    // were rebuilt above via AppRegistry::rescan().
+    gui.popScreen();
   } else {
     phase_ = Phase::kError;
+    gui.requestRender();
   }
 }
 
-void AssetDetailScreen::runRemove(GUIManager& /*gui*/) {
+void AssetDetailScreen::runRemove(GUIManager& gui) {
   if (!sActiveAsset) return;
   ota::registry::remove(*sActiveAsset);
   phase_ = Phase::kIdle;
+  rebuildMainMenuFromRegistry();
+  gui.popScreen();
 }

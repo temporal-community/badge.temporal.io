@@ -1,10 +1,14 @@
 #pragma once
 
-// Hardware target selector for the public Replay 2026 Badge firmware.
-// Set via build_flags in platformio.ini: -DHARDWARE_ECHO
+// Hardware target selector.
+// Set via build_flags in platformio.ini: -DHARDWARE_DELTA or -DHARDWARE_CHARLIE
 
-#if defined(HARDWARE_ECHO)
+#if defined(HARDWARE_DELTA)
+  #include "DeltaDefines.h"
+#elif defined(HARDWARE_CHARLIE)
+  #include "CharlieDefines.h"
+#elif defined(HARDWARE_ECHO)
   #include "EchoDefines.h"
 #else
-  #error "No hardware target defined. Add -DHARDWARE_ECHO to platformio.ini build_flags."
+  #error "No hardware target defined. Add -DHARDWARE_DELTA, -DHARDWARE_CHARLIE, or -DHARDWARE_ECHO to platformio.ini build_flags."
 #endif

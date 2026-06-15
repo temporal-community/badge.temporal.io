@@ -107,7 +107,13 @@ void WifiScreen::onResume(GUIManager& gui) {
     // trap the user in an inescapable keyboard loop.
     // `onTextSubmit` infers the right intent from `pendingSsid_`
     // being non-empty, so it doesn't need pendingInput_ here.
-    pushPasswordForPendingSsid(gui);
+    pendingInput_ = PendingInput::kNone;
+    char title[40];
+    snprintf(title, sizeof(title), "Pwd for %.20s", pendingSsid_);
+    inputBuf_[0] = '\0';
+    sTextInput.configure(title, inputBuf_, sizeof(inputBuf_),
+                         &wifiTextSubmitTrampoline, this);
+    gui.pushScreen(kScreenTextInput);
   } else if (pendingSsid_[0] != '\0' &&
              pendingInput_ == PendingInput::kNone) {
     // The user cancelled the password keyboard mid-flow. Drop the
@@ -119,24 +125,6 @@ void WifiScreen::onResume(GUIManager& gui) {
 
 void WifiScreen::rebuildRows() {
   rowCount_ = 0;
-  {
-    Row& r = rows_[rowCount_++];
-    r.kind = RowKind::kSearchNetworks;
-    r.slot = 0;
-    r.action = Action::kConnect;
-  }
-  if (badgeConfig.wifiNetworkCount() < Config::kMaxWifiNetworks) {
-    Row& r = rows_[rowCount_++];
-    r.kind = RowKind::kAddNetwork;
-    r.slot = 0;
-    r.action = Action::kConnect;
-  }
-  for (uint8_t i = 0; i < scanCount_ && rowCount_ < kMaxRows; ++i) {
-    Row& r = rows_[rowCount_++];
-    r.kind = RowKind::kScanResult;
-    r.slot = i;
-    r.action = Action::kConnect;
-  }
   for (uint8_t line = 0; line < kDiagnosticRowCount && rowCount_ < kMaxRows;
        ++line) {
     Row& dr = rows_[rowCount_++];
@@ -201,6 +189,13 @@ void WifiScreen::rebuildRows() {
     }
   }
   // Trailing utility rows.
+  if (rowCount_ < kMaxRows && badgeConfig.wifiNetworkCount() <
+                                  Config::kMaxWifiNetworks) {
+    Row& r = rows_[rowCount_++];
+    r.kind = RowKind::kAddNetwork;
+    r.slot = 0;
+    r.action = Action::kConnect;
+  }
   if (rowCount_ < kMaxRows && badgeConfig.wifiNetworkCount() > 0) {
     Row& r = rows_[rowCount_++];
     r.kind = RowKind::kConnectNow;
@@ -227,33 +222,11 @@ void WifiScreen::pushSsidEditor(GUIManager& gui) {
   gui.pushScreen(kScreenTextInput);
 }
 
-void WifiScreen::pushPasswordForPendingSsid(GUIManager& gui) {
-  pendingInput_ = PendingInput::kNone;
-  char title[40];
-  snprintf(title, sizeof(title), "Pwd for %.20s", pendingSsid_);
-  inputBuf_[0] = '\0';
-  sTextInput.configure(title, inputBuf_, sizeof(inputBuf_),
-                       &wifiTextSubmitTrampoline, this);
-  gui.pushScreen(kScreenTextInput);
-}
-
 void WifiScreen::pushPasswordEditor(GUIManager& gui, const char* title) {
   inputBuf_[0] = '\0';
   sTextInput.configure(title, inputBuf_, sizeof(inputBuf_),
                        &wifiTextSubmitTrampoline, this);
   gui.pushScreen(kScreenTextInput);
-}
-
-void WifiScreen::focusSavedSlot(uint8_t slot) {
-  rebuildRows();
-  for (uint8_t i = 0; i < rowCount_; ++i) {
-    if (rows_[i].kind == RowKind::kSlot && rows_[i].slot == slot) {
-      cursor_ = i;
-      clampCursor();
-      return;
-    }
-  }
-  clampCursor();
 }
 
 void WifiScreen::onTextSubmit(const char* text) {
@@ -280,7 +253,7 @@ void WifiScreen::onTextSubmit(const char* text) {
       pendingSsid_[0] = '\0';
       pendingInput_ = PendingInput::kNone;
       if (slot >= 0) {
-        focusSavedSlot(static_cast<uint8_t>(slot));
+        cursor_ = static_cast<uint8_t>(slot) + 1 + kDiagnosticRowCount;
       }
       break;
     }
@@ -311,77 +284,11 @@ void WifiScreen::onTextSubmit(const char* text) {
         const int8_t slot = badgeConfig.addWifiNetwork(pendingSsid_, text);
         pendingSsid_[0] = '\0';
         if (slot >= 0) {
-          focusSavedSlot(static_cast<uint8_t>(slot));
+          cursor_ = static_cast<uint8_t>(slot) + 1 + kDiagnosticRowCount;
         }
       }
       break;
   }
-}
-
-void WifiScreen::runScan(GUIManager& gui) {
-  oled& d = gui.oledDisplay();
-  d.clearBuffer();
-  OLEDLayout::drawStatusHeader(d, "WIFI SEARCH");
-  d.setFontPreset(FONT_TINY);
-  d.drawStr(2, 24, "Searching nearby");
-  d.drawStr(2, 33, "access points...");
-  OLEDLayout::drawBusySpinner(d, 64, 46,
-                              static_cast<uint8_t>((millis() / 80) & 7));
-  OLEDLayout::drawNavFooter(d, "Please wait");
-  d.sendBuffer();
-
-  scanCount_ = 0;
-  scanRan_ = true;
-  scanMessage_[0] = '\0';
-
-  if (!wifiService.isConnected()) {
-    WiFi.mode(WIFI_STA);
-    delay(50);
-  }
-  const int found = WiFi.scanNetworks(/*async=*/false,
-                                      /*hidden=*/false,
-                                      /*passive=*/false,
-                                      /*max_ms_per_chan=*/250);
-  if (found <= 0) {
-    snprintf(scanMessage_, sizeof(scanMessage_), "No networks found");
-    WiFi.scanDelete();
-    rebuildRows();
-    clampCursor();
-    gui.requestRender();
-    return;
-  }
-
-  for (int i = 0; i < found && scanCount_ < kMaxScanResults; ++i) {
-    const String ssid = WiFi.SSID(i);
-    if (ssid.length() == 0) continue;
-    bool duplicate = false;
-    for (uint8_t j = 0; j < scanCount_; ++j) {
-      if (strncmp(scanResults_[j].ssid, ssid.c_str(),
-                  sizeof(scanResults_[j].ssid)) == 0) {
-        duplicate = true;
-        if (WiFi.RSSI(i) > scanResults_[j].rssi) {
-          scanResults_[j].rssi = static_cast<int8_t>(WiFi.RSSI(i));
-        }
-        break;
-      }
-    }
-    if (duplicate) continue;
-    ScanResult& out = scanResults_[scanCount_++];
-    snprintf(out.ssid, sizeof(out.ssid), "%s", ssid.c_str());
-    out.rssi = static_cast<int8_t>(WiFi.RSSI(i));
-    out.open = WiFi.encryptionType(i) == WIFI_AUTH_OPEN;
-  }
-  WiFi.scanDelete();
-  if (scanCount_ == 0) {
-    snprintf(scanMessage_, sizeof(scanMessage_), "No named networks");
-  } else {
-    snprintf(scanMessage_, sizeof(scanMessage_), "%u found",
-             static_cast<unsigned>(scanCount_));
-  }
-  rebuildRows();
-  cursor_ = scanCount_ > 0 ? 1 : 0;
-  clampCursor();
-  gui.requestRender();
 }
 
 bool WifiScreen::tryConnect(GUIManager& gui) {
@@ -429,72 +336,60 @@ bool WifiScreen::overlayActive() const {
 }
 
 void WifiScreen::drawConnectOverlay(oled& d) {
-  // Centered modal, ~118 × 38, leaves the header pill visible above
-  // and the footer rule below.
+  // Centered modal — same geometry as before; chrome now delegated to
+  // drawModalChrome so the title-strip, wipe, and frame are consistent
+  // with every other modal on the badge.
   constexpr int kBoxW = 118;
   constexpr int kBoxH = 38;
   constexpr int kBoxX = (OLEDLayout::kScreenW - kBoxW) / 2;
   constexpr int kBoxY = 14;
 
-  // Knockout fill so the underlying list rows don't bleed through.
-  d.setDrawColor(0);
-  d.drawBox(kBoxX, kBoxY, kBoxW, kBoxH);
-  d.setDrawColor(1);
-  d.drawRFrame(kBoxX, kBoxY, kBoxW, kBoxH, 2);
-
-  const auto phase = wifiService.phase();
   const char* ssid = wifiService.phaseSsid();
-  const char* status = wifiService.phaseStatusText();
-
-  // Title bar: inverted strip with "WiFi · <SSID>".
-  constexpr int kStripH = 9;
-  d.drawBox(kBoxX, kBoxY, kBoxW, kStripH);
-  d.setDrawColor(0);
-  d.setFont(u8g2_font_5x7_tf);
   char title[40];
   if (ssid && ssid[0]) {
     std::snprintf(title, sizeof(title), "WiFi  %.18s", ssid);
   } else {
     std::snprintf(title, sizeof(title), "WiFi");
   }
-  d.drawStr(kBoxX + 4, kBoxY + 7, title);
-  d.setDrawColor(1);
 
-  // Phase line: bold-ish (5x8 default font) heading.
+  const auto mc = OLEDLayout::drawModalChrome(
+      d, kBoxX, kBoxY, kBoxW, kBoxH, title, nullptr, /*scrollStartMs=*/0);
+
+  const auto phase  = wifiService.phase();
+  const char* status = wifiService.phaseStatusText();
+
+  // Phase label — slightly larger font so it reads at a glance.
   d.setFont(u8g2_font_6x10_tf);
-  const char* label = phaseLabel(phase);
-  d.drawStr(kBoxX + 4, kBoxY + kStripH + 10, label);
+  d.setDrawColor(1);
+  d.drawStr(mc.interiorX + 4, mc.bodyTopY + 8, phaseLabel(phase));
 
-  // Spinner glyph at the right edge of the phase line while the
-  // attempt is still in flight; replaced by a check / x mark on
-  // terminal phases.
+  // Status icon at the right edge of the phase line.
   if (phase == WiFiService::Phase::kStarting ||
       phase == WiFiService::Phase::kAttempting ||
       phase == WiFiService::Phase::kAuthenticating) {
     OLEDLayout::drawBusySpinner(d, kBoxX + kBoxW - 9,
-                                kBoxY + kStripH + 6, millis() / 125);
+                                mc.bodyTopY + 4, millis() / 125);
   } else if (phase == WiFiService::Phase::kConnected) {
-    // Tiny check: two diagonal strokes.
     const int cx = kBoxX + kBoxW - 12;
-    const int cy = kBoxY + kStripH + 6;
+    const int cy = mc.bodyTopY + 4;
     d.drawLine(cx, cy + 2, cx + 2, cy + 4);
     d.drawLine(cx + 2, cy + 4, cx + 6, cy);
   } else if (phase == WiFiService::Phase::kFailed) {
     const int cx = kBoxX + kBoxW - 11;
-    const int cy = kBoxY + kStripH + 2;
+    const int cy = mc.bodyTopY + 2;
     d.drawLine(cx, cy, cx + 5, cy + 5);
     d.drawLine(cx + 5, cy, cx, cy + 5);
   }
 
-  // Status text — single line, fit-to-width so long IPs don't bleed
-  // past the frame.
+  // Status text — single line at the bottom of the body; truncate to
+  // the interior width so a long IP never bleeds past the frame.
   d.setFont(u8g2_font_5x7_tf);
   char detail[64] = {};
   std::snprintf(detail, sizeof(detail), "%s",
                 status && status[0] ? status : "");
   if (detail[0]) {
     OLEDLayout::fitText(d, detail, sizeof(detail), kBoxW - 8);
-    d.drawStr(kBoxX + 4, kBoxY + kBoxH - 5, detail);
+    d.drawStr(mc.interiorX + 4, mc.bodyBotY - 3, detail);
   }
 }
 
@@ -523,10 +418,8 @@ void WifiScreen::render(oled& d, GUIManager& /*gui*/) {
     const uint8_t y = kContentY + i * kRowHeight;
     const Row& r = rows_[idx];
     const bool selected = (idx == cursor_);
-    const bool actionButton = r.kind == RowKind::kSearchNetworks ||
-                              r.kind == RowKind::kAddNetwork;
 
-    if (selected && !actionButton) {
+    if (selected) {
       OLEDLayout::drawSelectedRow(d, y, kRowHeight, /*x=*/0, /*w=*/123);
     }
     d.setDrawColor(selected ? 0 : 1);
@@ -578,40 +471,6 @@ void WifiScreen::render(oled& d, GUIManager& /*gui*/) {
         OLEDLayout::fitText(d, valBuf, sizeof(valBuf),
                             kValueRightX - kDiagValX + 4);
         d.drawStr(kDiagValX, baseline, valBuf);
-        break;
-      }
-      case RowKind::kSearchNetworks: {
-        if (selected) {
-          d.setDrawColor(1);
-          d.drawRBox(2, y + 1, 121, kRowHeight - 1, 2);
-          d.setDrawColor(0);
-        } else {
-          d.setDrawColor(1);
-          d.drawRFrame(2, y + 1, 121, kRowHeight - 1, 2);
-        }
-        d.drawStr(7, baseline, "Search Networks");
-        if (scanMessage_[0]) {
-          char msg[sizeof(scanMessage_)];
-          snprintf(msg, sizeof(msg), "%s", scanMessage_);
-          OLEDLayout::fitText(d, msg, sizeof(msg), 40);
-          const int mw = d.getStrWidth(msg);
-          d.drawStr(119 - mw, baseline, msg);
-        }
-        break;
-      }
-      case RowKind::kScanResult: {
-        const ScanResult& sr = scanResults_[r.slot];
-        char ssid[28];
-        snprintf(ssid, sizeof(ssid), "%.24s", sr.ssid);
-        d.drawStr(kHeaderIndentX, baseline, ssid);
-        char meta[16];
-        if (sr.open) {
-          snprintf(meta, sizeof(meta), "open");
-        } else {
-          snprintf(meta, sizeof(meta), "%d", static_cast<int>(sr.rssi));
-        }
-        const int mw = d.getStrWidth(meta);
-        d.drawStr(kValueRightX - mw, baseline, meta);
         break;
       }
       case RowKind::kEnableToggle: {
@@ -679,20 +538,7 @@ void WifiScreen::render(oled& d, GUIManager& /*gui*/) {
         break;
       }
       case RowKind::kAddNetwork:
-        if (selected) {
-          d.setDrawColor(1);
-          d.drawRBox(2, y + 1, 121, kRowHeight - 1, 2);
-          d.setDrawColor(0);
-        } else {
-          d.setDrawColor(1);
-          d.drawRFrame(2, y + 1, 121, kRowHeight - 1, 2);
-        }
-        d.drawStr(7, baseline, "Manual Setup");
-        {
-          const char* hint = "hidden";
-          const int hw = d.getStrWidth(hint);
-          d.drawStr(119 - hw, baseline, hint);
-        }
+        d.drawStr(kHeaderIndentX, baseline, "+ Add Network");
         break;
       case RowKind::kConnectNow: {
         if (online) {
@@ -733,16 +579,6 @@ void WifiScreen::render(oled& d, GUIManager& /*gui*/) {
       action = "";
       break;
     }
-    case RowKind::kSearchNetworks:
-      footer = scanRan_ ? "Search again" : "Find nearby networks";
-      action = "search";
-      break;
-    case RowKind::kScanResult:
-      footer = scanResults_[cur.slot].open
-                   ? "Save open network"
-                   : "Save network password";
-      action = "select";
-      break;
     case RowKind::kEnableToggle:
       footer = (badgeConfig.get(kWifiEnabled) != 0)
                    ? "Auto-connect on boot is on"
@@ -775,7 +611,7 @@ void WifiScreen::render(oled& d, GUIManager& /*gui*/) {
               : "go";
       break;
     case RowKind::kAddNetwork:
-      footer = "Type hidden network name";
+      footer = "Add a saved network";
       action = "go";
       break;
     case RowKind::kConnectNow:
@@ -825,25 +661,6 @@ void WifiScreen::handleInput(const Inputs& inputs, int16_t /*cx*/,
     switch (r.kind) {
       case RowKind::kDiagnostics:
         return;
-      case RowKind::kSearchNetworks:
-        runScan(gui);
-        return;
-      case RowKind::kScanResult: {
-        if (r.slot >= scanCount_) return;
-        const ScanResult& sr = scanResults_[r.slot];
-        snprintf(pendingSsid_, sizeof(pendingSsid_), "%s", sr.ssid);
-        if (sr.open) {
-          const int8_t slot = badgeConfig.addWifiNetwork(pendingSsid_, "");
-          pendingSsid_[0] = '\0';
-          if (slot >= 0) {
-            focusSavedSlot(static_cast<uint8_t>(slot));
-            tryConnectToSlot(gui, static_cast<uint8_t>(slot));
-          }
-        } else {
-          pushPasswordForPendingSsid(gui);
-        }
-        return;
-      }
       case RowKind::kEnableToggle: {
         const int32_t now = badgeConfig.get(kWifiEnabled);
         badgeConfig.set(kWifiEnabled, now != 0 ? 0 : 1);
@@ -853,7 +670,7 @@ void WifiScreen::handleInput(const Inputs& inputs, int16_t /*cx*/,
       }
       case RowKind::kSlot: {
         if (!badgeConfig.wifiSlotConfigured(r.slot)) {
-          // Empty slot acts like "Manual Setup" at this position.
+          // Empty slot acts like "Add Network" at this position.
           pushSsidEditor(gui);
           return;
         }

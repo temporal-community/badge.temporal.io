@@ -24,4 +24,11 @@ MP_REGISTER_ROOT_POINTER(struct _machine_timer_obj_t *machine_timer_obj_head);
 // Host QSTR cpp can resolve GPIO_PIN_COUNT differently than the firmware SDK; use a literal.
 MP_REGISTER_ROOT_POINTER(mp_obj_t machine_pin_irq_handler[49]);
 
+struct _esp_espnow_obj_t;
+MP_REGISTER_ROOT_POINTER(struct _esp_espnow_obj_t *espnow_singleton);
+
+struct _mp_bluetooth_nimble_root_pointers_t;
+MP_REGISTER_ROOT_POINTER(struct _mp_bluetooth_nimble_root_pointers_t *bluetooth_nimble_root_pointers);
+MP_REGISTER_ROOT_POINTER(mp_obj_t bluetooth);
+
 #endif

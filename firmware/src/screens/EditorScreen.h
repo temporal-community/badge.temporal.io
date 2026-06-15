@@ -5,8 +5,8 @@
 
 // ─── EditorScreen ──────────────────────────────────────────────────────────
 //
-// Inline text editor based on the eKilo data model (antirez/kilo), adapted for
-// the badge:
+// Inline text editor based on the eKilo data model (antirez/kilo via the
+// Architeuthis-Flux/JumperlOS port). Adapted for the badge:
 //   - Display is U8G2 128x64 mono with FONT_TINY (~21 cols × 6 rows).
 //   - Input is dpad + joystick + A/B/X/Y, NOT a terminal stream.
 //   - Storage is PSRAM-backed via BadgeMemory::allocPreferPsram, no

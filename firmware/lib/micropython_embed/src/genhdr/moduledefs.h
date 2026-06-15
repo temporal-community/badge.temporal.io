@@ -32,19 +32,6 @@ extern const struct _mp_obj_module_t mp_module_machine;
 #undef MODULE_DEF_MACHINE
 #define MODULE_DEF_MACHINE { MP_ROM_QSTR(MP_QSTR_machine), MP_ROM_PTR(&mp_module_machine) },
 
-extern const struct _mp_obj_module_t mp_module_network;
-#undef MODULE_DEF_NETWORK
-#define MODULE_DEF_NETWORK { MP_ROM_QSTR(MP_QSTR_network), MP_ROM_PTR(&mp_module_network) },
-
-#if MICROPY_PY_SOCKET
-extern const struct _mp_obj_module_t mp_module_socket;
-#undef MODULE_DEF_SOCKET
-#define MODULE_DEF_SOCKET { MP_ROM_QSTR(MP_QSTR_socket), MP_ROM_PTR(&mp_module_socket) },
-#else
-#undef MODULE_DEF_SOCKET
-#define MODULE_DEF_SOCKET
-#endif
-
 extern const struct _mp_obj_module_t mp_module_os;
 #undef MODULE_DEF_OS
 #define MODULE_DEF_OS { MP_ROM_QSTR(MP_QSTR_os), MP_ROM_PTR(&mp_module_os) },
@@ -52,6 +39,14 @@ extern const struct _mp_obj_module_t mp_module_os;
 extern const struct _mp_obj_module_t mp_module_random;
 #undef MODULE_DEF_RANDOM
 #define MODULE_DEF_RANDOM { MP_ROM_QSTR(MP_QSTR_random), MP_ROM_PTR(&mp_module_random) },
+
+extern const struct _mp_obj_module_t mp_module_select;
+#undef MODULE_DEF_SELECT
+#define MODULE_DEF_SELECT { MP_ROM_QSTR(MP_QSTR_select), MP_ROM_PTR(&mp_module_select) },
+
+extern const struct _mp_obj_module_t mp_module_socket;
+#undef MODULE_DEF_SOCKET
+#define MODULE_DEF_SOCKET { MP_ROM_QSTR(MP_QSTR_socket), MP_ROM_PTR(&mp_module_socket) },
 
 extern const struct _mp_obj_module_t mp_module_struct;
 #undef MODULE_DEF_STRUCT
@@ -65,18 +60,13 @@ extern const struct _mp_obj_module_t mp_module___main__;
 #undef MODULE_DEF___MAIN__
 #define MODULE_DEF___MAIN__ { MP_ROM_QSTR(MP_QSTR___main__), MP_ROM_PTR(&mp_module___main__) },
 
-extern const struct _mp_obj_module_t temporalbadge_user_cmodule;
-#undef MODULE_DEF_BADGE
-#define MODULE_DEF_BADGE { MP_ROM_QSTR(MP_QSTR_badge), MP_ROM_PTR(&temporalbadge_user_cmodule) },
-
-#if MICROPY_PY_ESPNOW
 extern const struct _mp_obj_module_t mp_module_espnow;
 #undef MODULE_DEF__ESPNOW
 #define MODULE_DEF__ESPNOW { MP_ROM_QSTR(MP_QSTR__espnow), MP_ROM_PTR(&mp_module_espnow) },
-#else
-#undef MODULE_DEF__ESPNOW
-#define MODULE_DEF__ESPNOW
-#endif
+
+extern const struct _mp_obj_module_t temporalbadge_user_cmodule;
+#undef MODULE_DEF_BADGE
+#define MODULE_DEF_BADGE { MP_ROM_QSTR(MP_QSTR_badge), MP_ROM_PTR(&temporalbadge_user_cmodule) },
 
 extern const struct _mp_obj_module_t mp_module_builtins;
 #undef MODULE_DEF_BUILTINS
@@ -98,9 +88,17 @@ extern const struct _mp_obj_module_t mp_module_micropython;
 #undef MODULE_DEF_MICROPYTHON
 #define MODULE_DEF_MICROPYTHON { MP_ROM_QSTR(MP_QSTR_micropython), MP_ROM_PTR(&mp_module_micropython) },
 
+extern const struct _mp_obj_module_t mp_module_network;
+#undef MODULE_DEF_NETWORK
+#define MODULE_DEF_NETWORK { MP_ROM_QSTR(MP_QSTR_network), MP_ROM_PTR(&mp_module_network) },
+
 extern const struct _mp_obj_module_t mp_module_sys;
 #undef MODULE_DEF_SYS
 #define MODULE_DEF_SYS { MP_ROM_QSTR(MP_QSTR_sys), MP_ROM_PTR(&mp_module_sys) },
+
+extern const struct _mp_obj_module_t mp_module_tls;
+#undef MODULE_DEF_TLS
+#define MODULE_DEF_TLS { MP_ROM_QSTR(MP_QSTR_tls), MP_ROM_PTR(&mp_module_tls) },
 
 extern const struct _mp_obj_module_t mp_module_uctypes;
 #undef MODULE_DEF_UCTYPES
@@ -112,16 +110,18 @@ extern const struct _mp_obj_module_t mp_module_vfs;
 
 
 #define MICROPY_REGISTERED_MODULES \
-    MODULE_DEF__ESPNOW \
     MODULE_DEF_BADGE \
     MODULE_DEF_BUILTINS \
     MODULE_DEF_CMATH \
     MODULE_DEF_GC \
     MODULE_DEF_MATH \
     MODULE_DEF_MICROPYTHON \
+    MODULE_DEF_NETWORK \
     MODULE_DEF_SYS \
+    MODULE_DEF_TLS \
     MODULE_DEF_UCTYPES \
     MODULE_DEF_VFS \
+    MODULE_DEF__ESPNOW \
     MODULE_DEF___MAIN__ \
 // MICROPY_REGISTERED_MODULES
 
@@ -136,9 +136,9 @@ extern const struct _mp_obj_module_t mp_module_vfs;
     MODULE_DEF_IO \
     MODULE_DEF_JSON \
     MODULE_DEF_MACHINE \
-    MODULE_DEF_NETWORK \
     MODULE_DEF_OS \
     MODULE_DEF_RANDOM \
+    MODULE_DEF_SELECT \
     MODULE_DEF_SOCKET \
     MODULE_DEF_STRUCT \
     MODULE_DEF_TIME \

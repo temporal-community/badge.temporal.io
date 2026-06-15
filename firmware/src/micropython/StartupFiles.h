@@ -23,7 +23,7 @@
 //
 //   1. Compile-time: pass `-DBADGE_DEV_FORCE_REFRESH=PATHS` where PATHS
 //      is a comma-separated string of full paths or prefixes.
-//      Examples (in platformio.ini under [env:replay2026] for instance):
+//      Examples (in platformio.ini under [env:echo-dev] for instance):
 //          build_flags = -DBADGE_DEV_FORCE_REFRESH=\"/apps/ir_remote/\"
 //          build_flags = -DBADGE_DEV_FORCE_REFRESH=\"/apps/foo/,/lib/badge_ui.py\"
 //      Entries ending in `/` or `*` are matched as prefixes; everything

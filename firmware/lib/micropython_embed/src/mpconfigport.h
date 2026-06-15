@@ -19,7 +19,6 @@
 #include <stdint.h>
 #include <limits.h>
 #include <sys/types.h>
-
 #ifndef SSIZE_MAX
 #define SSIZE_MAX 2147483647
 #endif
@@ -44,30 +43,22 @@ typedef long mp_off_t;
 
 // ── Feature gates ───────────────────────────────────────────────────────────
 // Compile-time switches the user can flip from platformio.ini:
-//   -DREPLAY_ENABLE_NETWORK_WLAN=0   disables the default network.WLAN
-//                                    module surface.
-//   -DREPLAY_ENABLE_SOCKET=0         disables the default socket module.
-//   -DREPLAY_ENABLE_FULL_NETWORK=1   adds ssl / websocket / webrepl.
-//                                    Requires the upstream modtls_mbedtls.c /
-//                                    modwebsocket.c / modwebrepl.c to be
-//                                    vendored and validated.
+//   -DREPLAY_ENABLE_FULL_NETWORK=1   adds network.WLAN / socket / ssl /
+//                                    websocket / webrepl. Requires the
+//                                    upstream modnetwork.c / modsocket.c /
+//                                    modssl_mbedtls.c / modwebsocket.c /
+//                                    modwebrepl.c to be vendored.
 //   -DREPLAY_ENABLE_BLUETOOTH=1      adds `bluetooth` (NimBLE) and `aioble`.
 //                                    Requires modbluetooth_nimble.c and the
 //                                    NimBLE port glue.
-//   -DREPLAY_ENABLE_ESPNOW=0         disables the default `_espnow` module.
+//   -DREPLAY_ENABLE_ESPNOW=1         adds the `espnow` module.
 //   -DREPLAY_ENABLE_THREAD=1         adds `_thread` and a mpthreadport.c
 //                                    backed by FreeRTOS tasks.
 // Anything below that doesn't require new sources is on by default — the
 // goal is to make the normal MicroPython surface available out of the box.
 
 #ifndef REPLAY_ENABLE_FULL_NETWORK
-#define REPLAY_ENABLE_FULL_NETWORK 0
-#endif
-#ifndef REPLAY_ENABLE_SOCKET
-#define REPLAY_ENABLE_SOCKET 1
-#endif
-#ifndef REPLAY_ENABLE_NETWORK_WLAN
-#define REPLAY_ENABLE_NETWORK_WLAN 1
+#define REPLAY_ENABLE_FULL_NETWORK 1
 #endif
 #ifndef REPLAY_ENABLE_BLUETOOTH
 #define REPLAY_ENABLE_BLUETOOTH 0
@@ -84,6 +75,9 @@ typedef long mp_off_t;
 #define REPLAY_ENABLE_ESP32_MACHINE_WIRELESS ( 1 )
 #endif
 
+// Stay at CORE level (embed default) and cherry-pick what we need.
+#define MICROPY_PY_BUILTINS_MEMORYVIEW (1)
+
 // ── Core runtime features ───────────────────────────────────────────────────
 #define MICROPY_ENABLE_GC ( 1 )
 #define MICROPY_ENABLE_COMPILER ( 1 )
@@ -92,10 +86,6 @@ typedef long mp_off_t;
 #define MICROPY_REPL_EVENT_DRIVEN ( 1 )
 #define MICROPY_REPL_AUTO_INDENT ( 1 )
 #define MICROPY_REPL_EMACS_KEYS ( 1 )
-#define MICROPY_EVENT_POLL_HOOK \
-    do { \
-        mp_handle_pending(true); \
-    } while (0);
 #define MICROPY_ERROR_REPORTING ( MICROPY_ERROR_REPORTING_DETAILED )
 #define MICROPY_ENABLE_FINALISER ( 1 )
 #define MICROPY_ENABLE_SOURCE_LINE  (1)
@@ -145,6 +135,7 @@ typedef long mp_off_t;
 
 #define MICROPY_PY_SELECT ( 1 )
 #define MICROPY_PY_SELECT_SELECT ( 1 )
+#define MICROPY_PY_ONEWIRE ( 0 )
 
 // Standard `os` module — backed by VFS; provides listdir/stat/statvfs/uname.
 #define MICROPY_PY_OS ( 1 )
@@ -221,41 +212,36 @@ uint32_t replay_random_seed_init(void);
 #define MICROPY_PY_MACHINE_WDT (1)
 #define MICROPY_PY_MACHINE_WDT_INCLUDEFILE "ports/esp32/machine_wdt.c"
 
-// ── network ────────────────────────────────────────────────────────────────
-// WLAN is useful for badge-side SSID scans and simple network control from
-// the REPL. Socket uses the ESP32 port's lwIP-backed implementation; TLS,
-// WebSocket, and WebREPL stay behind the full-network gate until separately
-// validated against the badge Wi-Fi service.
-#define MICROPY_PY_NETWORK (REPLAY_ENABLE_NETWORK_WLAN || REPLAY_ENABLE_SOCKET || REPLAY_ENABLE_FULL_NETWORK || REPLAY_ENABLE_ESPNOW)
-#if MICROPY_PY_NETWORK
-#define MICROPY_PY_NETWORK_INCLUDEFILE "ports/esp32/modnetwork.h"
-#define MICROPY_PY_NETWORK_MODULE_GLOBALS_INCLUDEFILE "ports/esp32/modnetwork_globals.h"
+// ── network — requires vendored modnetwork path in `library.json` when enabled ──
+#define MICROPY_PY_NETWORK (REPLAY_ENABLE_FULL_NETWORK)
+#if REPLAY_ENABLE_FULL_NETWORK
 #define MICROPY_PY_NETWORK_HOSTNAME_DEFAULT "mpy-esp32s3"
-#define MICROPY_PY_NETWORK_WLAN             (1)
-#define MICROPY_PY_NETWORK_LAN              (0)
-#define MICROPY_PY_NETWORK_PPP_LWIP         (0)
-#else
-#define MICROPY_PY_NETWORK_WLAN             (0)
-#define MICROPY_PY_NETWORK_LAN              (0)
-#define MICROPY_PY_NETWORK_PPP_LWIP         (0)
-#endif
-
-#if REPLAY_ENABLE_SOCKET || REPLAY_ENABLE_FULL_NETWORK
-#define MICROPY_PY_SOCKET                  (1)
-#else
-#define MICROPY_PY_SOCKET                  (0)
+// ESP32 takes near-full control of the `network` module through these two
+// includefiles. modnetwork.h declares esp_network_wlan_type + the ifconfig/
+// ipconfig/phy_mode helpers; modnetwork_globals.h injects network.WLAN plus the
+// STA_IF/AP_IF/AUTH_*/MODE_*/STAT_* constants into the module globals dict.
+// Without them, extmod/modnetwork.c builds its generic globals table (country/
+// hostname only) and `network.WLAN` does not exist — which is exactly the
+// AttributeError seen from the REPL. The referenced sources
+// (ports/esp32/network_common.c + network_wlan.c) are compiled via library.json
+// srcFilter and packaged by replay_embed.mk; the WLAN QSTRs are re-emitted for
+// the host module/QSTR pass in port/replay_phase1_qstr.c (network_wlan.c pulls
+// esp_wifi.h, which host gcc -E can't resolve, so it's excluded from SRC_QSTR).
+#define MICROPY_PY_NETWORK_INCLUDEFILE      "ports/esp32/modnetwork.h"
+#define MICROPY_PY_NETWORK_MODULE_GLOBALS_INCLUDEFILE "ports/esp32/modnetwork_globals.h"
 #endif
 
 #if REPLAY_ENABLE_FULL_NETWORK
-// ssl/tls, websocket, webrepl, mDNS — full kitchen-sink.
+// network.WLAN, socket, ssl, websocket, webrepl, mDNS — full kitchen-sink.
+#define MICROPY_PY_NETWORK_WLAN             (1)
 #define MICROPY_PY_SOCKET_EVENTS            (1)
 #define MICROPY_PY_SSL                      (1)
 #define MICROPY_SSL_MBEDTLS                 (1)
 #define MICROPY_PY_WEBSOCKET                (1)
 #define MICROPY_PY_WEBREPL                  (1)
-#define MICROPY_PY_USSL                     (1)
-#define MICROPY_PY_USSL_FINALISER           (1)
+#define MICROPY_PY_SSL_FINALISER            (1)
 #else
+#define MICROPY_PY_NETWORK_WLAN             (0)
 #define MICROPY_PY_SOCKET_EVENTS            (0)
 #define MICROPY_PY_SSL                      (0)
 #define MICROPY_SSL_MBEDTLS                 (0)
@@ -279,6 +265,7 @@ uint32_t replay_random_seed_init(void);
 #define MICROPY_PY_BLUETOOTH_ENABLE_PAIRING_BONDING (1)
 #define MICROPY_BLUETOOTH_NIMBLE            (1)
 #define MICROPY_BLUETOOTH_NIMBLE_BINDINGS_ONLY (1)
+#define MICROPY_PY_BLUETOOTH_SYNC_EVENT_STACK_SIZE (1024)
 #else
 #define MICROPY_PY_BLUETOOTH                (0)
 #endif
@@ -383,6 +370,28 @@ uint32_t replay_random_seed_init(void);
 // OK, >, and \x04). Default MP_PLAT_PRINT_STRN uses mp_hal_stdout_tx_strn_cooked (\n -> \r\n),
 // which breaks mpremote / ViperIDE raw REPL framing between OK and the trailing EOF markers.
 #define MP_PLAT_PRINT_STRN( str, len ) mp_hal_stdout_tx_strn( ( str ), ( len ) )
+
+// ── Event poll hook (compat for modules that still use the old macro) ───────
+#if !defined(MICROPY_EVENT_POLL_HOOK)
+#if MICROPY_PY_THREAD && (defined(ARDUINO_ARCH_ESP32) || defined(ESP_PLATFORM))
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#define MICROPY_EVENT_POLL_HOOK \
+    do { \
+        extern void mp_handle_pending(bool); \
+        mp_handle_pending(true); \
+        MP_THREAD_GIL_EXIT(); \
+        ulTaskNotifyTake(pdFALSE, 1); \
+        MP_THREAD_GIL_ENTER(); \
+    } while (0);
+#else
+#define MICROPY_EVENT_POLL_HOOK \
+    do { \
+        extern void mp_handle_pending(bool); \
+        mp_handle_pending(true); \
+    } while (0);
+#endif
+#endif
 
 // NDEBUG is defined as a build flag in platformio.ini build_flags_common so
 // it's set before any TU sees <assert.h>. Defining it here was order-fragile

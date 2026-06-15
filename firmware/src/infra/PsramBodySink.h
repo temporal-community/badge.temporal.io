@@ -5,6 +5,9 @@
 #include <cstdlib>
 #include <cstring>
 
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+
 #include "PsramAllocator.h"
 
 namespace BadgeMemory {
@@ -14,7 +17,14 @@ namespace BadgeMemory {
 // which reserve the full Content-Length on internal heap alongside mbedTLS.
 class PsramBodySink : public ::Stream {
  public:
-  explicit PsramBodySink(size_t capBytes) : cap_(capBytes) {
+  // `yieldEveryBytes` > 0: after each accumulated `yieldEveryBytes` of payload,
+  // block briefly so the IDLE task on this CPU can satisfy the idle-task TWDT.
+  // HTTPClient drains TLS in bursts; a 31 KB JSON manifest can otherwise sit in
+  // read+memcpy for seconds without yielding.
+  explicit PsramBodySink(size_t capBytes, size_t yieldEveryBytes = 0)
+      : cap_(capBytes),
+        yieldEvery_(yieldEveryBytes),
+        nextYieldAt_(yieldEveryBytes > 0 ? yieldEveryBytes : 0) {
     if (capBytes == 0) return;
     buf_ = static_cast<char*>(allocPreferPsram(capBytes + 1));
     if (!buf_) return;
@@ -52,12 +62,18 @@ class PsramBodySink : public ::Stream {
     std::memcpy(buf_ + len_, buffer, n);
     len_ += n;
     buf_[len_] = '\0';
+    while (yieldEvery_ > 0 && len_ >= nextYieldAt_) {
+      nextYieldAt_ += yieldEvery_;
+      vTaskDelay(pdMS_TO_TICKS(5));
+    }
     if (n < size) return 0;
     return size;
   }
 
  private:
   size_t cap_{0};
+  size_t yieldEvery_{0};
+  size_t nextYieldAt_{0};
   size_t len_{0};
   char* buf_{nullptr};
 };

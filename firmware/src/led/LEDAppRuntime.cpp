@@ -394,7 +394,7 @@ void LEDAppRuntime::stopNativeAnimation() {
 
 void LEDAppRuntime::drawFrame(const uint8_t frame[kFrameRows]) {
   if (!matrix_) return;
-  matrix_->drawMaskHardware(frame, state_.brightness, 0);
+  (void)matrix_->drawMask(frame, state_.brightness, 0);
 }
 
 void LEDAppRuntime::copyFrame(uint8_t dst[kFrameRows], const uint8_t* src,

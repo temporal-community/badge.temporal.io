@@ -20,7 +20,6 @@ from __future__ import annotations
 
 import argparse
 import hashlib
-import ssl
 import sys
 import urllib.request
 from pathlib import Path
@@ -43,26 +42,30 @@ UPSTREAM_FILES = [
     ("extmod/modasyncio.c",                   "extmod/modasyncio.c"),
     ("extmod/modbluetooth.c",                 "extmod/modbluetooth.c"),
     ("extmod/modbluetooth.h",                 "extmod/modbluetooth.h"),
-    ("extmod/machine_pulse.c",                "extmod/machine_pulse.c"),
-    ("extmod/machine_wdt.c",                  "extmod/machine_wdt.c"),
     ("extmod/modonewire.c",                   "extmod/modonewire.c"),
     ("extmod/modselect.c",                    "extmod/modselect.c"),
     ("extmod/modsocket.c",                    "extmod/modsocket.c"),
     ("extmod/modtls_mbedtls.c",               "extmod/modtls_mbedtls.c"),
-    ("extmod/mbedtls/mbedtls_alt.c",          "extmod/mbedtls/mbedtls_alt.c"),
-    ("extmod/mbedtls/mbedtls_config_common.h", "extmod/mbedtls/mbedtls_config_common.h"),
     ("extmod/modwebsocket.c",                 "extmod/modwebsocket.c"),
+    ("extmod/modwebsocket.h",                 "extmod/modwebsocket.h"),
     ("extmod/modwebrepl.c",                   "extmod/modwebrepl.c"),
+    ("extmod/machine_wdt.c",                  "extmod/machine_wdt.c"),
+    ("extmod/machine_pulse.c",                "extmod/machine_pulse.c"),
     ("extmod/nimble/hal/hal_uart.c",          "extmod/nimble/hal/hal_uart.c"),
+    ("extmod/nimble/hal/hal_uart.h",          "extmod/nimble/hal/hal_uart.h"),
+    ("extmod/mpbthci.h",                      "extmod/mpbthci.h"),
     ("extmod/nimble/modbluetooth_nimble.c",   "extmod/nimble/modbluetooth_nimble.c"),
     ("extmod/nimble/modbluetooth_nimble.h",   "extmod/nimble/modbluetooth_nimble.h"),
     ("extmod/nimble/nimble/nimble_npl_os.h",  "extmod/nimble/nimble/nimble_npl_os.h"),
+
+    # ── drivers ──────────────────────────────────────────────────────────────
+    ("drivers/dht/dht.c",                     "drivers/dht/dht.c"),
+    ("drivers/dht/dht.h",                     "drivers/dht/dht.h"),
 
     # ── ports/esp32 sources (we have a partial set already vendored) ───────
     ("ports/esp32/mpthreadport.c",            "ports/esp32/mpthreadport.c"),
     ("ports/esp32/mpthreadport.h",            "ports/esp32/mpthreadport.h"),
     ("ports/esp32/mpnimbleport.c",            "ports/esp32/mpnimbleport.c"),
-    ("ports/esp32/mpnimbleport.h",            "ports/esp32/mpnimbleport.h"),
     ("ports/esp32/modesp.c",                  "ports/esp32/modesp.c"),
     ("ports/esp32/modesp32.c",                "ports/esp32/modesp32.c"),
     ("ports/esp32/modesp32.h",                "ports/esp32/modesp32.h"),
@@ -71,6 +74,7 @@ UPSTREAM_FILES = [
     ("ports/esp32/network_lan.c",             "ports/esp32/network_lan.c"),
     ("ports/esp32/network_ppp.c",             "ports/esp32/network_ppp.c"),
     ("ports/esp32/machine_dac.c",             "ports/esp32/machine_dac.c"),
+    ("ports/esp32/machine_wdt.c",             "ports/esp32/machine_wdt.c"),
     ("ports/esp32/machine_touchpad.c",        "ports/esp32/machine_touchpad.c"),
     ("ports/esp32/usb.c",                     "ports/esp32/usb.c"),
     ("ports/esp32/usb_serial_jtag.c",         "ports/esp32/usb_serial_jtag.c"),
@@ -82,17 +86,8 @@ def _sha(content: bytes) -> str:
     return hashlib.sha256(content).hexdigest()[:12]
 
 
-def _ssl_context() -> ssl.SSLContext:
-    try:
-        import certifi  # type: ignore
-
-        return ssl.create_default_context(cafile=certifi.where())
-    except Exception:
-        return ssl.create_default_context()
-
-
 def _fetch(url: str) -> bytes:
-    with urllib.request.urlopen(url, timeout=30, context=_ssl_context()) as resp:
+    with urllib.request.urlopen(url, timeout=30) as resp:
         return resp.read()
 
 
@@ -106,13 +101,6 @@ def _vendor(root: Path, tag: str, paths: list[tuple[str, str]], force: bool) -> 
             content = _fetch(url)
         except Exception as exc:
             print(f"  skip {upstream_path}: {exc}", file=sys.stderr)
-            if "CERTIFICATE_VERIFY_FAILED" in str(exc):
-                print(
-                    "    certificate verification failed; run "
-                    "`cd ignition && ./setup.sh` to use the Ignition venv "
-                    "with certifi, or run `./doctor.sh` for diagnostics.",
-                    file=sys.stderr,
-                )
             continue
 
         if target.exists() and not force:
@@ -150,10 +138,9 @@ def main() -> int:
     print()
     print("To enable the full surface, add these to your env build flags in")
     print("firmware/platformio.ini (any combination):")
-    print("  -DREPLAY_ENABLE_SOCKET=1         # socket (on by default)")
-    print("  -DREPLAY_ENABLE_FULL_NETWORK=1   # ssl/tls / websocket / webrepl")
+    print("  -DREPLAY_ENABLE_FULL_NETWORK=1   # network.WLAN / socket / ssl")
     print("  -DREPLAY_ENABLE_BLUETOOTH=1      # bluetooth (NimBLE) / aioble")
-    print("  -DREPLAY_ENABLE_ESPNOW=1         # _espnow (on by default)")
+    print("  -DREPLAY_ENABLE_ESPNOW=1         # espnow")
     print("  -DREPLAY_ENABLE_THREAD=1         # _thread (FreeRTOS-backed)")
     return 0
 

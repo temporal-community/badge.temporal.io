@@ -68,7 +68,7 @@ BLEScan*       s_scan        = nullptr;
 volatile bool  s_permanentlyDead = false;
 
 // Memory anchor — see header. BT controller's largest single allocation
-// is ~30 KB; we previously kept 36 KB for margin, but on the replay2026
+// is ~30 KB; we previously kept 36 KB for margin, but on the echo-dev
 // build internal DRAM fragmentation has tightened enough that the extra
 // 6 KB reservation pushes the largest free block below the 24 KB TLS
 // floor in steady-state. 30 KB matches the controller's actual peak

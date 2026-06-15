@@ -16,8 +16,6 @@ SRC_QSTR += \
     shared/timeutils/timeutils.c \
     extmod/modmachine.c \
     extmod/modnetwork.c \
-    ports/esp32/modsocket.c \
-    ports/esp32/modespnow.c \
     extmod/machine_adc.c \
     extmod/machine_adc_block.c \
     extmod/machine_pwm.c \
@@ -42,6 +40,10 @@ SRC_QSTR += \
     extmod/modbinascii.c \
     extmod/modrandom.c \
     extmod/modtime.c \
+    extmod/modselect.c \
+    extmod/modonewire.c \
+    extmod/machine_pulse.c \
+    ports/embed/port/replay_phase1_qstr.c \
     ports/embed/port/replay_bdev.c \
     $(USERMODS_DIR)/modtemporalbadge.c
 
@@ -89,22 +91,24 @@ micropython-embed-package-replay: micropython-embed-package
 	    $(TOP)/extmod/modbinascii.c \
 	    $(TOP)/extmod/modrandom.c \
 	    $(TOP)/extmod/modtime.c $(TOP)/extmod/modtime.h \
-	    $(TOP)/extmod/modselect.c \
 	    $(TOP)/extmod/modmachine.c $(TOP)/extmod/modmachine.h \
 	    $(TOP)/extmod/modnetwork.c $(TOP)/extmod/modnetwork.h \
+	    $(TOP)/extmod/modtls_mbedtls.c \
 	    $(TOP)/extmod/machine_adc.c \
 	    $(TOP)/extmod/machine_adc_block.c \
-	    $(TOP)/extmod/machine_pulse.c \
 	    $(TOP)/extmod/machine_pwm.c \
 	    $(TOP)/extmod/machine_i2c.c \
 	    $(TOP)/extmod/machine_i2s.c \
 	    $(TOP)/extmod/machine_spi.c \
 	    $(TOP)/extmod/machine_uart.c \
-	    $(TOP)/extmod/machine_wdt.c \
 		$(TOP)/extmod/machine_bitstream.c \
 		$(TOP)/extmod/machine_pinbase.c \
 	    $(TOP)/extmod/virtpin.h \
 	    $(TOP)/extmod/virtpin.c \
+	    $(TOP)/extmod/modselect.c \
+	    $(TOP)/extmod/modonewire.c \
+	    $(TOP)/extmod/machine_wdt.c \
+	    $(TOP)/extmod/machine_pulse.c \
 	    $(PACKAGE_DIR)/extmod/
 	@echo "- lib/oofatfs"
 	$(Q)$(MKDIR) -p $(PACKAGE_DIR)/lib/oofatfs
@@ -155,7 +159,8 @@ micropython-embed-package-replay: micropython-embed-package
 	    $(TOP)/ports/esp32/machine_bitstream.c \
 	    $(TOP)/ports/esp32/modnetwork.h $(TOP)/ports/esp32/modnetwork_globals.h \
 	    $(TOP)/ports/esp32/network_common.c $(TOP)/ports/esp32/network_wlan.c \
-	    $(TOP)/ports/esp32/modsocket.c \
+	    $(TOP)/ports/esp32/network_ppp.c \
+	    $(TOP)/ports/esp32/ppp_set_auth.c $(TOP)/ports/esp32/ppp_set_auth.h \
 	    $(TOP)/ports/esp32/modespnow.c $(TOP)/ports/esp32/modespnow.h \
 	    $(PACKAGE_DIR)/ports/esp32/
 

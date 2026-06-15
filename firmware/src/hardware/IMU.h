@@ -11,7 +11,7 @@ enum class BadgeOrientation : int8_t {
 };
 
 #ifdef BADGE_HAS_IMU
-// ── Full LIS2DH12 driver ──────────────────────────────────────────────────────
+// ── Full LIS2DH12 driver (Charlie board only) ─────────────────────────────────
 #include <Arduino.h>
 #include <SparkFun_LIS2DH12.h>
 

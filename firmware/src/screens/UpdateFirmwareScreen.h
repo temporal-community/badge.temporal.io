@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <time.h>
 
+#include "../hardware/qrcode.h"
 #include "../ota/BadgeOTA.h"
 
 // Settings → Firmware Update screen.
@@ -40,8 +41,13 @@ class UpdateFirmwareScreen : public Screen {
     kError,
     kExpandConfirm,    // first prompt: "really wipe and expand?"
     kExpandConfirm2,   // second prompt: "are you really sure?"
-    kLayoutMigrateInfo, // pitches the one-time USB path to bigger map
-    kLayoutWelcome,     // one-shot panel after partition layout changed
+    kLayoutMigrateInfo,    // legacy: USB-only path, kept as final fallback
+    kLayoutMigratePrecheck,// "here is what we'll do" + go/no-go
+    kLayoutMigrateRecovery,// "if it bricks: scan this QR" + continue/cancel
+    kLayoutMigrateConfirm, // last warning: wipes ffat, rewrites table
+    kLayoutMigrating,      // in-flight; transient — function ESP.restarts
+    kLayoutMigrateError,   // rolled back or refused; show reason
+    kLayoutWelcome,        // one-shot panel after partition layout changed
     kReinstallConfirm, // "you're already on (or ahead of) latest — reinstall?"
   };
 
@@ -53,14 +59,46 @@ class UpdateFirmwareScreen : public Screen {
   bool installDone_ = false;
   ota::InstallResult installResult_ = ota::InstallResult::kOk;
   ota::CheckResult lastCheckResult_ = ota::CheckResult::kOkUpToDate;
+  ota::MigrationResult migrationResult_ = ota::MigrationResult::kOk;
   bool firstEnter_ = true;
+
+  // Latched in onEnter() from ota::justRebootedFromLayoutMigration().
+  // Drives the kLayoutWelcome panel copy (success confirmation vs.
+  // generic "layout changed" notice) and is held until the user
+  // dismisses the panel. Acknowledged separately from the OTA-side
+  // flag so the screen can re-render the same copy across multiple
+  // frames before the user presses a button.
+  bool migrationJustHappened_ = false;
+
+  // Set by onEnter() to defer the automatic GitHub check until after
+  // the screen-entry transition (contrast fade + haptic pulse) has
+  // finished. While non-zero, needsRender() returns true so the loop
+  // keeps ticking. render() fires runCheck() once the deadline passes
+  // and clears this back to zero.
+  uint32_t autoCheckAfterMs_ = 0;
+
+  // Recovery-screen QR is generated lazily on first paint and cached
+  // for the life of the screen. The URL is short enough that a single
+  // QR version covers it; we don't need to retry with bigger versions.
+  static constexpr uint16_t kRecoveryQrBufBytes = 256;
+  uint8_t recoveryQrWork_[kRecoveryQrBufBytes] = {};
+  uint8_t recoveryQrBits_[64 * 8] = {};  // up to 62×62 px @ 1 bpp
+  uint8_t recoveryQrPixels_ = 0;         // 0 == not yet generated / failed
+  bool recoveryQrTried_ = false;
 
   void runCheck(bool ignoreCooldown);
   void runInstall();
+  void runLayoutMigration();
   void renderExpandConfirm(oled& d, bool secondConfirm);
   void renderLayoutMigrateInfo(oled& d);
+  void renderLayoutMigratePrecheck(oled& d);
+  void renderLayoutMigrateRecovery(oled& d);
+  void renderLayoutMigrateConfirm(oled& d);
+  void renderLayoutMigrating(oled& d);
+  void renderLayoutMigrateError(oled& d);
   void renderLayoutWelcome(oled& d);
   void renderReinstallConfirm(oled& d);
+  bool ensureRecoveryQr();
   static void installProgressCb(const ota::InstallProgress& prog,
                                 void* user);
 };

@@ -248,8 +248,13 @@ int replay_vfs_mount_fat( void ) {
             mp_printf( &mp_plat_print, "[mpy] f_mkfs failed: %d\n", res );
             return -MP_EIO;
         }
-        // Remount after format.
-        f_mount( NULL ); // Unmount
+        // Remount after format. NOTE: do NOT call f_mount(NULL) here.
+        // Some FatFs variants treat NULL as "force-unmount this volume",
+        // but this oofatfs vendored copy starts every f_mount with
+        // `fs->fs_type = 0` and dereferences `fs` immediately — passing
+        // NULL is a StoreProhibited NULL-deref at ff.c:3389. The next
+        // f_mount(&vfs_fat->fatfs) below already resets fs_type and
+        // re-runs find_volume, so the explicit unmount is redundant.
         res = f_mount( &vfs_fat->fatfs );
         if ( res == FR_OK ) {
             mp_printf( &mp_plat_print, "[mpy] Format complete. Re-checking free space...\n" );

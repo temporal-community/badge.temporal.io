@@ -446,7 +446,7 @@ void BoopScreen::renderConfirmedCardDeprecated(oled& d, uint32_t nowMs) {
   // Use the full content band (under the status header, above the
   // footer). The reveal is now a stand-alone screen-spanning card,
   // not a strip beside the ziggy sprite, so company / email / web /
-  // long values aren't truncated to the right-hand 76 px column anymore.
+  // bio aren't truncated to the right-hand 76 px column anymore.
   constexpr int kCardTop    = OLEDLayout::kContentTopY;       // ~10
   constexpr int kCardBottom = OLEDLayout::kFooterTopY;        // ~54
   const int viewportH = kCardBottom - kCardTop;
@@ -456,7 +456,8 @@ void BoopScreen::renderConfirmedCardDeprecated(oled& d, uint32_t nowMs) {
 
   // Field assembly. Each entry is (label, value); label is "" for the
   // big name header. Empty fields are skipped so the layout collapses
-  // when peer hasn't shared something.
+  // when peer hasn't shared something. Bio is laid out separately so
+  // we can soft-wrap it across multiple lines.
   struct Row { const char* label; const char* value; bool wrap; };
   const BoopStatus& s = boopStatus;
   const char* name = s.peerName[0] ? s.peerName
@@ -469,6 +470,9 @@ void BoopScreen::renderConfirmedCardDeprecated(oled& d, uint32_t nowMs) {
     { "Type",   s.peerAttendeeType, false },
     { "Email",  s.peerEmail,    true  },
     { "Web",    s.peerWebsite,  true  },
+    { "Phone",  s.peerPhone,    false },
+    { "Bio",    s.peerBio,      true  },
+    { "UID",    s.peerUID,      false },
   };
 
   // First pass: measure total content height with the current wrap. We
@@ -776,7 +780,7 @@ void BoopScreen::render(oled& d, GUIManager& /*gui*/) {
   // Footer actions use the shared swap-aware chrome for back/cancel, while
   // boop itself is intentionally pinned to the physical top (Y) button.
   OLEDLayout::drawGameFooter(d);
-  OLEDLayout::drawFooterActions(d, inProgress ? nullptr : "info",
+  OLEDLayout::drawFooterActions(d, nullptr,
                                 inProgress ? nullptr : "boop",
                                 "back", nullptr);
 }
@@ -794,11 +798,6 @@ void BoopScreen::handleInput(const Inputs& inputs, int16_t /*cx*/,
   // Physical top (Y) starts/restarts boops. Back/cancel follows the shared
   // semantic mapping so it stays consistent with the rest of the UI.
   if (terminalPhase) {
-    if (e.xPressed) {
-      BadgeBoops::smReset();
-      gui.pushScreen(kScreenBadgeInfo);
-      return;
-    }
     if (e.rightPressed) {
       BadgeBoops::smReset();
       memset(txChips_,  0, sizeof(txChips_));
@@ -825,10 +824,6 @@ void BoopScreen::handleInput(const Inputs& inputs, int16_t /*cx*/,
 
   if (e.yPressed && phase == BadgeBoops::BOOP_PHASE_IDLE) {
     BadgeBoops::boopEngaged = true;
-    return;
-  }
-  if (e.xPressed && phase == BadgeBoops::BOOP_PHASE_IDLE) {
-    gui.pushScreen(kScreenBadgeInfo);
     return;
   }
   if (e.cancelPressed) {

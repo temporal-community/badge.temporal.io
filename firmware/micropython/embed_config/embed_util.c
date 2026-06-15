@@ -81,10 +81,16 @@ void mp_embed_deinit( void ) {
 }
 
 #if MICROPY_ENABLE_GC
+#if MICROPY_PY_THREAD
+#include "mpthreadport.h"
+#endif
 // Run a garbage collection cycle.
 void gc_collect( void ) {
     gc_collect_start( );
     gc_helper_collect_regs_and_stack( );
+#if MICROPY_PY_THREAD
+    mp_thread_gc_others( );
+#endif
     gc_collect_end( );
 }
 
