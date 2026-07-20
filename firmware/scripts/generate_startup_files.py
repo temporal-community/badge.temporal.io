@@ -398,6 +398,11 @@ def scan_files(data_dir: Path,
     files = []
     for path in sorted(data_dir.rglob('*')):
         rel_parts = path.relative_to(data_dir).parts
+        # The committed manifest lives inside the source tree so it can be
+        # mirrored onto the badge, but it cannot describe its own hash: writing
+        # that hash changes the file and makes the entry stale immediately.
+        if rel_parts == ('manifest.json',):
+            continue
         if any(part.startswith('.') or part in SKIP_DIR_NAMES for part in rel_parts):
             continue
         if path.suffix.lower() in SKIP_EXTENSIONS:

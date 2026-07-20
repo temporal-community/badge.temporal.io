@@ -9,7 +9,8 @@ a fresh badge needs pre-positioned at its production offset:
   0x000000  bootloader.bin       (PlatformIO output)
   0x008000  partitions.bin       (the `_doom` layout — same one OTA targets)
   0x00E000  boot_app0.bin        (framework — points OTA pointer at app0)
-  0x010000  firmware.bin         (the production app — built by `pio run -e echo`)
+  0x010000  firmware.bin         (the production app — built by
+                                  `pio run -e replay2026`)
   0x7D0000  fatfs.bin            (initial_filesystem + DOOM WAD + every
                                   in-repo community app preloaded into
                                   /apps/<id>/)
@@ -17,7 +18,7 @@ a fresh badge needs pre-positioned at its production offset:
 End-user recovery (no source checkout, no PlatformIO):
 
   esptool.py --chip esp32s3 --port <PORT> write_flash 0x0 \
-      temporal-badge-full-flash-16mb.bin
+      replay2026-factory-16MB.bin
 
 The merge target uses `--flash_size 16MB --fill-flash-size 16MB` so the
 output is exactly 16 MiB and `write_flash 0x0 …` reproduces the badge's
@@ -30,9 +31,8 @@ runs from this script — see `stage_community_apps()` — so callers don't
 have to remember to run `pio run -t buildfs` after dropping community
 files into `firmware/data/apps/`.
 
-CI: `release-firmware.yml` calls this with `--env echo --out
-artifacts/release/temporal-badge-full-flash-16mb.bin`. The resulting
-file is attached to every GitHub release alongside `firmware.bin`.
+This is an optional host utility. The release workflow currently builds the
+same public factory artifact with ``make_factory.sh replay2026``.
 """
 from __future__ import annotations
 
@@ -41,6 +41,7 @@ import os
 import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 # All `pio` invocations explicitly use the bundled binary so we don't
@@ -69,10 +70,6 @@ FLASH_SIZE_BYTES = 16 * 1024 * 1024
 
 class BuildError(RuntimeError):
     pass
-
-
-def repo_root_from(firmware_dir: Path) -> Path:
-    return firmware_dir.parent
 
 
 def discover_boot_app0(framework_root: Path) -> Path:
@@ -120,12 +117,12 @@ def discover_framework_root() -> Path:
         return default
     raise BuildError(
         "Could not locate framework-arduinoespressif32. "
-        "Run `pio pkg install -e echo` first."
+        "Run `pio pkg install -e replay2026` first."
     )
 
 
 def stage_community_apps(repo: Path) -> int:
-    """Mirror community/<id>/ into firmware/data/apps/<id>/ so the next
+    """Mirror community_apps/<id>/ into firmware/data/apps/<id>/ so the next
     `pio run -t buildfs` bakes them into fatfs.bin. Returns the number
     of apps staged so the caller can log it.
 
@@ -134,7 +131,7 @@ def stage_community_apps(repo: Path) -> int:
     previous run is replaced — the directory belongs to this script
     while it's running, and `upload_doom_wad.py` already wipes the
     whole `data/` tree on `buildfs` anyway."""
-    community = repo / "community"
+    community = repo / "community_apps"
     data_apps = repo / "firmware" / "data" / "apps"
     if not community.is_dir():
         return 0
@@ -161,7 +158,7 @@ def stage_community_apps(repo: Path) -> int:
             return drop
         shutil.copytree(app_dir, dest, ignore=_ignore)
         count += 1
-        print(f"[recovery-image] staged community/{app_dir.name}/ "
+        print(f"[recovery-image] staged community_apps/{app_dir.name}/ "
               f"-> data/apps/{app_dir.name}/")
     return count
 
@@ -177,7 +174,11 @@ def build_fatfs(firmware_dir: Path, env: str) -> Path:
     proc = subprocess.run(
         [str(PIO_BIN), "run", "-e", env, "-t", "buildfs"],
         cwd=str(firmware_dir),
-        env={**os.environ, "BADGE_ALLOW_MISSING_DOOM_WAD": "1"},
+        env={
+            **os.environ,
+            "BADGE_ALLOW_MISSING_DOOM_WAD": "1",
+            "BADGE_STAGE_COMMUNITY_APPS": "1",
+        },
     )
     if proc.returncode != 0:
         raise BuildError(f"`pio run -e {env} -t buildfs` failed "
@@ -186,6 +187,28 @@ def build_fatfs(firmware_dir: Path, env: str) -> Path:
     if not fatfs.is_file():
         raise BuildError(f"buildfs succeeded but {fatfs} missing")
     return fatfs
+
+
+def build_firmware(firmware_dir: Path, env: str) -> None:
+    """Build the bootloader, partition table, and application artifacts."""
+    if not PIO_BIN.is_file():
+        raise BuildError(
+            f"PlatformIO not found at {PIO_BIN}. "
+            "Install with: python -m pip install platformio"
+        )
+    print(f"[recovery-image] pio run -e {env}")
+    proc = subprocess.run(
+        [str(PIO_BIN), "run", "-e", env],
+        cwd=str(firmware_dir),
+    )
+    if proc.returncode != 0:
+        raise BuildError(f"`pio run -e {env}` failed (rc={proc.returncode})")
+
+    build_dir = firmware_dir / ".pio" / "build" / env
+    for name in ("bootloader.bin", "partitions.bin", "firmware.bin"):
+        artifact = build_dir / name
+        if not artifact.is_file():
+            raise BuildError(f"firmware build succeeded but {artifact} missing")
 
 
 def python_has_module(py: Path, module: str) -> bool:
@@ -225,7 +248,7 @@ def find_esptool_python() -> Path:
     tried = ", ".join(str(p) for p in candidates)
     raise BuildError(
         f"No Python interpreter with `esptool` was found. Tried: {tried}. "
-        f"Install esptool via PlatformIO (`{PIO_BIN} pkg install -e echo`) "
+        f"Install esptool via PlatformIO (`{PIO_BIN} pkg install -e replay2026`) "
         f"or directly: `python3 -m pip install --user esptool`."
     )
 
@@ -266,10 +289,10 @@ def merge_bin(out_path: Path, parts: list[tuple[int, Path]]) -> None:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--env", default="echo",
+    ap.add_argument("--env", default="replay2026",
                     help="PlatformIO env to source firmware.bin / "
                          "bootloader.bin / partitions.bin / fatfs.bin "
-                         "from (default: echo)")
+                         "from (default: replay2026)")
     ap.add_argument("--out", required=True, type=Path,
                     help="Output path for the merged 16 MB image.")
     ap.add_argument("--ffat-offset", type=lambda s: int(s, 0),
@@ -282,17 +305,9 @@ def main() -> int:
     args = ap.parse_args()
 
     firmware_dir = Path(__file__).resolve().parents[1]
-    repo = repo_root_from(firmware_dir)
     build_dir = firmware_dir / ".pio" / "build" / args.env
 
     try:
-        n_apps = stage_community_apps(repo)
-        if n_apps:
-            print(f"[recovery-image] {n_apps} community app(s) staged")
-        else:
-            print("[recovery-image] no community apps to stage "
-                  "(community/ is empty)")
-
         if args.skip_buildfs:
             fatfs = build_dir / "fatfs.bin"
             if not fatfs.is_file():
@@ -300,7 +315,30 @@ def main() -> int:
                     f"--skip-buildfs given but {fatfs} doesn't exist. "
                     f"Run without --skip-buildfs first.")
         else:
-            fatfs = build_fatfs(firmware_dir, args.env)
+            # PlatformIO's buildfs target replaces the environment build
+            # directory, so preserve its output before building the firmware
+            # artifacts needed by merge_bin.
+            with tempfile.TemporaryDirectory(prefix="badge-recovery-") as temp_dir:
+                built_fatfs = build_fatfs(firmware_dir, args.env)
+                fatfs = Path(temp_dir) / "fatfs.bin"
+                shutil.copy2(built_fatfs, fatfs)
+                build_firmware(firmware_dir, args.env)
+
+                framework_root = discover_framework_root()
+                boot_app0 = discover_boot_app0(framework_root)
+                print(f"[recovery-image] boot_app0.bin -> {boot_app0}")
+
+                merge_bin(args.out, [
+                    (PART_BOOTLOADER_OFFSET, build_dir / "bootloader.bin"),
+                    (PART_TABLE_OFFSET,      build_dir / "partitions.bin"),
+                    (PART_BOOT_APP0_OFFSET,  boot_app0),
+                    (PART_FIRMWARE_OFFSET,   build_dir / "firmware.bin"),
+                    (args.ffat_offset,       fatfs),
+                ])
+
+            print(f"[recovery-image] wrote {args.out} "
+                  f"({args.out.stat().st_size / 1024 / 1024:.2f} MB)")
+            return 0
 
         framework_root = discover_framework_root()
         boot_app0 = discover_boot_app0(framework_root)

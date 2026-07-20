@@ -4,7 +4,8 @@ PlatformIO extra_script: prepare data/ for uploadfs with doom WAD.
 Before building the filesystem image, this script:
   1. Preserves a local doom1.wad from data/
   2. Rebuilds data/ from initial_filesystem/
-  3. Restores the WAD as data/doom1.wad, falling back to
+  3. Optionally stages in-repo community apps for recovery images
+  4. Restores the WAD as data/doom1.wad, falling back to
      initial_filesystem/doom1.wad
 
 This ensures uploadfs produces a FAT image that has BOTH the WAD and
@@ -13,11 +14,12 @@ data/ a stale copy of initial_filesystem/.
 
 Usage:
   1. Place doom1.wad in firmware/data/
-  2. Run: pio run -e echo -t uploadfs
+  2. Run: pio run -e replay2026 -t uploadfs
 """
 
 import os
 import shutil
+from pathlib import Path
 from SCons.Script import COMMAND_LINE_TARGETS
 Import("env")  # noqa: F821
 
@@ -25,6 +27,12 @@ WAD_CANDIDATES = ("doom1.wad", "DOOM1.WAD", "Doom1.wad", "Doom1.WAD")
 SKIP_DIR_NAMES = {"__pycache__"}
 SKIP_EXTENSIONS = {".pyc", ".pyo", ".wad"}
 ALLOW_MISSING_WAD = os.environ.get("BADGE_ALLOW_MISSING_DOOM_WAD", "").lower() in {
+    "1",
+    "true",
+    "yes",
+    "on",
+}
+STAGE_COMMUNITY_APPS = os.environ.get("BADGE_STAGE_COMMUNITY_APPS", "").lower() in {
     "1",
     "true",
     "yes",
@@ -92,6 +100,15 @@ def prepare_data_dir(source, target, env):
                 print(f"  + {os.path.relpath(dst, data_dir)}")
 
         print("[doom] Rebuilt data/ from initial_filesystem/")
+
+    if STAGE_COMMUNITY_APPS:
+        # Import the shared filtering/copying implementation only for the
+        # recovery-image build. Normal firmware buildfs behavior is unchanged.
+        from build_recovery_image import stage_community_apps
+
+        repo_root = os.path.dirname(project_dir)
+        count = stage_community_apps(Path(repo_root))
+        print(f"[doom] Staged {count} community app(s)")
 
     if cached_wad:
         shutil.copy2(cached_wad, os.path.join(data_dir, "doom1.wad"))

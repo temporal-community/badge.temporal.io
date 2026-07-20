@@ -780,14 +780,6 @@
       "baked": true
     },
     {
-      "path": "/manifest.json",
-      "size": 36043,
-      "sha256": "31c6040a1b0d84dcdb92c867746466bfed06cf5354ae9005ceccb8959b01bca1",
-      "fnv1a32": "0x9ECB5909",
-      "url": "https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/firmware/initial_filesystem/manifest.json",
-      "baked": false
-    },
-    {
       "path": "/matrixApps/LED.py",
       "size": 8976,
       "sha256": "59aa6af52cc753b5dde31491d41ca4fca882624f3338a44b2251303ea2f0acfb",
