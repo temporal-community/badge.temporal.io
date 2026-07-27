@@ -487,7 +487,7 @@ with open("/cache/last_query.json", "w") as f:
 > `fatfs.bin` flash and can be re-pushed via Community Apps or
 > JumperIDE. State you care about belongs in NVS so it can't get
 > wiped by a reflash. See
-> [Storage Model](https://github.com/Architeuthis-Flux/Temporal-Replay-26-Badge/blob/main/firmware/docs/STORAGE-MODEL.md)
+> [Storage Model](https://github.com/temporal-community/badge.temporal.io/blob/main/firmware/docs/STORAGE-MODEL.md)
 > for the full survival matrix.
 
 ---
@@ -1247,7 +1247,7 @@ Putting game saves in `badge.kv` (see § 4 Saving Data) means a
 firmware reflash, factory flash, or Community Apps install never
 loses them. Files on FATFS are re-pushable via JumperIDE / Community
 Apps / `python3 -m badge_sync sync`. See the
-[Storage Model](https://github.com/Architeuthis-Flux/Temporal-Replay-26-Badge/blob/main/firmware/docs/STORAGE-MODEL.md)
+[Storage Model](https://github.com/temporal-community/badge.temporal.io/blob/main/firmware/docs/STORAGE-MODEL.md)
 for the full survival matrix.
 
 ### What the user sees
@@ -1318,7 +1318,7 @@ getting files onto the badge:
 - **Sync Filesystem** (planned button next to the firmware-update
   modal) does a one-click diff: it lists everything currently on
   the badge, compares against the upstream
-  [`firmware/data/manifest.json`](https://github.com/Architeuthis-Flux/Temporal-Replay-26-Badge/blob/main/firmware/data/manifest.json),
+  [`firmware/initial_filesystem/manifest.json`](https://github.com/temporal-community/badge.temporal.io/blob/main/firmware/initial_filesystem/manifest.json),
   and pushes anything missing or stale. Useful after a firmware-only
   reflash where you want to refresh apps without losing your local
   edits.
@@ -1361,7 +1361,7 @@ manifest_url =
 # URL of the Community Apps registry JSON. Empty disables the
 # Community Apps tile. The legacy `asset_registry_url` key still
 # works for backwards compatibility.
-community_apps_url = https://raw.githubusercontent.com/Architeuthis-Flux/Temporal-Replay-26-Badge/main/registry/community_apps.json
+community_apps_url = https://raw.githubusercontent.com/temporal-community/badge.temporal.io/main/registry/community_apps.json
 ```
 
 ### `community_apps.json` schema (v2)
@@ -1414,51 +1414,32 @@ See `firmware/docs/OTA-MAINTAINER.md` in the firmware repo for the
 full maintainer walkthrough, including how to host the registry on
 Cloudflare R2 / Pages.
 
-### Expanding storage after a partition bump
+### Opting into the expanded storage layout
 
-Sometimes a firmware update ships with a wider `ffat` partition (the
-2026 v0.1.5 bump grew the FAT partition from 6 MB to ~7.9 MB to reuse
-unused flash). The new firmware will boot fine on existing badges and
-keep all your data — but the FAT volume header is still sized for the
-old partition, so you only see the old capacity until a reformat
-writes a new header.
+The public firmware does not rewrite the badge's partition table in place.
+Changing layouts requires a full USB erase and flash so the bootloader,
+partition table, firmware, and filesystem are installed together.
 
-When this happens, the **Firmware Update** screen shows a filesystem line
-with the current size and an expand affordance (e.g. `FS: 5.9 MB ◇ 6.9 MB FS`).
-Select the diamond glyph on that line to start the reformat flow:
+From the repository:
 
-1. **Preflight** — battery/USB, partition layout, and recovery blob checks
-   must all pass before Continue is offered.
+```bash
+cd firmware
+./scripts/erase_and_flash_expanded.sh
+```
 
-![Expand preflight: migrate ffat to the new size](img/badge-screenshots/exp-partition-preflight.png)
-
-2. First confirm: shows what gets wiped (contacts, nametags, WAD,
-   `settings.txt`).
-3. **Final confirmation** — warns that the partition table is rewritten,
-   `ffat` is wiped, and the badge auto-reboots.
-
-![Final confirmation before partition expand](img/badge-screenshots/exp-partition-final-confirm.png)
-
-4. The badge formats `ffat` and reboots into a clean filesystem with
-   the full partition size available.
-
-A **recovery QR** on the expand path documents the USB + `esptool write_flash`
-fallback if anything goes wrong mid-migration:
-
-![Recovery QR for USB esptool write_flash](img/badge-screenshots/exp-partition-recovery-qr.png)
-
-The option only appears when there's a real gap to recover (≥ 256 KB
-above what FAT metadata explains away). On freshly USB-flashed
-badges, the FAT is sized to the partition at first boot and you'll
-never see this prompt.
+The script requires typing `EXPAND` before it starts. It erases all on-badge
+data, including contacts, settings, saved WiFi credentials, apps, and
+downloaded assets. The normal `replay2026` layout remains the public default;
+use `replay2026-expanded` only when the additional FATFS space is worth a
+destructive USB reflash.
 
 ### Forking the firmware
 
-To point OTA at a different repo (or look for a different asset
-filename in the release), edit `firmware/platformio.ini`:
+To point OTA at a different repo, override `REPO_OWNER_SLUG`. To use a
+different asset filename, override `OTA_ASSET_NAME`:
 
 ```ini
-'-DOTA_GITHUB_REPO="YourOrg/YourFork"'
+'-DREPO_OWNER_SLUG="YourOrg/YourFork"'
 '-DOTA_ASSET_NAME="firmware-yourfork.bin"'
 ```
 

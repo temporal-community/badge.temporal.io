@@ -4,12 +4,12 @@
 #
 # Why erase first?
 #   The partition table lives at flash offset 0x8000 and is read by
-#   the bootloader at every boot. A regular `pio run -t upload` only
-#   writes to the OTA app slot — it does NOT rewrite the partition
-#   table. Switching from `echo` (3.84 MB slots, 6 MB ffat) to
-#   `echo-expanded` (4.5 MB slots, 6.875 MB ffat) requires the new
-#   partition table to actually take effect, which means erasing the
-#   old one first.
+#   the bootloader at every boot. An OTA update does not rewrite it.
+#   PlatformIO's USB upload does write the selected environment's table,
+#   but switching from `replay2026` (3.84 MB slots, 6 MB ffat) to
+#   `replay2026-expanded` (4.5 MB slots, 6.875 MB ffat) also moves FATFS.
+#   Erasing first guarantees no stale filesystem or app-slot data from the
+#   old layout can be mistaken for valid content under the new map.
 #
 # What this destroys:
 #   - Everything on the badge: contacts, nametag, settings.txt,
@@ -61,15 +61,15 @@ cd "$FW_DIR"
 
 echo
 echo "==> Step 1/3: full chip erase (this is the destructive step)"
-"$PIO" run -e echo-expanded -t erase
+"$PIO" run -e replay2026-expanded -t erase
 
 echo
-echo "==> Step 2/3: flash firmware (echo-expanded)"
-"$PIO" run -e echo-expanded -t upload
+echo "==> Step 2/3: flash firmware (replay2026-expanded)"
+"$PIO" run -e replay2026-expanded -t upload
 
 echo
 echo "==> Step 3/3: flash filesystem image (initial /apps, /lib, /composer, etc.)"
-"$PIO" run -e echo-expanded -t uploadfs
+"$PIO" run -e replay2026-expanded -t uploadfs
 
 echo
 echo "  ✓ Done. The badge will boot into the new expanded layout."

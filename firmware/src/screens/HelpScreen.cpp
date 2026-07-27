@@ -21,7 +21,7 @@ constexpr uint8_t kQrIde = 1;
 constexpr uint8_t kQrTemporal = 2;
 
 constexpr const char* kQrUrls[] = {
-    "https://docs.jumperless.org/badge-developer-guide/",
+    "https://badge.temporal.io/developer-guide",
     "https://ide.jumperless.org/",
     "https://badge.temporal.io/",
 };

@@ -660,6 +660,8 @@ void UpdateFirmwareScreen::renderLayoutMigrateError(oled& d) {
   d.setFontPreset(FONT_TINY);
   const char* reason = "Unknown failure";
   switch (migrationResult_) {
+    case ota::MigrationResult::kDisabled:
+      reason = "Use USB flashing"; break;
     case ota::MigrationResult::kAlreadyExpanded:
       reason = "Already on _ver2"; break;
     case ota::MigrationResult::kBatteryTooLow:

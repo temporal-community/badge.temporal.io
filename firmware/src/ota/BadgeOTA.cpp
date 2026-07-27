@@ -16,6 +16,13 @@
 
 #include <esp_heap_caps.h>
 
+#ifndef BADGE_ENABLE_IN_PLACE_LAYOUT_MIGRATION
+// The public build uses the established replay2026 partition map. Layout
+// changes go through the explicit USB erase-and-flash script instead.
+#define BADGE_ENABLE_IN_PLACE_LAYOUT_MIGRATION 0
+#endif
+
+#if BADGE_ENABLE_IN_PLACE_LAYOUT_MIGRATION
 // We need to write into the partition-table sector at 0x8000, which
 // arduino-esp32 (default sdkconfig: CONFIG_SPI_FLASH_DANGEROUS_WRITE_ABORTS=1)
 // treats as a fatal programmer error in esp_flash_erase_region /
@@ -50,6 +57,7 @@ extern const uint8_t kPartitionTableVer2Start[]
 extern const uint8_t kPartitionTableVer2End[]
     asm("_binary_partitions_ver2_bin_end");
 }
+#endif
 
 #include "AssetRegistry.h"
 #include "OTAHttp.h"
@@ -878,7 +886,8 @@ bool ffatUsesExpandedPartitionLayout() {
 }
 
 bool canOfferLayoutMigration() {
-  return !isExpandedPartitionLayout();
+  return BADGE_ENABLE_IN_PLACE_LAYOUT_MIGRATION &&
+         !isExpandedPartitionLayout();
 }
 
 bool layoutJustChanged() {
@@ -916,9 +925,13 @@ void reformatFfatAndReboot() {
 namespace {
 
 size_t embeddedPartitionTableLen() {
+#if BADGE_ENABLE_IN_PLACE_LAYOUT_MIGRATION
   const ptrdiff_t n = kPartitionTableVer2End - kPartitionTableVer2Start;
   if (n <= 0) return 0;
   return static_cast<size_t>(n);
+#else
+  return 0;
+#endif
 }
 
 bool migrationBatteryOk() {
@@ -943,11 +956,19 @@ bool runningFromApp0() {
 }  // namespace
 
 bool migrationAssetPresent() {
+#if BADGE_ENABLE_IN_PLACE_LAYOUT_MIGRATION
   const size_t n = embeddedPartitionTableLen();
   return n > 0 && n <= kPartitionTableSectorBytes;
+#else
+  return false;
+#endif
 }
 
 MigrationResult migrateToExpandedLayout() {
+#if !BADGE_ENABLE_IN_PLACE_LAYOUT_MIGRATION
+  setError("use USB expanded-layout flashing");
+  return MigrationResult::kDisabled;
+#else
   setError("");
   if (isExpandedPartitionLayout()) {
     return MigrationResult::kAlreadyExpanded;
@@ -1134,6 +1155,7 @@ MigrationResult migrateToExpandedLayout() {
   delay(200);
   ESP.restart();
   return MigrationResult::kOk;  // unreachable
+#endif
 }
 
 bool justRebootedFromLayoutMigration() {

@@ -8,9 +8,9 @@
 // ButtonGlyphs::drawInlineHint — tokens like "Y X A B", "L/R", "v"
 // auto-render as glyphs), and inline QR codes for the three docs URLs:
 //
-//   docs.jumperless.org/badge-developer-guide/  (canonical)
+//   badge.temporal.io/developer-guide           (canonical)
 //   ide.jumperless.org                          (online MicroPython IDE)
-//   badge.temporal.io                           (mirror, may lag)
+//   badge.temporal.io                           (public badge home)
 //
 // Joystick up/down scrolls the page; cancel pops back to the menu.
 // Scroll to the bottom for a "Meet the crew" action (confirm opens

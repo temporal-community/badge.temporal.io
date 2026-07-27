@@ -1,0 +1,59 @@
+name: firmware-pr-check
+
+on:
+  pull_request:
+    paths:
+      - "firmware/**"
+      - "data/**"
+      - "community_apps/**"
+      - "registry/**"
+      - ".github/workflows/firmware-pr-check.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build replay2026 firmware
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: ".github/workflows/firmware-pr-check.yml"
+
+      - name: Cache PlatformIO
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.platformio/.cache
+            ~/.platformio/packages
+            ~/.platformio/platforms
+            firmware/.pio/libdeps
+          key: pio-pr-${{ runner.os }}-${{ hashFiles('firmware/platformio.ini') }}
+          restore-keys: |
+            pio-pr-${{ runner.os }}-
+
+      - name: Install PlatformIO
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install platformio==6.1.19
+          mkdir -p "$HOME/.platformio/penv/bin"
+          ln -sf "$(command -v python)" "$HOME/.platformio/penv/bin/python"
+          ln -sf "$(command -v pio)" "$HOME/.platformio/penv/bin/pio"
+
+      - name: Run firmware tooling tests
+        run: python3 -m unittest discover -s firmware/scripts/tests -v
+
+      - name: Generate embedded files
+        run: python3 firmware/scripts/generate_startup_files.py
+
+      - name: Build public firmware
+        working-directory: firmware
+        run: pio run -e replay2026 -j 1

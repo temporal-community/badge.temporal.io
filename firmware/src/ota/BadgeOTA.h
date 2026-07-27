@@ -59,6 +59,12 @@ enum class InstallResult : uint8_t {
 
 // ── Partition table migration ─────────────────────────────────────────────
 //
+// Public builds leave BADGE_ENABLE_IN_PLACE_LAYOUT_MIGRATION disabled and
+// require `scripts/erase_and_flash_expanded.sh` over USB. The implementation
+// remains behind the compile-time flag for future hardware qualification, but
+// `canOfferLayoutMigration()` is false and `migrateToExpandedLayout()` returns
+// kDisabled unless a maintainer opts in explicitly.
+//
 // In-place layout swap from `_doom` (6.0 MB ffat) to `_ver2`
 // (6.875 MB ffat). The firmware binary itself is layout-agnostic
 // (uses `esp_partition_find_*` for every data partition) and both
@@ -78,6 +84,7 @@ enum class InstallResult : uint8_t {
 // recovery QR before asking for confirmation so the user can keep
 // the recovery URL on their phone before kicking off the migration.
 enum class MigrationResult : uint8_t {
+  kDisabled,            // Public builds require USB for layout changes
   kOk,                  // Partition table written + verified; reboot pending
   kAlreadyExpanded,     // Layout is already `_ver2`; nothing to do
   kBatteryTooLow,       // < 50 % and not on charger
