@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Temporal">
+  <g fill="none" stroke="#f6f2df" stroke-linecap="square" stroke-width="4">
+    <path d="M8 8v48M56 8V8H38M8 8h18M8 56h18M56 56H38"/>
+    <ellipse cx="32" cy="32" rx="13" ry="25"/>
+    <ellipse cx="32" cy="32" rx="25" ry="13"/>
+    <path d="M32 9v19m-6-6 6 6 6-6"/>
+  </g>
+</svg>

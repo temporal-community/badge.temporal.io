@@ -389,7 +389,7 @@ h3 {
 .controls span:first-child,
 .controls span:not(.dpad) {
   border: 0;
-  background-image: url("https://images.ctfassets.net/0uuz8ydxyd9p/5kHQtcFCSqkLDH4I6HFmyG/8e75bd66b57696eb0a7866b3cbf8ea30/Temporal_Symbol_light_1_2x.png");
+  background-image: url("../assets/temporal-symbol.svg");
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -534,4 +534,3 @@ h3 {
   font-weight: 900;
   letter-spacing: 0.08em;
 }
-

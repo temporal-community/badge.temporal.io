@@ -43,6 +43,24 @@ jobs:
           ]
           if missing:
               raise SystemExit("HTML files missing stylesheet links: " + ", ".join(missing))
+
+          forbidden_hosts = (
+              "fonts.googleapis.com",
+              "fonts.gstatic.com",
+              "images.ctfassets.net",
+          )
+          external_critical_assets = [
+              str(path)
+              for path in Path("docs").rglob("*")
+              if path.is_file()
+              and path.suffix in {".css", ".html"}
+              and any(host in path.read_text(errors="ignore") for host in forbidden_hosts)
+          ]
+          if external_critical_assets:
+              raise SystemExit(
+                  "Docs contain external critical-path assets: "
+                  + ", ".join(external_critical_assets)
+              )
           PY
 
       - name: Serve docs
@@ -54,7 +72,7 @@ jobs:
 
       - name: Run Lighthouse
         run: |
-          npx --yes lighthouse http://127.0.0.1:4173/index.html \
+          npx --yes lighthouse@13.4.1 http://127.0.0.1:4173/index.html \
             --chrome-flags="--headless --no-sandbox" \
             --output=json \
             --output-path=/tmp/replay-docs-lighthouse.json
