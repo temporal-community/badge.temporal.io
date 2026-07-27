@@ -44,22 +44,32 @@ jobs:
           if missing:
               raise SystemExit("HTML files missing stylesheet links: " + ", ".join(missing))
 
-          forbidden_hosts = (
-              "fonts.googleapis.com",
-              "fonts.gstatic.com",
-              "images.ctfassets.net",
+          brand_font_url = (
+              "https://fonts.googleapis.com/css2?"
+              "family=Space+Mono:wght@400;700&display=swap"
           )
-          external_critical_assets = [
+          missing_brand_font = [
+              str(path)
+              for path in Path("docs").glob("*.html")
+              if brand_font_url not in path.read_text()
+          ]
+          if missing_brand_font:
+              raise SystemExit(
+                  "HTML files missing the Space Mono brand font: "
+                  + ", ".join(missing_brand_font)
+              )
+
+          remote_logo_references = [
               str(path)
               for path in Path("docs").rglob("*")
               if path.is_file()
               and path.suffix in {".css", ".html"}
-              and any(host in path.read_text(errors="ignore") for host in forbidden_hosts)
+              and "images.ctfassets.net" in path.read_text(errors="ignore")
           ]
-          if external_critical_assets:
+          if remote_logo_references:
               raise SystemExit(
-                  "Docs contain external critical-path assets: "
-                  + ", ".join(external_critical_assets)
+                  "Docs contain remote logo references: "
+                  + ", ".join(remote_logo_references)
               )
           PY
 

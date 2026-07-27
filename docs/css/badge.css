@@ -392,7 +392,7 @@ h3 {
   background-image: url("../assets/temporal-symbol.svg");
   background-position: center;
   background-repeat: no-repeat;
-  background-size: cover;
+  background-size: 260%;
   box-shadow: none;
 }
 
