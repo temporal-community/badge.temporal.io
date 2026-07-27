@@ -171,6 +171,7 @@ jobs:
           mkdir -p "$HOME/.platformio/penv/bin"
           ln -sf "$(command -v pio)" "$HOME/.platformio/penv/bin/pio"
           ln -sf "$(command -v esptool)" "$HOME/.platformio/penv/bin/esptool"
+          ln -sf "$(command -v uv)" "$HOME/.platformio/penv/bin/uv"
 
       - name: Cache PlatformIO build objects
         if: steps.release_scope.outputs.should_build == 'true'
