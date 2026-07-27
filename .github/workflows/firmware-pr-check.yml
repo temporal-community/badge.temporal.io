@@ -43,10 +43,11 @@ jobs:
       - name: Install PlatformIO
         run: |
           python -m pip install --upgrade pip
-          python -m pip install platformio==6.1.19 uv
+          python -m pip install platformio==6.1.19 esptool uv
           mkdir -p "$HOME/.platformio/penv/bin"
           ln -sf "$(command -v python)" "$HOME/.platformio/penv/bin/python"
           ln -sf "$(command -v pio)" "$HOME/.platformio/penv/bin/pio"
+          ln -sf "$(command -v esptool)" "$HOME/.platformio/penv/bin/esptool"
           ln -sf "$(command -v uv)" "$HOME/.platformio/penv/bin/uv"
 
       - name: Run firmware tooling tests
