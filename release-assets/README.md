@@ -49,18 +49,26 @@ release.
 ## Publishing a release
 
 `firmware/VERSION` is the source of truth for the public firmware version.
-To publish a release, create and push a matching tag:
+To publish a release, bump that file to a stable semantic version such as
+`1.2.3` in a pull request. When the version bump lands on `main`, the release
+workflow derives the matching `v1.2.3` tag, builds and verifies every artifact,
+then creates the tag and GitHub Release at that exact merge commit.
+
+Pushing a matching `v*` tag remains available as a recovery or backfill path:
 
 ```sh
 git tag v$(tr -d '[:space:]' < firmware/VERSION)
 git push origin v$(tr -d '[:space:]' < firmware/VERSION)
 ```
 
-Pushing a `v*` tag runs the release workflow. Publishing a GitHub Release also
-runs it, and a manual workflow run can rebuild an existing tag. The workflow
-verifies the tag matches `firmware/VERSION`, builds `firmware.bin`, builds
-`replay2026-factory-16MB.bin`, generates `community_apps.json`, creates or
-updates the GitHub Release, and uploads all release assets.
+Publishing a GitHub Release also runs the workflow. A manual workflow run with
+the tag field left blank derives `v<firmware/VERSION>` and can bootstrap a
+version that was bumped before this automation existed; supplying a tag can
+rebuild an existing release. The workflow verifies the version and tag, refuses
+to move a conflicting existing tag during automatic publishing, builds
+`firmware.bin`, builds `replay2026-factory-16MB.bin`, generates
+`community_apps.json`, creates or updates the GitHub Release, and uploads all
+release assets.
 
 Release builds may skip when firmware, embedded data, Community Apps,
 release-assets docs, and the release workflow have not changed since the

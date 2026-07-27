@@ -8,21 +8,26 @@ name: release-firmware
 # filesystem, and firmware/initial_filesystem/doom1.wad.
 #
 # Triggers:
-#   - Automatically when a v* tag is pushed.
+#   - Automatically when firmware/VERSION changes on main.
+#   - Automatically when a v* tag is pushed (recovery/backfill path).
 #   - Automatically when a release is published.
 #   - Manually via the Actions tab (workflow_dispatch).
 
 on:
   push:
+    branches:
+      - main
     tags:
       - "v*"
+    paths:
+      - "firmware/VERSION"
   release:
     types: [published]
   workflow_dispatch:
     inputs:
       tag:
-        description: "Release tag to attach the asset to (must already exist)"
-        required: true
+        description: "Optional release tag; defaults to v<firmware/VERSION>"
+        required: false
       force_rebuild:
         description: "Build even if firmware release inputs have not changed since the previous v* tag"
         required: false
@@ -47,13 +52,23 @@ jobs:
         run: |
           case "${{ github.event_name }}" in
             push)
-              echo "tag=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+              if [ "${{ github.ref_type }}" = "branch" ]; then
+                firmware_version="$(tr -d '[:space:]' < firmware/VERSION)"
+                echo "tag=v${firmware_version}" >> "$GITHUB_OUTPUT"
+              else
+                echo "tag=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+              fi
               ;;
             release)
               echo "tag=${{ github.event.release.tag_name }}" >> "$GITHUB_OUTPUT"
               ;;
             workflow_dispatch)
-              echo "tag=${{ github.event.inputs.tag }}" >> "$GITHUB_OUTPUT"
+              if [ -n "${{ github.event.inputs.tag }}" ]; then
+                echo "tag=${{ github.event.inputs.tag }}" >> "$GITHUB_OUTPUT"
+              else
+                firmware_version="$(tr -d '[:space:]' < firmware/VERSION)"
+                echo "tag=v${firmware_version}" >> "$GITHUB_OUTPUT"
+              fi
               ;;
           esac
 
@@ -65,9 +80,22 @@ jobs:
           firmware_version="$(tr -d '[:space:]' < firmware/VERSION)"
           tag_version="${RELEASE_TAG#v}"
 
+          if ! [[ "$firmware_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::firmware/VERSION must be a stable semantic version such as 1.2.3; found '$firmware_version'."
+            exit 1
+          fi
+
           if [ "$tag_version" != "$firmware_version" ]; then
             echo "::error::Release tag '$RELEASE_TAG' does not match firmware/VERSION '$firmware_version'. Use tag v$firmware_version or $firmware_version."
             exit 1
+          fi
+
+          if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref_type }}" = "branch" ]; then
+            existing_tag_sha="$(git rev-list -n 1 "$RELEASE_TAG" 2>/dev/null || true)"
+            if [ -n "$existing_tag_sha" ] && [ "$existing_tag_sha" != "$GITHUB_SHA" ]; then
+              echo "::error::Release tag '$RELEASE_TAG' already points to '$existing_tag_sha', not this commit '$GITHUB_SHA'."
+              exit 1
+            fi
           fi
 
           echo "version=${firmware_version}" >> "$GITHUB_OUTPUT"
@@ -87,7 +115,7 @@ jobs:
             printf 'cd ignition\n'
             printf './start.sh --latest-release\n'
             printf '```\n\n'
-            printf 'Use `./start.sh --release-tag %s` to pin this release, or `./start.sh --no-build --factory-image ~/Downloads/replay2026-factory-16MB.bin` for a manually downloaded image.\n\n' "$tag"
+            printf 'Use `./start.sh --release-tag %s` to pin this release, or `./start.sh --no-build --factory-image ~/Downloads/replay2026-factory-16MB.bin` for a manually downloaded image.\n\n' "$RELEASE_TAG"
             printf 'Developers can also build and flash from `firmware/` with PlatformIO using the `replay2026` environment.\n\n'
             printf '### Notes\n\n'
             printf -- '- `doom1.wad` is freely redistributable shareware game data with separate terms; it is not MIT-licensed source code.\n'
@@ -242,6 +270,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.tag.outputs.tag }}
+          target_commitish: ${{ github.sha }}
           name: Replay 2026 Badge v${{ steps.release.outputs.version }}
           body_path: artifacts/release/release-notes.md
           files: |
